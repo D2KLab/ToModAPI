@@ -8,6 +8,7 @@ RUN apt-get install python3 -y
 RUN apt-get install python3-pip -y
 RUN apt-get install default-jre -y
 
+
 COPY req.txt req.txt
 RUN pip3 install -r req.txt
 

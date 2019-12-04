@@ -7,6 +7,11 @@ import numpy as np
 import requests
 from threading import Semaphore
 from scipy.sparse import coo_matrix
+from modules.doc2topic import models, corpora
+import warnings
+
+
+
 
 # Function to remove specified tokens from a string
 def remove_tokens(x, tok2remove):
@@ -20,9 +25,12 @@ vocab = word2vecmodel.wv.vocab
 
 class tfidf:
 
-	# Load saved model
 	def __init__(self):
-		with open('/app/test/tfidf/tfidf.pkl', "rb") as input_file:
+		self.model = None
+
+	# Load saved model
+	def load(self):
+		with open('/app/models/tfidf/tfidf.pkl', "rb") as input_file:
 			self.model = pickle.load(input_file)
 
 	# Perform Inference
@@ -84,7 +92,7 @@ class tfidf:
 		self.model.fit(text)
 
 		# Save the new model
-		with open('/app/test/tfidf/tfidf.pkl', 'wb') as output:
+		with open('/app/models/tfidf/tfidf.pkl', 'wb') as output:
 			pickle.dump(self.model, output, pickle.HIGHEST_PROTOCOL)
 
 		return 'success'
@@ -105,7 +113,7 @@ class tfidf:
 				max_similarity.append(0)
 				# Calculate the maximum similarity among the tags
 				for tag in tags.split(','):
-						if tag in vocab:
+						if tag in vocab and 'ted' not in tag.lower():
 							similarity= weight*word2vecmodel.similarity(word,tag)
 							if similarity > max_similarity[word_id]:
 								max_similarity[word_id] = similarity
@@ -120,12 +128,15 @@ class tfidf:
 
 class lda:
 
-	# Load saved model
 	def __init__(self):
-		with open('/app/test/lda/lda.pkl', "rb") as input_file:
+		self.model = None
+
+	# Load saved model
+	def load(self):
+		with open('/app/models/lda/lda.pkl', "rb") as input_file:
 			self.model = pickle.load(input_file)
-		self.model.mallet_path = '/app/jupyter_notebooks/notebooks/mallet-2.0.8/bin/mallet'
-		self.model.prefix = '/app/jupyter_notebooks/notebooks/mallet-dep/'
+		self.model.mallet_path = '/app/modules/mallet-2.0.8/bin/mallet'
+		self.model.prefix = '/app/modules/mallet-dep/'
 
 	# Perform Inference
 	def predict(self, doc, topn = 5):
@@ -179,8 +190,8 @@ class lda:
 		corpus = [id2word.doc2bow(doc) for doc in tokens]
 
 		# Train the model
-		mallet_path = '/app/jupyter_notebooks/notebooks/mallet-2.0.8/bin/mallet'
-		prefix = '/app/jupyter_notebooks/notebooks/mallet-dep/'
+		mallet_path = '/app/modules/mallet-2.0.8/bin/mallet'
+		prefix = '/app/modules/mallet-dep/'
 		self.model = gensim.models.wrappers.LdaMallet(mallet_path,
 			corpus=corpus,
 			num_topics=num_topics,
@@ -193,7 +204,7 @@ class lda:
 			topic_threshold=topic_threshold)
 
 		# Save the model
-		with open('/app/test/lda/lda.pkl', 'wb') as output:
+		with open('/app/models/lda/lda.pkl', 'wb') as output:
 			pickle.dump(self.model, output, pickle.HIGHEST_PROTOCOL)
 
 		return 'success'
@@ -270,7 +281,7 @@ class lda:
 						max_similarity.append(0)
 						# Get max similarity with tags
 						for tag in tags.split(' '):
-								if tag in vocab:
+								if tag in vocab and 'ted' not in tag.lower():
 									similarity = weight*word2vecmodel.similarity(word,tag)
 									if similarity > max_similarity[word_id]:
 										max_similarity[word_id] = similarity
@@ -303,8 +314,8 @@ class lftm:
 
 	def predict(self,
 		doc,
-		initer = 50,
-		niter = 5,
+		initer = 1,
+		niter = 1,
 		topn = 20,
 		name = 'TEDLFLDAinf'):
 		'''
@@ -314,25 +325,27 @@ class lftm:
 			topn: number of the most probable topical words
 			name: prefix of the inference documents
 		'''
-		file = open('/app/test/lftm/doc.txt', "w")
+		file = open('/app/data/doc.txt', "w")
 		file.write(doc)
 		file.close()
 
 		
 		# Perform Inference
-		completedProc = subprocess.run('java -jar jar/LFTM.jar -model {} -paras {} -corpus {} -initers {} -niters {} -twords {} -name {} -sstep {}'.format(
+		completedProc = subprocess.run('java -jar /app/modules/lftm/jar/LFTM.jar -model {} -paras {} -corpus {} -initers {} -niters {} -twords {} -name {} -sstep {}'.format(
 			'LFLDAinf',
-			'TEDLFLDA.paras',
-			'doc.txt',
+			'/app/models/lftm/TEDLFLDA.paras',
+			'/app/data/doc.txt',
 			str(initer),
 			str(niter),
 			str(topn),
 			name,
-			'0'), cwd='/app/test/lftm/', shell = True)
+			'0'), cwd='/app/models/lftm/', shell = True)
+
+		os.system('mv /app/data/TEDLFLDAinf.* /app/models/lftm/')
 
 		print(completedProc.returncode)
 
-		file = open('/app/test/lftm/TEDLFLDAinf.theta', "r")
+		file = open('/app/models/lftm/TEDLFLDAinf.theta', "r")
 		doc_topic_dist = file.readline()
 		file.close()
 
@@ -387,16 +400,16 @@ class lftm:
 
 		text = [remove_tokens(doc,tok2remove) for doc in text]
 
-		file = open('/app/test/lftm/data.txt', "w")
+		file = open('/app/data/data_glove.txt', "w")
 		for doc in text:
 			file.write(doc+'\n') 
 		file.close()
 
 
-		completedProc = subprocess.run('java -jar jar/LFTM.jar -model {} -corpus {} -vectors {} -ntopics {} -alpha {} -beta {} -lambda {} -initers {} -niters {} -twords {} -name {} -sstep {}'.format(
+		completedProc = subprocess.run('java -jar /app/modules/lftm/jar/LFTM.jar -model {} -corpus {} -vectors {} -ntopics {} -alpha {} -beta {} -lambda {} -initers {} -niters {} -twords {} -name {} -sstep {}'.format(
 			'LFLDA',
-			'/app/test/lftm/data.txt',
-			'glove.6B.50d.txt',
+			'/app/data/data_glove.txt',
+			'/app/data/glove.6B.50d.txt',
 			str(ntopics),
 			str(alpha),
 			str(beta),
@@ -405,7 +418,9 @@ class lftm:
 			str(niter),
 			str(topn),
 			'TEDLFLDA',
-			'0'), cwd='/app/test/lftm/', shell = True)
+			'0'), cwd='/app/models/lftm/', shell = True)
+
+		os.system('mv /app/data/TEDLFLDA.* /app/models/lftm/')
 
 		print(completedProc.returncode)
 
@@ -413,7 +428,7 @@ class lftm:
 
 	# Extract topics
 	def topics(self):
-		file1 = open('/app/test/lftm/TEDLFLDA.topWords')
+		file1 = open('/app/models/lftm/TEDLFLDA.topWords')
 		topics = {}
 		i = 0
 		while True:
@@ -430,8 +445,8 @@ class lftm:
 
 	# Evaluate the model on a corpus
 	def evaluate(self, tagspath = '/app/data/tags.txt', topn = 5):
-		file1 = open('/app/test/lftm/TEDLFLDA.topWords')
-		file2 = open('/app/test/lftm/TEDLFLDA.theta')
+		file1 = open('/app/models/lftm/TEDLFLDA.topWords')
+		file2 = open('/app/models/lftm/TEDLFLDA.theta')
 		file3 = open(tagspath)
 
 		# Prepare Topics
@@ -476,7 +491,7 @@ class lftm:
 						max_similarity.append(0)
 						# Compute the maximum similarity with tags
 						for tag in tags.split(' '):
-								if tag in vocab:
+								if tag in vocab and 'ted' not in tag.lower():
 									similarity = word2vecmodel.similarity(word,tag)
 									if similarity > max_similarity[word_id]:
 										max_similarity[word_id] = similarity
@@ -495,3 +510,54 @@ class lftm:
 
 		print(score)
 		return score
+
+class ntm:
+
+	def __init__(self):
+		pass
+
+	def load(self):
+		self.model = models.Doc2Topic()
+		self.model.load(filename = '/app/models/ntm/ntm')
+
+	def topics(self):
+		topics = self.model.get_topic_words()
+		print(topics)
+		json_topics = {}
+
+		for i, topic in topics.items():
+			json_topics[str(i)] = {}
+
+			for word, weight in topic:
+				json_topics[str(i)][word] = float(weight)
+
+		return json_topics
+
+	def train(self,
+		datapath = '/app/data/data.txt',
+		n_topics=35, 
+		batch_size=1024*6,
+		n_epochs=20, 
+		lr=0.05, 
+		l1_doc=0.000002, 
+		l1_word=0.000000015, 
+		word_dim=None, 
+		generator=None):
+
+
+		warnings.filterwarnings("ignore")
+
+		models.init_tf_memory()
+
+		data = corpora.DocData(datapath)
+
+		self.model = models.Doc2Topic()
+
+		self.model.build(data, n_topics=n_topics, batch_size=batch_size, n_epochs=n_epochs, lr=lr, l1_doc=l1_doc, l1_word=l1_word, word_dim=word_dim, generator=generator)
+
+		fmeasure = self.model.history.history['fmeasure'][-1]
+		loss = self.model.history.history['loss'][-1]
+
+		self.model.save('/app/models/ntm/ntm')
+
+		return 'success', fmeasure, loss
