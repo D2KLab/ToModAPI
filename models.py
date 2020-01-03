@@ -8,6 +8,7 @@ import requests
 from threading import Semaphore
 from scipy.sparse import coo_matrix
 from modules.doc2topic import models, corpora
+from modules.gsdmm import MovieGroupProcess
 import warnings
 
 
@@ -136,7 +137,7 @@ class lda:
 		with open('/app/models/lda/lda.pkl', "rb") as input_file:
 			self.model = pickle.load(input_file)
 		self.model.mallet_path = '/app/modules/mallet-2.0.8/bin/mallet'
-		self.model.prefix = '/app/modules/mallet-dep/'
+		self.model.prefix = '/app/models/mallet-dep/'
 
 	# Perform Inference
 	def predict(self, doc, topn = 5):
@@ -158,8 +159,9 @@ class lda:
 		datapath = '/app/data/data.txt',
 		num_topics = 35,
 		alpha = 50,
+		random_seed = 5,
 		iterations = 500,
-		optimize_interval=0,
+		optimize_interval=10,
 		topic_threshold=0.0):
 		'''
 			datapath: path to training data text file
@@ -186,18 +188,19 @@ class lda:
 		tokens = [doc.split() for doc in text]
 
 		id2word = gensim.corpora.Dictionary(tokens)
+		id2word.filter_n_most_frequent(20)
 		
 		corpus = [id2word.doc2bow(doc) for doc in tokens]
 
 		# Train the model
 		mallet_path = '/app/modules/mallet-2.0.8/bin/mallet'
-		prefix = '/app/modules/mallet-dep/'
+		prefix = '/app/models/mallet-dep/'
 		self.model = gensim.models.wrappers.LdaMallet(mallet_path,
 			corpus=corpus,
 			num_topics=num_topics,
 			alpha=alpha,
 			id2word=id2word,
-			random_seed = 1,
+			random_seed = random_seed,
 			prefix=prefix,
 			iterations = iterations,
 			optimize_interval=optimize_interval,
@@ -210,19 +213,71 @@ class lda:
 		return 'success'
 
 	# Get topic-word distribution
-	def topics(self):
+	def topics(self, datapath = '/app/data/data.txt'):
+
+		# Load data
+		text = []
+		i = 0
+		with open(datapath,"r+") as datafile:
+			while True:
+				vec = datafile.readline()
+
+				if not vec:
+					break
+
+				text.append(vec.split())
+
+				i+=1
+				if i == 80000:
+					break
+
+		print(i," Docs Loaded.")
 
 		json_topics = {}
 
+		topic_words = []
+
 		for i in range(0, self.model.num_topics-1):
 
-			topic_words = []
-			topic = self.model.show_topic(i, topn = 5)
-
 			json_topics[str(i)] = {}
+			json_topics[str(i)]['words'] = {}
+			topic_words.append([])
+			for word, weight in self.model.show_topic(i, topn = 10):
+				json_topics[str(i)]['words'][word] = weight
+				topic_words[-1].append(word)
 
-			for word, weight in topic:
-				json_topics[str(i)][word] = weight
+		
+
+		dictionary = gensim.corpora.hashdictionary.HashDictionary(text)
+
+		print("Dictionary Created.")
+
+		print(topic_words)
+
+		while True:
+			try:
+
+				coherence_model = gensim.models.coherencemodel.CoherenceModel(topics = topic_words, texts = text, dictionary = dictionary, coherence='c_v')
+				print("Coherence Created.")
+
+				coherence_per_topic = coherence_model.get_coherence_per_topic()
+
+				print("Coherence Computed")
+
+				for i in range(len(topic_words)):
+					json_topics[str(i)]['c_v'] = coherence_per_topic[i]
+
+				json_topics['c_v'] = np.nanmean(coherence_per_topic)
+				json_topics['c_v_std'] = np.nanstd(coherence_per_topic)
+
+				break
+
+			except KeyError as e:
+				key = str(e)[1:-1]
+				print(key)
+				for i in range(len(topic_words)):
+					if key in topic_words[i]:
+						topic_words[i].remove(key)
 
 		return json_topics
 
@@ -316,7 +371,7 @@ class lftm:
 		doc,
 		initer = 1,
 		niter = 1,
-		topn = 20,
+		topn = 10,
 		name = 'TEDLFLDAinf'):
 		'''
 			doc: the document on which to make the inference
@@ -427,20 +482,67 @@ class lftm:
 		return 'success'
 
 	# Extract topics
-	def topics(self):
+	def topics(self, datapath = '/app/data/data.txt'):
+
 		file1 = open('/app/models/lftm/TEDLFLDA.topWords')
-		topics = {}
+		json_topics = {}
+		topics = []
 		i = 0
 		while True:
 			words = file1.readline()
 			if not words:
 				break
 			if words !='\n':
-				print()
-				topics[str(i)] = [w for w in words[words.index(':')+2:].split()]
+				json_topics[str(i)] = {}
+				json_topics[str(i)]['words'] = [w for w in words[words.index(':')+2:].split()]
+				topics.append(json_topics[str(i)]['words'])
 				i+=1
 
-		return topics
+		text = []
+		i = 0
+		with open(datapath,"r+") as f:
+			for vec in f:
+
+				text.append(vec.split())
+				i+=1
+				if i == 80000:
+					break
+
+
+		print(i," Docs Loaded.")
+
+		dictionary = gensim.corpora.hashdictionary.HashDictionary(text)
+
+		print("Dictionary Created.")
+
+		print(topics)
+
+		while True:
+			try:
+
+				coherence_model = gensim.models.coherencemodel.CoherenceModel(topics = topics, texts = text, dictionary = dictionary, coherence='c_v')
+				print("Coherence Created.")
+
+				coherence_per_topic = coherence_model.get_coherence_per_topic()
+
+				print("Coherence Computed")
+
+				for i in range(len(topics)):
+					json_topics[str(i)]['c_v'] = coherence_per_topic[i]
+
+				json_topics['c_v'] = np.nanmean(coherence_per_topic)
+				json_topics['c_v_std'] = np.nanstd(coherence_per_topic)
+
+				break
+
+			except KeyError as e:
+				key = str(e)[1:-1]
+				print(key)
+				for i in range(len(topics)):
+					if key in topics[i]:
+						topics[i].remove(key)
+
+		return json_topics
 
 
 	# Evaluate the model on a corpus
@@ -520,16 +622,73 @@ class ntm:
 		self.model = models.Doc2Topic()
 		self.model.load(filename = '/app/models/ntm/ntm')
 
-	def topics(self):
+	def topics(self, datapath = '/app/data/data.txt'):
+
+		# Load data
+		text = []
+		i = 0
+		with open(datapath,"r+") as datafile:
+			while True:
+				vec = datafile.readline()
+
+				if not vec:
+					break
+
+				text.append(vec.split())
+
+				i+=1
+				if i == 80000:
+					break
+
+		print(i," Docs Loaded.")
+
 		topics = self.model.get_topic_words()
-		print(topics)
+		
 		json_topics = {}
+
+		topic_words = []
 
 		for i, topic in topics.items():
 			json_topics[str(i)] = {}
-
+			json_topics[str(i)]['words'] = {}
+			topic_words.append([])
 			for word, weight in topic:
-				json_topics[str(i)][word] = float(weight)
+				json_topics[str(i)]['words'][word] = float(weight)
+				topic_words[-1].append(word)
+
+
+		dictionary = gensim.corpora.hashdictionary.HashDictionary(text)
+
+		print("Dictionary Created.")
+		
+		print(topic_words)
+		
+		while True:
+			try:
+
+				coherence_model = gensim.models.coherencemodel.CoherenceModel(topics = topic_words, texts = text, dictionary = dictionary, coherence='c_v')
+				print("Coherence Created.")
+
+				coherence_per_topic = coherence_model.get_coherence_per_topic()
+
+				print("Coherence Computed")
+
+				for i in range(len(topics)):
+					json_topics[str(i)]['c_v'] = coherence_per_topic[i]
+
+				json_topics['c_v'] = np.nanmean(coherence_per_topic)
+				json_topics['c_v_std'] = np.nanstd(coherence_per_topic)
+
+				print("Coherence Computed")
+
+				break
+
+			except KeyError as e:
+				key = str(e)[1:-1]
+				print(key)
+				for i in range(len(topic_words)):
+					if key in topic_words[i]:
+						topic_words[i].remove(key)
 
 		return json_topics
 
@@ -561,3 +720,117 @@ class ntm:
 		self.model.save('/app/models/ntm/ntm')
 
 		return 'success', fmeasure, loss
+
+class gsdmm:
+
+	def __init__(self):
+		pass
+
+	def load(self):
+		with open('/app/models/gsdmm/gsdmm.pkl', "rb") as input_file:
+			self.model = pickle.load(input_file)
+
+	def topics(self, datapath = '/app/data/data.txt'):
+
+		# Load data
+		text = []
+		i = 0
+		with open(datapath,"r+") as datafile:
+			while True:
+				vec = datafile.readline()
+
+				if not vec:
+					break
+
+				text.append(vec.split())
+
+				i+=1
+				if i == 80000:
+					break
+
+		print(i," Docs Loaded.")
+
+		json_topics = {}
+
+		topic_words = []
+
+		for i, topic in enumerate(self.model.cluster_word_distribution):
+
+			json_topics[str(i)] = {}
+			json_topics[str(i)]['words'] = {}
+			topic_words.append([])
+			total = sum(topic.values())
+			for word, freq in sorted(topic.items(), key=lambda item: item[1], reverse = True)[:10]:
+				json_topics[str(i)]['words'][word] = freq/total
+				topic_words[-1].append(word)
+
+		
+
+		dictionary = gensim.corpora.hashdictionary.HashDictionary(text)
+
+		print("Dictionary Created.")
+
+		print(topic_words)
+
+		while True:
+			try:
+
+				coherence_model = gensim.models.coherencemodel.CoherenceModel(topics = topic_words, texts = text, dictionary = dictionary, coherence='c_v')
+				print("Coherence Created.")
+
+				coherence_per_topic = coherence_model.get_coherence_per_topic()
+
+				print("Coherence Computed")
+
+				for i in range(len(topic_words)):
+					json_topics[str(i)]['c_v'] = coherence_per_topic[i]
+
+				json_topics['c_v'] = np.nanmean(coherence_per_topic)
+				json_topics['c_v_std'] = np.nanstd(coherence_per_topic)
+
+				break
+
+			except KeyError as e:
+				key = str(e)[1:-1]
+				print(key)
+				for i in range(len(topic_words)):
+					if key in topic_words[i]:
+						topic_words[i].remove(key)
+
+		return json_topics
+
+	def train(self,
+		datapath = '/app/data/data.txt',
+		n_topics=35, 
+		alpha=0.1,
+		beta=0.1, 
+		n_iter=15):
+
+		# Build the model
+		self.model = MovieGroupProcess(K=n_topics, alpha=alpha, beta=beta, n_iters=n_iter)
+
+		# Load data
+		text = []
+		with open(datapath,"r+") as datafile:
+			while True:
+				vec = datafile.readline()
+
+				if not vec:
+					break
+
+				text.append(vec)
+
+		# Transform documents
+		tokens = [doc.split() for doc in text]
+
+		id2word = gensim.corpora.Dictionary(tokens)
+
+		# Fit the model
+		self.model.fit(tokens, len(id2word))
+
+		# Save the new model
+		with open('/app/models/gsdmm/gsdmm.pkl', 'wb') as output:
+			pickle.dump(self.model, output, pickle.HIGHEST_PROTOCOL)
+
+		return 'success'
+

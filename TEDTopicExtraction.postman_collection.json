@@ -91,7 +91,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"datapath\": \"/app/data/data.txt\",\n  \"num_topics\": \"30\",\n  \"alpha\": \"1\",\n  \"iterations\": \"500\",\n  \"optimize_interval\": \"0\",\n  \"topic_threshold\": \"0.1\"\n}",
+					"raw": "{\n  \"datapath\": \"/app/data/data.txt\",\n  \"num_topics\": \"30\",\n  \"alpha\": \"0.1\",\n  \"random_seed\": 5,\n  \"iterations\": \"1500\",\n  \"optimize_interval\": \"10\",\n  \"topic_threshold\": \"0\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -163,7 +163,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"datapath\": \"/app/data/data.txt\",\n  \"ntopics\": \"35\",\n  \"alpha\": \"0.1\",\n  \"beta\": \"0.1\",\n  \"lambda\": \"1\",\n  \"initer\": \"50\",\n  \"niter\": \"5\",\n  \"topn\": \"5\"\n}",
+					"raw": "{\n  \"datapath\": \"/app/data/data.txt\",\n  \"ntopics\": \"25\",\n  \"alpha\": \"0.1\",\n  \"beta\": \"0.1\",\n  \"lambda\": \"1\",\n  \"initer\": \"700\",\n  \"niter\": \"100\",\n  \"topn\": \"10\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -235,7 +235,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"datapath\" : \"/app/data/data.txt\",\n\t\"n_topics\":\"32\", \n\t\"batch_size\":\"6144\",\n\t\"n_epochs\":\"1\", \n\t\"lr\": \"0.05\", \n\t\"l1_doc\":\"0.000002\", \n\t\"l1_word\":\"0.000000015\", \n\t\"word_dim\":\"0\"\n}",
+					"raw": "{\n\t\"datapath\" : \"/app/data/data.txt\",\n\t\"n_topics\":\"25\", \n\t\"batch_size\":\"6144\",\n\t\"n_epochs\":\"50\", \n\t\"lr\": \"0.05\", \n\t\"l1_doc\":\"0.000002\", \n\t\"l1_word\":\"0.000000015\", \n\t\"word_dim\":\"0\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -251,6 +251,42 @@
 					"path": [
 						"api",
 						"ntm",
+						"train"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GSDMM TRAIN",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"datapath\": \"/app/data/20NG.txt\",\n  \"num_topics\": \"20\",\n  \"alpha\": \"0.1\",\n  \"beta\": \"0.1\",\n  \"n_iter\": \"2\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:5000/api/gsdmm/train",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"gsdmm",
 						"train"
 					]
 				}
@@ -346,6 +382,26 @@
 					"path": [
 						"api",
 						"ntm",
+						"topics"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GSDMM TOPICS",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:5000/api/gsdmm/topics",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"gsdmm",
 						"topics"
 					]
 				}

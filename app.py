@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request, abort, make_response
 from corpus import retrieve_prepare_subtitles, retrieve_prepare_tags
-from models import tfidf, lda, lftm, ntm
+from models import tfidf, lda, lftm, ntm, gsdmm
 import time
 
 app = Flask(__name__)
@@ -118,6 +118,18 @@ def get_topics_ntm():
 	# Return results
 	return jsonify({'time' : dur, 'topics': topics})
 
+@app.route('/api/gsdmm/topics', methods=['GET'])
+def get_topics_gsdmm():
+	start = time.time()
+	# Load the model
+	model = gsdmm()
+	model.load()
+	# Retrieve topics
+	topics = model.topics()
+	dur = time.time() - start
+	# Return results
+	return jsonify({'time' : dur, 'topics': topics})
+
 
 #################################################################
 #							TRAINING							#
@@ -146,7 +158,8 @@ def train_lda():
 	# Train model
 	results = model.train(request.json['datapath'],
 		int(request.json['num_topics']),
-		int(request.json['alpha']),
+		float(request.json['alpha']),
+		int(request.json['random_seed']),
 		int(request.json['iterations']),
 		int(request.json['optimize_interval']),
 		float(request.json['topic_threshold']))
@@ -190,6 +203,21 @@ def train_ntm():
 	# return result
 	return jsonify({'time' : dur, 'result':results[0], 'fmeasure':str(results[1]), 'loss': str(results[2])})
 
+@app.route('/api/gsdmm/train', methods=['POST'])
+def train_gsdmm():
+	start = time.time()
+	# Load model
+	model = gsdmm()
+	# Train model
+	results = model.train(request.json['datapath'],
+		int(request.json['num_topics']),
+		float(request.json['alpha']),
+		float(request.json['beta']),
+		int(request.json['n_iter']))
+	dur = time.time() - start
+	# Return results
+	return jsonify({'time' : dur, 'result':results})
+
 #################################################################
 #							EVALUATION							#
 #################################################################
@@ -218,4 +246,4 @@ def eval_lftm():
 	return jsonify({'time' : dur, 'score':score})
 
 if __name__ == '__main__':
-	app.run(debug=True)
+	app.run(debug=True, threaded=True)
