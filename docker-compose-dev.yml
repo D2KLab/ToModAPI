@@ -1,0 +1,14 @@
+version: "2"
+services:
+  topic-extract-dev:
+    container_name: topic_extract_dev
+    build:
+      context: app/
+      dockerfile: deployment/dev/Dockerfile
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./app:/app
+      - ./models:/app/models
+      - ./data:/app/data
+    restart: always

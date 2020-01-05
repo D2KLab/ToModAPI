@@ -129,7 +129,9 @@ dmypy.json
 .pyre/
 
 # models and data
-./data/*
-./models/*
-./tests/*
-./modules/mallet-dep/*
+data/*
+tests/
+
+!data/data.txt
+!data/data_glove.txt
+!data/glovetokens.pkl

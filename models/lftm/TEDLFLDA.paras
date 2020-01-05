@@ -1,0 +1,11 @@
+-model	LFLDA
+-corpus	/app/data/data_glove.txt
+-vectors	/app/data/glove.6B.50d.txt
+-ntopics	25
+-alpha	0.1
+-beta	0.1
+-lambda	1.0
+-initers	700
+-niters	100
+-twords	10
+-name	TEDLFLDA
