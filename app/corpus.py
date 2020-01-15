@@ -7,6 +7,7 @@ import gensim
 # Download stop words and wordnet for data cleaning and prepocessing
 nltk.download('stopwords')
 nltk.download('wordnet')
+lem = nltk.stem.WordNetLemmatizer()
 
 def retrieve_prepare_subtitles(url):
     # Extract video title
@@ -42,6 +43,16 @@ def retrieve_prepare_subtitles(url):
         # Return subtitles
         return transcript
     return 'not found'
+
+def prepare_subtitles(text):
+    text = re.sub(r'\((.*?)\)', ' ', text)
+    text = re.sub(r'\d+', '', text)
+    text = nltk.tokenize.RegexpTokenizer(r'\w+').tokenize(text.lower())
+    text = [w for w in text if w not in nltk.corpus.stopwords.words('english')]
+    text = [lem.lemmatize(w) for w in text]
+    text = [w for w in text if len(w)>=3]
+    text = ' '.join(text)
+    return text
 
 
 def retrieve_prepare_tags(url):

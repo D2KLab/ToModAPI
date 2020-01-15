@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request, abort, make_response
-from corpus import retrieve_prepare_subtitles, retrieve_prepare_tags
+from corpus import retrieve_prepare_subtitles, retrieve_prepare_tags, prepare_subtitles
 from models import tfidf, lda, lftm, ntm, gsdmm
 import time
 
@@ -39,9 +39,9 @@ def extract_topics_tfidf():
 def extract_topics_lda():
 	start = time.time()
 	# Extract request body parameters
-	subtitles = retrieve_prepare_subtitles(request.json['url'])
-	if 'not found' == subtitles:
-		return jsonify({'error':'video could not be retreived'})
+	subtitles = prepare_subtitles(request.json['text'])
+	# if 'not found' == subtitles:
+	# 	return jsonify({'error':'video could not be retreived'})
 	# Load the model
 	model = lda()
 	model.load()
