@@ -138,7 +138,7 @@ On [localhost:5000/api/tfidf/train](localhost:5000/api/tfidf/train) with this bo
 
 ### Inference
 
-Training is performed using **POST** requests on specific endpoints:
+Inference is performed using **POST** requests on specific endpoints:
 
 [localhost:5000/api/tfidf/predict](localhost:5000/api/tfidf/predict)
 
@@ -155,7 +155,7 @@ Training is performed using **POST** requests on specific endpoints:
 with the same body:
 
     {
-      "url": "https://www.ted.com/talks/brandon_clifford_architectural_secrets_of_the_world_s_ancient_wonders"
+      "text": "Text Here"
     }
 
 ### Topic Distribution
@@ -173,7 +173,7 @@ To retrieve the **topic-word** distribution from each topic model. Use the **GET
 
 ### Topic Distribution and Coherence Evaluation
 
-To retrieve the **topic-word** distribution from each topic model. Use the POST requests on endpoints:
+To retrieve the **topic-word** distribution from each topic model. Use the **POST** requests on endpoints:
 
 [localhost:5000/api/lda/coherence](localhost:5000/api/lda/coherence)
 
