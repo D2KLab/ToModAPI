@@ -218,7 +218,6 @@ class lda:
 
 		# Load data
 		text = []
-		i = 0
 		with open(datapath,"r+") as datafile:
 			while True:
 				vec = datafile.readline()
@@ -228,11 +227,7 @@ class lda:
 
 				text.append(vec.split())
 
-				i+=1
-				if i == 80000:
-					break
-
-		print(i," Docs Loaded.")
+		print("Docs Loaded.")
 
 		json_topics = {}
 
@@ -525,17 +520,13 @@ class lftm:
 				i+=1
 
 		text = []
-		i = 0
 		with open(datapath,"r+") as f:
 			for vec in f:
 
 				text.append(vec.split())
-				i+=1
-				if i == 80000:
-					break
 
 
-		print(i," Docs Loaded.")
+		print("Docs Loaded.")
 
 		dictionary = gensim.corpora.hashdictionary.HashDictionary(text)
 
@@ -675,7 +666,6 @@ class ntm:
 
 		# Load data
 		text = []
-		i = 0
 		with open(datapath,"r+") as datafile:
 			while True:
 				vec = datafile.readline()
@@ -685,11 +675,7 @@ class ntm:
 
 				text.append(vec.split())
 
-				i+=1
-				if i == 80000:
-					break
-
-		print(i," Docs Loaded.")
+		print("Docs Loaded.")
 
 		topics = self.model.get_topic_words()
 		
@@ -798,7 +784,6 @@ class gsdmm:
 
 		# Load data
 		text = []
-		i = 0
 		with open(datapath,"r+") as datafile:
 			while True:
 				vec = datafile.readline()
@@ -807,10 +792,6 @@ class gsdmm:
 					break
 
 				text.append(vec.split())
-
-				i+=1
-				if i == 80000:
-					break
 
 		print(i," Docs Loaded.")
 
