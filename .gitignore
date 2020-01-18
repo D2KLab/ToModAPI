@@ -133,5 +133,5 @@ data/*
 tests/
 
 !data/data.txt
-!data/data_glove.txt
+!data/lftm/*
 !data/glovetokens.pkl

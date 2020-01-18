@@ -57,9 +57,10 @@ class tfidf:
 	
 		# Create a tuples of feature,score
 		# Results = zip(feature_vals,score_vals)
-		results= {}
+		results= []
 		for idx in range(len(feature_vals)):
-			results[feature_vals[idx]]=score_vals[idx]
+			# results[feature_vals[idx]]=score_vals[idx]
+			results.append(feature_vals[idx]);
 
 		return results
 
@@ -148,9 +149,9 @@ class lda:
 		# Get topic distribution
 		doc_topic_dist = self.model[doc]
 		# Sort to get the top n topics
-		sorted_doc_topic_dist = sorted(doc_topic_dist, key=lambda kv: kv[1], reverse=True)[:topn]
+		# sorted_doc_topic_dist = 
 		# Structure the results into a dictionary
-		results = {topic:weight for topic, weight in sorted_doc_topic_dist}
+		results = [{topic:weight} for topic, weight in sorted(doc_topic_dist, key=lambda kv: kv[1], reverse=True)[:topn]]
 		# Return results
 		return results
 
@@ -237,7 +238,7 @@ class lda:
 
 		topic_words = []
 
-		for i in range(0, self.model.num_topics-1):
+		for i in range(0, self.model.num_topics):
 
 			json_topics[str(i)] = {}
 			json_topics[str(i)]['words'] = {}
@@ -288,12 +289,12 @@ class lda:
 
 		topic_words = []
 
-		for i in range(0, self.model.num_topics-1):
+		for i in range(0, self.model.num_topics):
 
 			json_topics[str(i)] = {}
-			json_topics[str(i)]['words'] = {}
+			json_topics[str(i)]['words'] = []
 			for word, weight in self.model.show_topic(i, topn = 10):
-				json_topics[str(i)]['words'][word] = weight
+				json_topics[str(i)]['words'].append(word)
 
 		return json_topics
 
@@ -391,7 +392,7 @@ class lftm:
 	def predict(self,
 		doc,
 		initer = 500,
-		niter = 5,
+		niter = 0,
 		topn = 10,
 		name = 'TEDLFLDAinf'):
 		'''
@@ -401,7 +402,13 @@ class lftm:
 			topn: number of the most probable topical words
 			name: prefix of the inference documents
 		'''
-		file = open('/app/data/doc.txt', "w")
+
+		with open('/app/data/glovetokens.pkl', "rb") as input_file:
+			glovetokens = pickle.load(input_file)
+
+		doc = ' '.join([word for word in doc.split() if word in glovetokens])
+
+		file = open('/app/data/lftm/doc.txt', "w")
 		file.write(doc)
 		file.close()
 
@@ -409,25 +416,25 @@ class lftm:
 		# Perform Inference
 		completedProc = subprocess.run('java -jar /app/modules/lftm/jar/LFTM.jar -model {} -paras {} -corpus {} -initers {} -niters {} -twords {} -name {} -sstep {}'.format(
 			'LFLDAinf',
-			'/app/models/lftm/TEDLFLDA.paras',
-			'/app/data/doc.txt',
+			'/app/data/lftm/TEDLFLDA.paras',
+			'/app/data/lftm/doc.txt',
 			str(initer),
 			str(niter),
 			str(topn),
 			name,
-			'0'), cwd='/app/models/lftm/', shell = True)
+			'0'), shell = True)
 
-		os.system('mv /app/data/TEDLFLDAinf.* /app/models/lftm/')
+		# os.system('mv /app/data/TEDLFLDAinf.* /app/models/lftm/')
 
 		print(completedProc.returncode)
 
-		file = open('/app/models/lftm/TEDLFLDAinf.theta', "r")
+		file = open('/app/data/lftm/TEDLFLDAinf.theta', "r")
 		doc_topic_dist = file.readline()
 		file.close()
 
 		doc_topic_dist = [(topic,float(weight)) for topic, weight in enumerate(doc_topic_dist.split())]
-		sorted_doc_topic_dist = sorted(doc_topic_dist, key=lambda kv: kv[1], reverse=True)[:10]
-		results = {topic:weight for topic, weight in sorted_doc_topic_dist}
+		sorted_doc_topic_dist = sorted(doc_topic_dist, key=lambda kv: kv[1], reverse=True)[:5]
+		results = [{topic:weight} for topic, weight in sorted_doc_topic_dist]
 		return results
 
 	def train(self,
@@ -476,7 +483,7 @@ class lftm:
 
 		text = [remove_tokens(doc,tok2remove) for doc in text]
 
-		file = open('/app/data/data_glove.txt', "w")
+		file = open('/app/data/lftm/data_glove.txt', "w")
 		for doc in text:
 			file.write(doc+'\n') 
 		file.close()
@@ -484,7 +491,7 @@ class lftm:
 
 		completedProc = subprocess.run('java -jar /app/modules/lftm/jar/LFTM.jar -model {} -corpus {} -vectors {} -ntopics {} -alpha {} -beta {} -lambda {} -initers {} -niters {} -twords {} -name {} -sstep {}'.format(
 			'LFLDA',
-			'/app/data/data_glove.txt',
+			'/app/data/lftm/data_glove.txt',
 			'/app/data/glove.6B.50d.txt',
 			str(ntopics),
 			str(alpha),
@@ -496,8 +503,6 @@ class lftm:
 			'TEDLFLDA',
 			'0'), cwd='/app/models/lftm/', shell = True)
 
-		os.system('mv /app/data/TEDLFLDA.* /app/models/lftm/')
-
 		print(completedProc.returncode)
 
 		return 'success'
@@ -505,7 +510,7 @@ class lftm:
 	# Get coherence of model topics
 	def coherence(self, datapath = '/app/data/data.txt'):
 
-		file1 = open('/app/models/lftm/TEDLFLDA.topWords')
+		file1 = open('/app/data/lftm/TEDLFLDA.topWords')
 		json_topics = {}
 		topics = []
 		i = 0
@@ -568,7 +573,7 @@ class lftm:
 	# Get topic-word distribution
 	def topics(self):
 
-		file1 = open('/app/models/lftm/TEDLFLDA.topWords')
+		file1 = open('/app/data/lftm/TEDLFLDA.topWords')
 		json_topics = {}
 		i = 0
 		while True:
@@ -865,10 +870,11 @@ class gsdmm:
 		for i, topic in enumerate(self.model.cluster_word_distribution):
 
 			json_topics[str(i)] = {}
-			json_topics[str(i)]['words'] = {}
+			json_topics[str(i)]['words'] = []
 			total = sum(topic.values())
 			for word, freq in sorted(topic.items(), key=lambda item: item[1], reverse = True)[:10]:
-				json_topics[str(i)]['words'][word] = freq/total
+				# json_topics[str(i)]['words'][word] = freq/total
+				json_topics[str(i)]['words'].append(word)
 
 		return json_topics
 
@@ -908,7 +914,8 @@ class gsdmm:
 		return 'success'
 
 	def predict(self, doc):
-		results = {topic:score for topic, score in enumerate(self.model.score(doc))}
+		results = [(topic,score) for topic, score in enumerate(self.model.score(doc))]
+		results = [{topic:weight} for topic, weight in sorted(results, key=lambda kv: kv[1], reverse=True)[:5]]
 		return results
 
 

@@ -13,76 +13,83 @@ def not_found(error):
 #							PREDICTION							#
 #################################################################
 
-@app.route('/api/tfidf/predict/', methods=['POST'])
+@app.route('/api/tfidf/predict', methods=['POST'])
 def extract_topics_tfidf():
-	start = time.time()
-	# Extract request body parameters
-	url = request.json['url']
-	# Retrieve subtitles
-	subtitles = retrieve_prepare_subtitles(url)
-	if 'not found' == subtitles:
-		return jsonify({'error':'video could not be retreived'})
-	# Load the model
-	model = tfidf()
-	model.load()
-	# Perform Inference
-	results = model.predict(subtitles)
-	# Retrieve tags
-	tags = retrieve_prepare_tags(url)
-	# Evaluate
-	score = model.evaluate(results, tags)
-	dur = time.time() - start
-	# Return resutls and score
-	return jsonify({'time' : dur, 'results':results, 'score':score})
+	try:
+		start = time.time()
+		# Extract request body parameters
+		# Retrieve subtitles
+		subtitles = prepare_subtitles(request.json['text'])
+		# if 'not found' == subtitles:
+		# 	return jsonify({'error':'video could not be retreived'})
+		# Load the model
+		model = tfidf()
+		model.load()
+		# Perform Inference
+		results = model.predict(subtitles)
+		dur = time.time() - start
+		# Return resutls and score
+		return jsonify({'time' : dur, 'results':results})
+	except:
+		return jsonify({'error' : "Invalid input or error occured."})
 
 @app.route('/api/lda/predict', methods=['POST'])
 def extract_topics_lda():
-	start = time.time()
-	# Extract request body parameters
-	subtitles = prepare_subtitles(request.json['text'])
-	# if 'not found' == subtitles:
-	# 	return jsonify({'error':'video could not be retreived'})
-	# Load the model
-	model = lda()
-	model.load()
-	# Perform Inference
-	results = model.predict(subtitles)
-	dur = time.time() - start
-	# Return results
-	return jsonify({'time' : dur, 'results' : results})
+	try:
+		start = time.time()
+		# Extract request body parameters
+		subtitles = prepare_subtitles(request.json['text'])
+		# if 'not found' == subtitles:
+		# 	return jsonify({'error':'video could not be retreived'})
+		# Load the model
+		model = lda()
+		model.load()
+		# Perform Inference
+		results = model.predict(subtitles)
+		dur = time.time() - start
+		# Return results
+		return jsonify({'time' : dur, 'results' : results})
+	except:
+		return jsonify({'error' : "Invalid input or error occured."})
 
 @app.route('/api/lftm/predict', methods=['POST'])
 def extract_topics_lftm():
-	start = time.time()
-	# Extract request body parameters
-	subtitles = retrieve_prepare_subtitles(request.json['url'])
-	if 'not found' == subtitles:
-		return jsonify({'error':'video could not be retreived'})
-	# Load the model
-	model = lftm()
-	# Perform Inference
-	results = model.predict(subtitles)
-	dur = time.time() - start
-	# Return results
-	return jsonify({'time' : dur, 'results' : results})
+	try:
+		start = time.time()
+		# Extract request body parameters
+		subtitles = prepare_subtitles(request.json['text'])
+		# if 'not found' == subtitles:
+		# 	return jsonify({'error':'video could not be retreived'})
+		# Load the model
+		model = lftm()
+		# Perform Inference
+		results = model.predict(subtitles)
+		dur = time.time() - start
+		# Return results
+		return jsonify({'time' : dur, 'results' : results})
+	except:
+		return jsonify({'error' : "Invalid input or error occured."})
 
 @app.route('/api/gsdmm/predict', methods=['POST'])
 def extract_topics_gsdmm():
-	start = time.time()
-	# Extract request body parameters
-	subtitles = retrieve_prepare_subtitles(request.json['url'])
-	if 'not found' == subtitles:
-		return jsonify({'error':'video could not be retreived'})
-	# Load the model
-	model = gsdmm()
-	model.load()
-	print(subtitles)
-	# Perform Inference
-	results = model.predict(subtitles)
-	print(results)
-	dur = time.time() - start
-	# Return results
-	return jsonify({'time' : dur, 'results' : results})
+	try:
+		start = time.time()
+		# Extract request body parameters
+		subtitles = prepare_subtitles(request.json['text'])
+		# if 'not found' == subtitles:
+		# 	return jsonify({'error':'video could not be retreived'})
+		# Load the model
+		model = gsdmm()
+		model.load()
+		print(subtitles)
+		# Perform Inference
+		results = model.predict(subtitles)
+		print(results)
+		dur = time.time() - start
+		# Return results
+		return jsonify({'time' : dur, 'results' : results})
+	except:
+		return jsonify({'error' : "Invalid input or error occured."})
 
 #################################################################
 #							TAGS								#
