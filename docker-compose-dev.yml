@@ -1,7 +1,7 @@
 version: "2"
 services:
   topic-extract-dev:
-    container_name: topic_extract_dev
+    container_name: topic-extract-dev
     build:
       context: app/
       dockerfile: deployment/dev/Dockerfile
@@ -11,4 +11,3 @@ services:
       - ./app:/app
       - ./models:/app/models
       - ./data:/app/data
-    restart: always
