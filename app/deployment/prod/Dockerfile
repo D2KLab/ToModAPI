@@ -1,34 +1,17 @@
-FROM ubuntu
+FROM openjdk:slim
+COPY --from=python:3.6.5 / /
 
 RUN mkdir /app
 WORKDIR /app
 
-ADD app/ ./
-RUN mkdir ./data/lftm
-RUN ls ./data/
-ADD data/lftm/ ./data/lftm/
-RUN ls ./data/lftm/
-COPY data/glovetokens.pkl ./data/
-COPY data/glove.6B.50d.txt ./data/
-RUN ls ./data/
+COPY requirements.txt .
+RUN pip3 install -r requirements.txt
 
-ADD models/ ./models/
-RUN ls ./models/
-
-RUN apt-get update -y
-RUN apt-get install python3 -y
-RUN apt-get install python3-pip -y
-RUN apt-get install default-jre -y
-
-
-COPY app/deployment/prod/req.txt req.txt
-RUN pip3 install -r req.txt
+ADD . .
 
 ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
 
 RUN python3 -c 'import nltk; nltk.download("stopwords"); nltk.download("wordnet");'
-
-
 
 CMD ["uwsgi", "project.ini"]

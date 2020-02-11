@@ -3,7 +3,10 @@ services:
   topic-extract:
     container_name: topic-extract
     build:
-      context: .
-      dockerfile: app/deployment/prod/Dockerfile
+      context: app/
+      dockerfile: deployment/prod/Dockerfile
     ports:
       - "5000:5000"
+    volumes:
+      - ./models:/app/models
+      - ./data:/app/data
