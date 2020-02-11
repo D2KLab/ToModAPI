@@ -4,7 +4,7 @@ COPY --from=python:3.6.5 / /
 RUN mkdir /app
 WORKDIR /app
 
-COPY requirements.txt .
+COPY app/requirements.txt .
 RUN pip3 install -r requirements.txt
 
 ADD /app .
@@ -17,4 +17,4 @@ RUN python3 -c 'import nltk; nltk.download("stopwords"); nltk.download("wordnet"
 CMD ["uwsgi", "project.ini"]
 
 # docker build -t hyperted/topic .
-# docker run -p 27020:5000  -v ./models:/app/models -v ./data:/app/data --name hyperted_topic hyperted/topic
+# docker run -p 27020:5000  -v /var/docker/ted-talk-topic-extraction/models:/app/models -v /var/docker/ted-talk-topic-extraction/data:/app/data --name hyperted_topic hyperted/topic

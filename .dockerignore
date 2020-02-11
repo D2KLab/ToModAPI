@@ -1,8 +1,5 @@
 data
 jupyter_notebooks
-tests
-!data/lftm/
-!data/glove.6B.50d.txt
-!data/glovetokens.pkl
+models
 
 .idea
