@@ -29,6 +29,8 @@ In this repository, we provide:
 
 ### Launching
 
+**NOTE: you need to [download](http://nlp.stanford.edu/data/glove.6B.zip) glove word vectors (specifically glove.6B.50d.txt) and store it in the data directory in order to be able to you LFTM.**
+
 #### Production
 
     docker-compose -f docker-compose.yml up
@@ -76,8 +78,6 @@ On [localhost:5000/api/lda/train](localhost:5000/api/lda/train) with this body p
     }
 
 ##### **LFTM**
-
-**NOTE: you need to [download](http://nlp.stanford.edu/data/glove.6B.zip) glove word vectors (specifically glove.6B.50d.txt) and store it in the data directory.**
 
 On [localhost:5000/api/lftm/train](localhost:5000/api/lftm/train) with this body pattern:
 
