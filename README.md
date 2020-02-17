@@ -29,6 +29,11 @@ In this repository, we provide:
 
 ### Launching
 
+Download the mallet package by running the **download_dep.sh** script.
+
+    sh download_dep.sh
+
+
 **NOTE: you need to [download](http://nlp.stanford.edu/data/glove.6B.zip) glove word vectors (specifically glove.6B.50d.txt) and store it in the data directory in order to be able to you LFTM.**
 
 #### Production
