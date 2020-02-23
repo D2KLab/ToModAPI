@@ -496,7 +496,7 @@ class lftm:
 			str(niter),
 			str(topn),
 			'TEDLFLDA',
-			'0'), cwd='/app/models/lftm/', shell = True)
+			'0'), shell = True)
 
 		print(completedProc.returncode)
 
