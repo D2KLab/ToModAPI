@@ -274,7 +274,7 @@ class lda:
 				for i in range(len(topic_words)):
 					if key in topic_words[i]:
 						topic_words[i].remove(key)
-
+		print(json_topics)
 		return json_topics
 
 	# Get topic-word distribution
@@ -558,7 +558,7 @@ class lftm:
 				for i in range(len(topics)):
 					if key in topics[i]:
 						topics[i].remove(key)
-
+		print(json_topics)
 		return json_topics
 
 	# Get topic-word distribution
@@ -724,7 +724,7 @@ class ntm:
 				for i in range(len(topic_words)):
 					if key in topic_words[i]:
 						topic_words[i].remove(key)
-
+		print(json_topics)
 		return json_topics
 
 	def topics(self):
@@ -793,7 +793,7 @@ class gsdmm:
 
 				text.append(vec.split())
 
-		print(i," Docs Loaded.")
+		print(" Docs Loaded.")
 
 		json_topics = {}
 
@@ -841,7 +841,7 @@ class gsdmm:
 				for i in range(len(topic_words)):
 					if key in topic_words[i]:
 						topic_words[i].remove(key)
-
+		print(json_topics)
 		return json_topics
 
 	def topics(self):
