@@ -18,6 +18,7 @@ import warnings
 def remove_tokens(x, tok2remove):
 	return ' '.join(['' if t in tok2remove else t for t in x.split()])
 
+# Term Frequency - Inverse Document Frequency
 class tfidf:
 
 	def __init__(self):
@@ -93,6 +94,7 @@ class tfidf:
 
 		return 'success'
 
+	# Evaluate the top words across TED tags
 	def evaluate(self, topwords, tags):
 		'''
 			topwords: top words and their scores from tfidf
@@ -128,6 +130,7 @@ class tfidf:
 
 		return score
 
+# Latent Dirichlet Allocation
 class lda:
 
 	def __init__(self):
@@ -378,12 +381,14 @@ class lda:
 		# Return score
 		return score
 
+# Latent Feature Topic Model
 class lftm:
 
 	def __init__(self):
 		# Model is loaded as text files and jar files
 		pass
 
+	# Perform Inference
 	def predict(self,
 		doc,
 		initer = 500,
@@ -432,6 +437,7 @@ class lftm:
 		results = [{topic:weight} for topic, weight in sorted_doc_topic_dist]
 		return results
 
+	# Train the model
 	def train(self,
 		datapath = '/app/data/data.txt',
 		ntopics = 35,
@@ -440,7 +446,7 @@ class lftm:
 		_lambda = 1,
 		initer = 50,
 		niter = 5,
-		topn = 20):
+		topn = 10):
 		'''
 			datapath: the path to the training text file
 			ntopics: the number of topics
@@ -579,7 +585,7 @@ class lftm:
 		return json_topics
 
 
-	# Evaluate the model on a corpus
+	# Get weighted similarity of topic words and tags
 	def evaluate(self, tagspath = '/app/data/tags.txt', topn = 5):
 
 		# Load a KeyedVector model using a pre-trained word2vec
@@ -653,15 +659,18 @@ class lftm:
 		print(score)
 		return score
 
+# Neural Topic Model
 class ntm:
 
 	def __init__(self):
 		pass
 
+	# Load the saved model
 	def load(self):
 		self.model = models.Doc2Topic()
 		self.model.load(filename = '/app/models/ntm/ntm')
 
+	# Get coherence of model topics
 	def coherence(self, datapath = '/app/data/data.txt'):
 
 		# Load data
@@ -727,6 +736,7 @@ class ntm:
 		print(json_topics)
 		return json_topics
 
+	# Get topic-word distribution
 	def topics(self):
 
 		topics = self.model.get_topic_words()
@@ -742,6 +752,7 @@ class ntm:
 
 		return json_topics
 
+	# Train the model
 	def train(self,
 		datapath = '/app/data/data.txt',
 		n_topics=35, 
@@ -770,16 +781,18 @@ class ntm:
 		self.model.save('/app/models/ntm/ntm')
 
 		return 'success', fmeasure, loss
-
+# Gibbs Sampling Algorithm for a Dirichlet Mixture Model
 class gsdmm:
 
 	def __init__(self):
 		pass
 
+	# Load the saved model
 	def load(self):
 		with open('/app/models/gsdmm/gsdmm.pkl', "rb") as input_file:
 			self.model = pickle.load(input_file)
 
+	# Get coherence of model topics
 	def coherence(self, datapath = '/app/data/data.txt'):
 
 		# Load data
@@ -844,6 +857,7 @@ class gsdmm:
 		print(json_topics)
 		return json_topics
 
+	# Get topic-word distribution
 	def topics(self):
 
 		json_topics = {}
@@ -859,6 +873,7 @@ class gsdmm:
 
 		return json_topics
 
+	# Train the model
 	def train(self,
 		datapath = '/app/data/data.txt',
 		n_topics=35, 
@@ -894,6 +909,7 @@ class gsdmm:
 
 		return 'success'
 
+	# Perform Inference
 	def predict(self, doc):
 		results = [(topic,score) for topic, score in enumerate(self.model.score(doc))]
 		results = [{topic:weight} for topic, weight in sorted(results, key=lambda kv: kv[1], reverse=True)[:5]]

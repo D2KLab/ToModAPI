@@ -9,6 +9,7 @@ nltk.download('stopwords')
 nltk.download('wordnet')
 lem = nltk.stem.WordNetLemmatizer()
 
+# Extract video subtitles from TED URL
 def retrieve_prepare_subtitles(url):
     # Extract video title
     title = url.split('/')[-1]
@@ -44,6 +45,7 @@ def retrieve_prepare_subtitles(url):
         return transcript
     return 'not found'
 
+# Preprosses subtitles
 def prepare_subtitles(text):
     text = re.sub(r'\((.*?)\)', ' ', text)
     text = re.sub(r'\d+', '', text)
@@ -54,7 +56,7 @@ def prepare_subtitles(text):
     text = ' '.join(text)
     return text
 
-
+# Extract video tags from TED URL
 def retrieve_prepare_tags(url):
     # Extract video title
     title = url.split('/')[-1]
