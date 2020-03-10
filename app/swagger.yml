@@ -464,6 +464,6 @@ definitions:
         example: "/app/data/data.txt"
 
 host: nerd.eurecom.fr
-basePath: /topic/api/
+basePath: http://hyperted.eurecom.fr/topic/api
 schemes:
 - http
