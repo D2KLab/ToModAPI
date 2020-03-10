@@ -5,7 +5,7 @@ from swagger_ui import flask_api_doc
 import time
 
 app = Flask(__name__)
-flask_api_doc(app, config_path='./swagger.yml', url_prefix='/topic', title='API doc')
+flask_api_doc(app, config_path='./swagger.yml', url_prefix='', title='API doc')
 
 @app.errorhandler(404)
 def not_found(error):
