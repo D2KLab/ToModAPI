@@ -8,3 +8,4 @@ SCIKIT-LEARN
 GENSIM
 KERAS==2.3.1
 TENSORFLOW==1.14
+swagger-ui-py
