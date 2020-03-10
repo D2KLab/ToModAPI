@@ -1,11 +1,13 @@
 from flask import Flask, jsonify, request, abort, make_response
+from flask_cors import CORS
 from corpus import retrieve_prepare_subtitles, retrieve_prepare_tags, prepare_subtitles
 from models import tfidf, lda, lftm, ntm, gsdmm
 from swagger_ui import flask_api_doc
 import time
 
 app = Flask(__name__)
-flask_api_doc(app, config_path='./swagger.yml', url_prefix='', title='API doc')
+CORS(app)
+flask_api_doc(app, config_path='app/swagger.yml', url_prefix='', title='Topic Model API')
 
 @app.errorhandler(404)
 def not_found(error):

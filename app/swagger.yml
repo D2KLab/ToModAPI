@@ -5,6 +5,10 @@ info:
     Source code: [http://github.com/kandakji/ted-talk-topic-extraction](https://github.com/kandakji/ted-talk-topic-extraction).
   version: 1.0.0
   title: Topic Model API
+host: 'hyperted.eurecom.fr'
+basePath: /topic/api
+schemes:
+- http
 tags:
 - name: lda
   description: Latent Dirichlet Allocation Topic Model - Mallet Package
@@ -463,7 +467,3 @@ definitions:
         type: string
         example: "/app/data/data.txt"
 
-host: nerd.eurecom.fr
-basePath: http://hyperted.eurecom.fr/topic/api
-schemes:
-- http
