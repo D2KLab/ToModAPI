@@ -1,13 +1,14 @@
-import requests
-import numpy as np
-import nltk
 import re
-import gensim
+
+import nltk
+import numpy as np
+import requests
 
 # Download stop words and wordnet for data cleaning and prepocessing
 nltk.download('stopwords')
 nltk.download('wordnet')
 lem = nltk.stem.WordNetLemmatizer()
+
 
 # Extract video subtitles from TED URL
 def retrieve_prepare_subtitles(url):
@@ -16,7 +17,7 @@ def retrieve_prepare_subtitles(url):
     # Build metadata URL
     metaURL = 'https://api.ted.com/v1/talks/{}.json?api-key=uzdyad5pnc2mv2dd8r8vd65c'
     # Get Metadata
-    r = requests.get(url = metaURL.format(title))
+    r = requests.get(url=metaURL.format(title))
     data = r.json()
     # Verify the talk exists
     if 'talk' in data:
@@ -25,14 +26,14 @@ def retrieve_prepare_subtitles(url):
         # Build subtitles url
         subURL = 'https://api.ted.com/v1/talks/{}/subtitles.json?api-key=uzdyad5pnc2mv2dd8r8vd65c'
         # Get video subtitles
-        r = requests.get(url = subURL.format(id))
+        r = requests.get(url=subURL.format(id))
         data = r.json()
         # Verify the subtitles exists
         if 'error' in data:
             return 'not found'
         transcript = ''
         # Preprocess every section of the subtitles
-        for dict in np.arange(len(data)-1):
+        for dict in np.arange(len(data) - 1):
             text = data[str(dict)]['caption']['content']
             text = re.sub(r'\((.*?)\)', ' ', text)
             text = re.sub(r'\d+', '', text)
@@ -45,6 +46,7 @@ def retrieve_prepare_subtitles(url):
         return transcript
     return 'not found'
 
+
 # Preprosses subtitles
 def prepare_subtitles(text):
     text = re.sub(r'\((.*?)\)', ' ', text)
@@ -52,9 +54,10 @@ def prepare_subtitles(text):
     text = nltk.tokenize.RegexpTokenizer(r'\w+').tokenize(text.lower())
     text = [w for w in text if w not in nltk.corpus.stopwords.words('english')]
     text = [lem.lemmatize(w) for w in text]
-    text = [w for w in text if len(w)>=3]
+    text = [w for w in text if len(w) >= 3]
     text = ' '.join(text)
     return text
+
 
 # Extract video tags from TED URL
 def retrieve_prepare_tags(url):
@@ -62,7 +65,7 @@ def retrieve_prepare_tags(url):
     title = url.split('/')[-1]
     # Build metadata URL
     metaURL = 'https://api.ted.com/v1/talks/{}.json?api-key=uzdyad5pnc2mv2dd8r8vd65c'
-    r = requests.get(url = metaURL.format(title))
+    r = requests.get(url=metaURL.format(title))
     data = r.json()
     # Retrieve video tags
     tags = ','.join([tag['tag'] for tag in data['talk']['tags']])
