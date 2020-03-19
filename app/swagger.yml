@@ -49,8 +49,6 @@ paths:
       - lda
       summary: Predict for new document
       operationId: predictLDA
-      consumes:
-      - application/json
       produces:
       - application/json
       parameters:
@@ -131,8 +129,6 @@ paths:
       - lftm
       summary: Predict for new document
       operationId: predictLFTM
-      consumes:
-      - application/json
       produces:
       - application/json
       parameters:
@@ -214,8 +210,6 @@ paths:
       - ntm
       summary: Predict for new document
       operationId: predictNTM
-      consumes:
-      - application/json
       produces:
       - application/json
       parameters:
@@ -298,10 +292,6 @@ paths:
       - gsdmm
       summary: Predict for new document
       operationId: predictGSDMM
-      consumes:
-      - application/json
-      produces:
-      - application/json
       parameters:
       - in: body
         name: body
@@ -454,11 +444,8 @@ definitions:
         example: "10"
         
   DOC:
-    type: object
-    properties:
-      text:
-        type: string
-        example: "Climate change is a global environmental issue that is affecting the lands, the oceans, the animals, and humans"
+    type: string
+    example: "Climate change is a global environmental issue that is affecting the lands, the oceans, the animals, and humans"
         
   DATA:
     type: object

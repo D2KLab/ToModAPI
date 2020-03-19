@@ -11,7 +11,7 @@ __package__ = 'app'
 
 app = Flask(__name__)
 CORS(app)
-flask_api_doc(app, config_path='app/swagger.yml', url_prefix='', title='Topic Model API')
+flask_api_doc(app, config_path='swagger.yml', url_prefix='', title='Topic Model API')
 
 models = {
     'gsdmm': GsdmmModel,
