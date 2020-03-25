@@ -5,15 +5,21 @@ import subprocess
 from .abstract_model import AbstractModel
 import gensim
 
-TOP_WORDS = '/app/data/lftm/TEDLFLDA.topWords'
-THETA_PATH = '/app/data/lftm/TEDLFLDAinf.theta'
-PARAS_PATH = '/app/data/lftm/TEDLFLDA.paras'
-DOC_PATH = '/app/data/lftm/doc.txt'
-GLOVE_TOKENS = '/app/data/glovetokens.pkl'
-DATA_GLOVE = '/app/data/lftm/data_glove.txt'
-GLOVE_TXT = '/app/data/glove.6B.50d.txt'
+ROOT = '/app'
+LFTM_JAR = ROOT + '/modules/lftm/jar/LFTM.jar'
+
+DATA_ROOT = ROOT + '/data'
+TOP_WORDS = DATA_ROOT + '/lftm/TEDLFLDA.topWords'
+THETA_PATH = DATA_ROOT + '/lftm/TEDLFLDAinf.theta'
+PARAS_PATH = DATA_ROOT + '/lftm/TEDLFLDA.paras'
+DOC_PATH = DATA_ROOT + '/lftm/doc.txt'
+GLOVE_TOKENS = DATA_ROOT + '/glovetokens.pkl'
+DATA_GLOVE = DATA_ROOT + '/lftm/data_glove.txt'
+GLOVE_TXT = DATA_ROOT + '/glove.6B.50d.txt'
+W2V_BIN = DATA_ROOT + '/word2vec.bin'
 
 TOPIC_REGEX = r'Topic(\d+): (.+)'
+
 
 # Function to remove specified tokens from a string
 def remove_tokens(x, tok2remove):
@@ -42,13 +48,14 @@ class LftmModel(AbstractModel):
 
         doc = ' '.join([word for word in doc.split() if word in glovetokens])
 
-        with open(DOC_PATH, "w") as f:
+        with open(DOC_PATH, "w", encoding='utf-8') as f:
             f.write(doc)
 
         # Perform Inference
         completedProc = subprocess.run(
-            'java -jar /app/modules/lftm/jar/LFTM.jar -model {} -paras {} -corpus {} -initers {} -niters {} -twords '
+            'java -jar {} -model {} -paras {} -corpus {} -initers {} -niters {} -twords '
             '{} -name {} -sstep {}'.format(
+                LFTM_JAR,
                 'LFLDAinf',
                 PARAS_PATH,
                 DOC_PATH,
@@ -73,7 +80,7 @@ class LftmModel(AbstractModel):
 
     # Train the model
     def train(self,
-              datapath='/app/data/data.txt',
+              datapath=DATA_ROOT + '/data.txt',
               ntopics=35,
               alpha=0.1,
               beta=0.1,
@@ -95,7 +102,7 @@ class LftmModel(AbstractModel):
         with open(GLOVE_TOKENS, "rb") as input_file:
             glovetokens = pickle.load(input_file)
 
-        with open(datapath, "r") as datafile:
+        with open(datapath, "r", encoding='utf-8') as datafile:
             text = [line.rstrip() for line in datafile if line]
 
         tokens = [doc.split() for doc in text]
@@ -115,7 +122,8 @@ class LftmModel(AbstractModel):
         file.close()
 
         completedProc = subprocess.run(
-            'java -jar /app/modules/lftm/jar/LFTM.jar -model {} -corpus {} -vectors {} -ntopics {} -alpha {} -beta {} -lambda {} -initers {} -niters {} -twords {} -name {} -sstep {}'.format(
+            'java -jar {} -model {} -corpus {} -vectors {} -ntopics {} -alpha {} -beta {} -lambda {} -initers {} -niters {} -twords {} -name {} -sstep {}'.format(
+                LFTM_JAR,
                 'LFLDA',
                 DATA_GLOVE,
                 GLOVE_TXT,
@@ -156,10 +164,10 @@ class LftmModel(AbstractModel):
         return json_topics
 
     # Get weighted similarity of topic words and tags
-    def evaluate(self, tagspath='/app/data/tags.txt', topn=5):
+    def evaluate(self, tagspath=DATA_ROOT + '/tags.txt', topn=5):
 
         # Load a KeyedVector model using a pre-trained word2vec
-        word2vec = gensim.models.KeyedVectors.load('/app/data/word2vec.bin', mmap='r')
+        word2vec = gensim.models.KeyedVectors.load(W2V_BIN, mmap='r')
         # Load vocabulary
         vocab = word2vec.wv.vocab
 
