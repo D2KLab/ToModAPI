@@ -38,7 +38,7 @@ class AbstractModel:
     def topics(self):
         raise NotImplementedError
 
-    def coherence(self, datapath='/app/data/data.txt'):
+    def coherence(self, datapath='/app/data/data.txt', coherence='c_v'):
         """ Get coherence of model topics """
         if self.model is None:
             self.load()
@@ -52,12 +52,8 @@ class AbstractModel:
         while True:
             try:
                 coherence_model = gensim.models.coherencemodel.CoherenceModel(topics=topic_words, texts=text,
-                                                                              dictionary=dictionary, coherence='c_v')
-                print("Coherence Created.")
-
+                                                                              dictionary=dictionary, coherence=coherence)
                 coherence_per_topic = coherence_model.get_coherence_per_topic()
-
-                print("Coherence Computed")
 
                 for i in range(len(topic_words)):
                     json_topics[str(i)]['c_v'] = coherence_per_topic[i]
@@ -69,9 +65,8 @@ class AbstractModel:
 
             except KeyError as e:
                 key = str(e)[1:-1]
-                print(key)
-                for i in range(len(topic_words)):
-                    if key in topic_words[i]:
-                        topic_words[i].remove(key)
+                for x in topic_words:
+                    if key in x:
+                        x.remove(key)
         print(json_topics)
         return json_topics

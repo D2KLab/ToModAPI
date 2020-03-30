@@ -33,17 +33,17 @@ def not_found(error):
 
 @app.route('/api/<string:model_type>/predict', methods=['POST'])
 def predict(model_type):
-        start = time.time()
-        # Extract request body parameters
-        # Retrieve subtitles
-        subtitles = prepare_subtitles(str(request.data))
-        # Load the model
-        model = models[model_type]()
-        # Perform Inference
-        results = model.predict(subtitles)
-        dur = time.time() - start
-        # Return results and score
-        return jsonify({'time': dur, 'results': results}), 200
+    start = time.time()
+    # Extract request body parameters
+    # Retrieve subtitles
+    subtitles = prepare_subtitles(str(request.data))
+    # Load the model
+    model = models[model_type]()
+    # Perform Inference
+    results = model.predict(subtitles)
+    dur = time.time() - start
+    # Return results and score
+    return jsonify({'time': dur, 'results': results}), 200
 
 
 #################################################################
@@ -94,7 +94,9 @@ def get_coherence(model_type):
         # Load the model
         model = models[model_type]()
         # Retrieve topics
-        topics = model.coherence(request.json['datapath'])
+        args = request.json
+        c = args['c'] if 'c' in args else 'c_v'
+        topics = model.coherence(args['datapath'], coherence=c)
         dur = time.time() - start
         # Return results
         return jsonify({'time': dur, 'topics': topics}), 200

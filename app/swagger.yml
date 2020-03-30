@@ -453,4 +453,8 @@ definitions:
       datapath:
         type: string
         example: "/app/data/data.txt"
+      coherence_model:
+        type: string
+        example: "c_v"
+
 
