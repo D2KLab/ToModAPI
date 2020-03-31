@@ -56,10 +56,10 @@ class AbstractModel:
                 coherence_per_topic = coherence_model.get_coherence_per_topic()
 
                 for i in range(len(topic_words)):
-                    json_topics[str(i)]['c_v'] = coherence_per_topic[i]
+                    json_topics[str(i)][coherence] = coherence_per_topic[i]
 
-                json_topics['c_v'] = np.nanmean(coherence_per_topic)
-                json_topics['c_v_std'] = np.nanstd(coherence_per_topic)
+                json_topics[coherence] = np.nanmean(coherence_per_topic)
+                json_topics[coherence+'_std'] = np.nanstd(coherence_per_topic)
 
                 break
 
