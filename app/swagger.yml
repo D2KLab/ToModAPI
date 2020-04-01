@@ -48,13 +48,13 @@ paths:
       tags:
       - lda
       summary: Predict for new document
-      operationId: predictLDA
+      operationId: predict
       produces:
       - application/json
       parameters:
       - in: body
         name: body
-        description: Model parameters and hyper-parameters
+        description: A text (sentence, paragraph, ...)
         required: true
         schema:
           $ref: '#/definitions/DOC'
@@ -134,7 +134,7 @@ paths:
       parameters:
       - in: body
         name: body
-        description: Model parameters and hyper-parameters
+        description: A text (sentence, paragraph, ...)
         required: true
         schema:
           $ref: '#/definitions/DOC'
@@ -215,7 +215,7 @@ paths:
       parameters:
       - in: body
         name: body
-        description: Model parameters and hyper-parameters
+        description: A text (sentence, paragraph, ...)
         required: true
         schema:
           $ref: '#/definitions/DOC'
@@ -295,7 +295,7 @@ paths:
       parameters:
       - in: body
         name: body
-        description: Model parameters and hyper-parameters
+        description: A text (sentence, paragraph, ...)
         required: true
         schema:
           $ref: '#/definitions/DOC'
@@ -453,7 +453,7 @@ definitions:
       datapath:
         type: string
         example: "/app/data/data.txt"
-      coherence_model:
+      metric:
         type: string
         example: "c_v"
 

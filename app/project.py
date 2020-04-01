@@ -95,7 +95,7 @@ def get_coherence(model_type):
         model = models[model_type]()
         # Retrieve topics
         args = request.json
-        c = args['c'] if 'c' in args else 'c_v'
+        c = args['metric'] if 'metric' in args else 'c_v'
         topics = model.coherence(args['datapath'], coherence=c)
         dur = time.time() - start
         # Return results
