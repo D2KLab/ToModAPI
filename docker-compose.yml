@@ -10,5 +10,5 @@ services:
       - "27020:5000"
     volumes:
       - ./models:/app/models
-      - ./modues:/app/modues
+      - ./modules:/app/modules
       - ./data:/app/data
