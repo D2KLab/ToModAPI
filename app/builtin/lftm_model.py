@@ -1,12 +1,14 @@
 import re
+import os
 import pickle
 import subprocess
 
 from .abstract_model import AbstractModel
 import gensim
 
+LFTM_JAR = os.path.join(__file__, 'lftm', 'LFTM.jar')
+
 ROOT = '/app'
-LFTM_JAR = ROOT + '/modules/lftm/jar/LFTM.jar'
 
 DATA_ROOT = ROOT + '/data'
 TOP_WORDS = DATA_ROOT + '/lftm/TEDLFLDA.topWords'

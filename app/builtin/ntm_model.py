@@ -1,7 +1,7 @@
 import warnings
 
 from .abstract_model import AbstractModel
-from modules.doc2topic import models, corpora
+from .doc2topic import models, corpora
 
 MODEL_PATH = '/app/models/ntm/ntm'
 

@@ -1,8 +1,8 @@
 import pickle
+import gensim
 
 from .abstract_model import AbstractModel
-import gensim
-from modules.gsdmm import MovieGroupProcess
+from .gsdmm import MovieGroupProcess
 
 MODEL_PATH = '/app/models/gsdmm/gsdmm.pkl'
 
