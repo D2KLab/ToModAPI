@@ -4,7 +4,8 @@ import gensim
 from .abstract_model import AbstractModel
 from .gsdmm import MovieGroupProcess
 
-MODEL_PATH = '/app/models/gsdmm/gsdmm.pkl'
+ROOT = ''
+MODEL_PATH = ROOT + '/models/gsdmm/gsdmm.pkl'
 
 
 # Gibbs Sampling Algorithm for a Dirichlet Mixture Model
@@ -66,8 +67,10 @@ class GsdmmModel(AbstractModel):
 
         id2word = gensim.corpora.Dictionary(tokens)
 
+        print('start training GSDMM')
         # Fit the model
         self.model.fit(tokens, len(id2word))
+        print('end training GSDMM')
 
         # Save the new model
         with open(MODEL_PATH, 'wb') as output:

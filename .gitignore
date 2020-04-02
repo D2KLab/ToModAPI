@@ -130,9 +130,9 @@ dmypy.json
 .pyre/
 
 # models and data
+app/builtin/mallet-2.0.8
+app/builtin/glove/glove.6B*
 data/*
 tests/
 
 !data/data.txt
-!data/lftm/
-!data/glovetokens.pkl

@@ -3,7 +3,9 @@ import warnings
 from .abstract_model import AbstractModel
 from .doc2topic import models, corpora
 
-MODEL_PATH = '/app/models/ntm/ntm'
+ROOT = ''
+
+MODEL_PATH = ROOT + '/models/ntm/ntm'
 
 
 # Neural Topic Model

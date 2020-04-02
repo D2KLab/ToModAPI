@@ -15,10 +15,3 @@ ENV LC_ALL C.UTF-8
 RUN python3 -c 'import nltk; nltk.download("stopwords"); nltk.download("wordnet");'
 
 CMD ["uwsgi", "project.ini"]
-
-# docker build -t hyperted/topic .
-# docker run -p 27020:5000  -d -v /home/semantic/hyperted/ted-talk-topic-extraction/models:/app/models -v /home/semantic/hyperted/ted-talk-topic-extraction/data:/app/data -v /home/semantic/hyperted/ted-talk-topic-extraction/modules:/app/modules --name hyperted_topic hyperted/topic
-
-# docker stop hyperted_topic
-# docker rm hyperted_topic
-# docker rmi hyperted/topic

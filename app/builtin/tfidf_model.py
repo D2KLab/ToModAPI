@@ -3,8 +3,9 @@ import sklearn
 import gensim
 from .abstract_model import AbstractModel
 
-MODEL_PATH = '/app/models/tfidf/tfidf.pkl'
-W2V_PATH = '/app/data/word2vec.bin'
+ROOT = ''
+MODEL_PATH = ROOT + '/models/tfidf/tfidf.pkl'
+W2V_PATH = ROOT + '/data/word2vec.bin'
 
 
 # Term Frequency - Inverse Document Frequency
@@ -112,7 +113,7 @@ class TfIdfModel(AbstractModel):
 
         return score
 
-    def coherence(self, datapath='/app/data/data.txt'):
+    def coherence(self, datapath='/data/data.txt', coherence='c_v'):
         return {'message': 'not foreseen for this model'}
 
     def topics(self):

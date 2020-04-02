@@ -15,7 +15,6 @@ This API uses **Python's Flask Framework** to easily let developers and users in
 In this repository, we provide:
 
 * Pre-trained models in the **models/** directory. These are automatically used in the inference and evaluation API calls. **NOTE: Newly trained models are stored there, but replace the old ones.**
-* Code to retrieve TED talk subtitles and tags.
 * Code to perform training, inference, and evaluation for 4 Topic Modeling packages:
   * Latent Dirichlet allocation ([LDA](https://en.wikipedia.org/wiki/Latent_Dirichlet_allocation)) from the [Mallet](http://mallet.cs.umass.edu/) package.
   * Latent Feature Topic Model ([LFTM](https://github.com/datquocnguyen/LFTM)) from Dat Quoc Nguyen, Richard Billingsley, Lan Du and Mark Johnson. [Improving Topic Models with Latent Feature Word Representations](https://tacl2013.cs.columbia.edu/ojs/index.php/tacl/article/view/582/158).
@@ -29,12 +28,14 @@ In this repository, we provide:
 
 ### Launching
 
-Download the mallet package by running the **download_dep.sh** script.
+You should install 2 dependencies:
+- [mallet 2.0.8](http://mallet.cs.umass.edu/dist/mallet-2.0.8.tar.gz) to be placed in `app\builtin`
+- [glove.6B.50d.txt](http://nlp.stanford.edu/data/glove.6B.zip) to be placed in `app\builtin\glove`
+
+Under UNIX, you can use the **download_dep.sh** script.
 
     sh download_dep.sh
 
-
-**NOTE: you need to [download](http://nlp.stanford.edu/data/glove.6B.zip) glove word vectors (specifically glove.6B.50d.txt) and store it in the data directory in order to be able to you LFTM.**
 
 #### Production
 
@@ -49,6 +50,17 @@ This version will copy the TED data need for training and some dependencies like
 This command will build the image from the Dockerfile in **app/deployment/** and start the container.
 
 The container uses **mounted volumes** so that you can easily update the code, the model files, and the data files.
+
+#### Manual Docker installation
+
+    docker build -t hyperted/topic .
+    docker run -p 27020:5000  -d -v /home/semantic/hyperted/ted-talk-topic-extraction/models:/app/models -v /home/semantic/hyperted/ted-talk-topic-extraction/data:/app/data -v /home/semantic/hyperted/ted-talk-topic-extraction/modules:/app/modules --name hyperted_topic hyperted/topic
+    
+    # Uninstall
+    docker stop hyperted_topic
+    docker rm hyperted_topic
+    docker rmi hyperted/topic
+
 
 ### Training
 
@@ -204,7 +216,7 @@ To retrieve the tags of a specific video, perform a **POST** requests on [localh
 
 ### Evaluation on tags for the model
 
-This API also provides the capabilities to compute the score based on the similarity between the topics (or words) extracted and the tags of the video. **NOTE: this is unique for videos and not chapters.** This uses pretrained word2vec to compute the average weighted similarities.
+This API also provides the capabilities to f=compute the score based on the similarity between the topics (or words) extracted and the tags of the video. **NOTE: this is unique for videos and not chapters.** This uses pretrained word2vec to compute the average weighted similarities.
 
 This is done using a **GET** request on:
 

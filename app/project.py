@@ -69,7 +69,6 @@ def extract_tags():
 
 @app.route('/api/<string:model_type>/topics', methods=['GET'])
 def get_topics(model_type):
-    try:
         start = time.time()
         # Load the model
         model = models[model_type]()
@@ -78,8 +77,6 @@ def get_topics(model_type):
         dur = time.time() - start
         # Return results
         return jsonify({'time': dur, 'topics': topics}), 200
-    except:
-        return jsonify({'error': "An error occured."}), 400
 
 
 #################################################################
@@ -129,23 +126,20 @@ def train_tfidf():
 
 @app.route('/api/lda/train', methods=['POST'])
 def train_lda():
-    try:
-        start = time.time()
-        # Load model
-        model = LdaModel()
-        # Train model
-        results = model.train(request.json['datapath'],
-                              int(request.json['num_topics']),
-                              float(request.json['alpha']),
-                              int(request.json['random_seed']),
-                              int(request.json['iterations']),
-                              int(request.json['optimize_interval']),
-                              float(request.json['topic_threshold']))
-        dur = time.time() - start
-        # Return results
-        return jsonify({'time': dur, 'result': results}), 200
-    except:
-        return jsonify({'error': "Invalid input or error occured."}), 400
+    start = time.time()
+    # Load model
+    model = LdaModel()
+    # Train model
+    results = model.train(request.json['datapath'],
+                          int(request.json['num_topics']),
+                          float(request.json['alpha']),
+                          int(request.json['random_seed']),
+                          int(request.json['iterations']),
+                          int(request.json['optimize_interval']),
+                          float(request.json['topic_threshold']))
+    dur = time.time() - start
+    # Return results
+    return jsonify({'time': dur, 'result': results}), 200
 
 
 @app.route('/api/lftm/train', methods=['POST'])

@@ -1,23 +1,26 @@
 import re
-import os
+from os import path
 import pickle
 import subprocess
 
 from .abstract_model import AbstractModel
 import gensim
 
-LFTM_JAR = os.path.join(__file__, 'lftm', 'LFTM.jar')
+LFTM_JAR = path.join(path.dirname(__file__), 'lftm', 'LFTM.jar')
+GLOVE_TOKENS = path.join(path.dirname(__file__), 'glove', 'glovetokens.pkl')
+GLOVE_TXT = path.join(path.dirname(__file__), 'glove', 'glove.6B.50d.txt')
 
-ROOT = '/app'
+ROOT = ''
 
-DATA_ROOT = ROOT + '/data'
-TOP_WORDS = DATA_ROOT + '/lftm/TEDLFLDA.topWords'
-THETA_PATH = DATA_ROOT + '/lftm/TEDLFLDAinf.theta'
-PARAS_PATH = DATA_ROOT + '/lftm/TEDLFLDA.paras'
-DOC_PATH = DATA_ROOT + '/lftm/doc.txt'
-GLOVE_TOKENS = DATA_ROOT + '/glovetokens.pkl'
-DATA_GLOVE = DATA_ROOT + '/lftm/data_glove.txt'
-GLOVE_TXT = DATA_ROOT + '/glove.6B.50d.txt'
+MODEL_ROOT = ROOT + '/models/lftm'
+TOP_WORDS = MODEL_ROOT + '/TEDLFLDA.topWords'
+PARAS_PATH = MODEL_ROOT + '/TEDLFLDA.paras'
+
+DATA_ROOT = ROOT + '/data/lftm'  # these files are regenerated at each prediction
+DOC_PATH = DATA_ROOT + '/doc.txt'
+DATA_GLOVE = DATA_ROOT + '/data_glove.txt'
+THETA_PATH = DATA_ROOT + '/TEDLFLDAinf.theta'
+
 W2V_BIN = DATA_ROOT + '/word2vec.bin'
 
 TOPIC_REGEX = r'Topic(\d+): (.+)'
@@ -71,9 +74,8 @@ class LftmModel(AbstractModel):
 
         print(completedProc.returncode)
 
-        file = open(THETA_PATH, "r")
-        doc_topic_dist = file.readline()
-        file.close()
+        with open(THETA_PATH, "r") as file:
+            doc_topic_dist = file.readline()
 
         doc_topic_dist = [(topic, float(weight)) for topic, weight in enumerate(doc_topic_dist.split())]
         sorted_doc_topic_dist = sorted(doc_topic_dist, key=lambda kv: kv[1], reverse=True)[:5]
@@ -96,7 +98,8 @@ class LftmModel(AbstractModel):
             alpha: prior document-topic distribution
             beta: prior topic-word distribution
             lambda: mixture weight
-            initer: initial sampling iterations to separate the counts for the latent feature component and the Dirichlet multinomial component
+            initer: initial sampling iterations to separate the counts for the latent feature component
+                    and the Dirichlet multinomial component
             niter: sampling iterations for the latent feature topic models
             topn: number of the most probable topical words
         """
@@ -118,13 +121,13 @@ class LftmModel(AbstractModel):
 
         text = [remove_tokens(doc, tok2remove) for doc in text]
 
-        file = open(DATA_GLOVE, "w")
-        for doc in text:
-            file.write(doc + '\n')
-        file.close()
+        with open(DATA_GLOVE, "w") as file:
+            for doc in text:
+                file.write(doc + '\n')
 
         completedProc = subprocess.run(
-            'java -jar {} -model {} -corpus {} -vectors {} -ntopics {} -alpha {} -beta {} -lambda {} -initers {} -niters {} -twords {} -name {} -sstep {}'.format(
+            'java -jar {} -model {} -corpus {} -vectors {} -ntopics {} -alpha {} -beta {}'
+            ' -lambda {} -initers {} -niters {} -twords {} -name {} -sstep {}'.format(
                 LFTM_JAR,
                 'LFLDA',
                 DATA_GLOVE,

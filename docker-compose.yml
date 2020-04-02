@@ -4,11 +4,10 @@ services:
     container_name: topic-extract
     image: hyperted/topic
     build:
-      context: app/
-      dockerfile: deployment/prod/Dockerfile
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "27020:5000"
     volumes:
-      - ./models:/app/models
-      - ./modules:/app/modules
-      - ./data:/app/data
+      - ./models:/models
+      - ./data:/data

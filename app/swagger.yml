@@ -348,7 +348,7 @@ definitions:
     properties:
       datapath:
         type: string
-        example: "/app/data/data.txt"
+        example: "/data/data.txt"
       num_topics:
         type: string
         example: "25"
@@ -373,7 +373,7 @@ definitions:
     properties:
       datapath:
         type: string
-        example: "/app/data/data.txt"
+        example: "/data/data.txt"
       ntopics:
         type: string
         example: "25"
@@ -401,7 +401,7 @@ definitions:
     properties:
       datapath:
         type: string
-        example: "/app/data/data.txt"
+        example: "/data/data.txt"
       n_topics:
         type: string
         example: "25"
@@ -429,7 +429,7 @@ definitions:
     properties:
       datapath:
         type: string
-        example: "/app/data/data.txt"
+        example: "/data/data.txt"
       num_topics:
         type: string
         example: "25"
@@ -452,7 +452,7 @@ definitions:
     properties:
       datapath:
         type: string
-        example: "/app/data/data.txt"
+        example: "/data/data.txt"
       metric:
         type: string
         example: "c_v"

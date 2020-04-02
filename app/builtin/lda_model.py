@@ -1,12 +1,15 @@
+from os import path
 import pickle
 
 from .abstract_model import AbstractModel
 import gensim
 
-MODEL_PATH = '/app/models/lda/lda.pkl'
-MALLET_PATH = '/app/modules/mallet-2.0.8/bin/mallet'
-MALLET_DEP = '/app/models/mallet-dep/'
-W2V_PATH = '/app/data/word2vec.bin'
+MALLET_PATH = path.join(path.dirname(__file__), 'mallet-2.0.8', 'bin', 'mallet')
+
+ROOT = ''
+MODEL_PATH = ROOT + '/models/lda/lda.pkl'
+MALLET_DEP = ROOT + '/models/mallet-dep/'
+W2V_PATH = ROOT + '/data/word2vec.bin'
 
 
 # Latent Dirichlet Allocation
@@ -33,12 +36,13 @@ class LdaModel(AbstractModel):
         # Structure the results into a dictionary
         results = [{topic: weight} for topic, weight in
                    sorted(doc_topic_dist, key=lambda kv: kv[1], reverse=True)[:topn]]
-        # Return results
+
+        print(results)
         return results
 
     # Train the model
     def train(self,
-              datapath='/app/data/data.txt',
+              datapath=ROOT+'/data/data.txt',
               num_topics=35,
               alpha=50,
               random_seed=5,
@@ -66,6 +70,7 @@ class LdaModel(AbstractModel):
 
         corpus = [id2word.doc2bow(doc) for doc in tokens]
 
+        print('start training LDA')
         # Train the model
         self.model = gensim.models.wrappers.LdaMallet(MALLET_PATH,
                                                       corpus=corpus,
@@ -81,6 +86,8 @@ class LdaModel(AbstractModel):
         # Save the model
         with open(MODEL_PATH, 'wb') as output:
             pickle.dump(self.model, output, pickle.HIGHEST_PROTOCOL)
+
+        print('end training LDA')
 
         return 'success'
 
@@ -112,7 +119,7 @@ class LdaModel(AbstractModel):
         return json_topics
 
     # Get weighted similarity of topic words and tags
-    def evaluate(self, datapath='/app/data/data.txt', tagspath='/app/data/tags.txt', topn=5):
+    def evaluate(self, datapath=ROOT+'/data/data.txt', tagspath=ROOT+'/data/tags.txt', topn=5):
         # Load a KeyedVector model using a pre-trained word2vec
         word2vecmodel = gensim.models.KeyedVectors.load(W2V_PATH, mmap='r')
         # Load vocabulary
