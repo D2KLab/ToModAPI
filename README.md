@@ -54,7 +54,7 @@ The container uses **mounted volumes** so that you can easily update the code, t
 #### Manual Docker installation
 
     docker build -t hyperted/topic .
-    docker run -p 27020:5000  -d -v /home/semantic/hyperted/ted-talk-topic-extraction/models:/app/models -v /home/semantic/hyperted/ted-talk-topic-extraction/data:/app/data -v /home/semantic/hyperted/ted-talk-topic-extraction/modules:/app/modules --name hyperted_topic hyperted/topic
+    docker run -p 27020:5000  -d -v /home/semantic/hyperted/ted-talk-topic-extraction/models:/models -v /home/semantic/hyperted/ted-talk-topic-extraction/data:/data --name hyperted_topic hyperted/topic
     
     # Uninstall
     docker stop hyperted_topic
