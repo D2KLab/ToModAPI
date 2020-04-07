@@ -54,7 +54,7 @@ class TfIdfModel(AbstractModel):
         return results
 
     # Train the model
-    def train(self, datapath='/app/data/data.txt', ngram_range=(1, 2), max_df=1.0, min_df=1):
+    def train(self, datapath='/data/data.txt', ngram_range=(1, 2), max_df=1.0, min_df=1):
         """
             datapath: path to training data text file
             ngram_range: the range of ngrams to consider

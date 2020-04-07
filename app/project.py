@@ -69,14 +69,14 @@ def extract_tags():
 
 @app.route('/api/<string:model_type>/topics', methods=['GET'])
 def get_topics(model_type):
-        start = time.time()
-        # Load the model
-        model = models[model_type]()
-        # Retrieve topics
-        topics = model.topics()
-        dur = time.time() - start
-        # Return results
-        return jsonify({'time': dur, 'topics': topics}), 200
+    start = time.time()
+    # Load the model
+    model = models[model_type]()
+    # Retrieve topics
+    topics = model.topics()
+    dur = time.time() - start
+    # Return results
+    return jsonify({'time': dur, 'topics': topics}), 200
 
 
 #################################################################
@@ -107,21 +107,18 @@ def get_coherence(model_type):
 
 @app.route('/api/tfidf/train', methods=['POST'])
 def train_tfidf():
-    try:
-        start = time.time()
-        # Load model
-        model = TfIdfModel()
-        # Train model
-        results = model.train(request.json['datapath'],
-                              (int(request.json['min_ngram']),
-                               int(request.json['max_ngram'])),
-                              float(request.json['max_df']),
-                              float(request.json['min_df']))
-        dur = time.time() - start
-        # return result
-        return jsonify({'time': dur, 'result': results}), 200
-    except:
-        return jsonify({'error': "Invalid input or error occured."}), 400
+    start = time.time()
+    # Load model
+    model = TfIdfModel()
+    # Train model
+    results = model.train(request.json['datapath'],
+                          (int(request.json['min_ngram']),
+                           int(request.json['max_ngram'])),
+                          float(request.json['max_df']),
+                          float(request.json['min_df']))
+    dur = time.time() - start
+    # return result
+    return jsonify({'time': dur, 'result': results}), 200
 
 
 @app.route('/api/lda/train', methods=['POST'])
@@ -144,65 +141,56 @@ def train_lda():
 
 @app.route('/api/lftm/train', methods=['POST'])
 def train_lftm():
-    try:
-        start = time.time()
-        # Load model
-        model = LftmModel()
-        # Train model
-        results = model.train(request.json['datapath'],
-                              request.json['ntopics'],
-                              request.json['alpha'],
-                              request.json['beta'],
-                              request.json['lambda'],
-                              request.json['initer'],
-                              request.json['niter'],
-                              request.json['topn'])
-        dur = time.time() - start
-        # Return results
-        return jsonify({'time': dur, 'result': results}), 200
-    except:
-        return jsonify({'error': "Invalid input or error occured."}), 400
+    start = time.time()
+    # Load model
+    model = LftmModel()
+    # Train model
+    results = model.train(request.json['datapath'],
+                          request.json['ntopics'],
+                          request.json['alpha'],
+                          request.json['beta'],
+                          request.json['lambda'],
+                          request.json['initer'],
+                          request.json['niter'],
+                          request.json['topn'])
+    dur = time.time() - start
+    # Return results
+    return jsonify({'time': dur, 'result': results}), 200
 
 
 @app.route('/api/ntm/train', methods=['POST'])
 def train_ntm():
-    try:
-        start = time.time()
-        # Load model
-        model = NtmModel()
-        # Train model
-        results = model.train(request.json['datapath'],
-                              int(request.json['n_topics']),
-                              int(request.json['batch_size']),
-                              int(request.json['n_epochs']),
-                              float(request.json['lr']),
-                              float(request.json['l1_doc']),
-                              float(request.json['l1_word']),
-                              int(request.json['word_dim']))
-        dur = time.time() - start
-        # return result
-        return jsonify({'time': dur, 'result': results[0], 'fmeasure': str(results[1]), 'loss': str(results[2])}), 200
-    except:
-        return jsonify({'error': "Invalid input or error occured."}), 400
+    start = time.time()
+    # Load model
+    model = NtmModel()
+    # Train model
+    results = model.train(request.json['datapath'],
+                          int(request.json['n_topics']),
+                          int(request.json['batch_size']),
+                          int(request.json['n_epochs']),
+                          float(request.json['lr']),
+                          float(request.json['l1_doc']),
+                          float(request.json['l1_word']),
+                          int(request.json['word_dim']))
+    dur = time.time() - start
+    # return result
+    return jsonify({'time': dur, 'result': results[0], 'fmeasure': str(results[1]), 'loss': str(results[2])}), 200
 
 
 @app.route('/api/gsdmm/train', methods=['POST'])
 def train_gsdmm():
-    try:
-        start = time.time()
-        # Load model
-        model = GsdmmModel()
-        # Train model
-        results = model.train(request.json['datapath'],
-                              int(request.json['num_topics']),
-                              float(request.json['alpha']),
-                              float(request.json['beta']),
-                              int(request.json['n_iter']))
-        dur = time.time() - start
-        # Return results
-        return jsonify({'time': dur, 'result': results}), 200
-    except:
-        return jsonify({'error': "Invalid input or error occured."}), 400
+    start = time.time()
+    # Load model
+    model = GsdmmModel()
+    # Train model
+    results = model.train(request.json['datapath'],
+                          int(request.json['num_topics']),
+                          float(request.json['alpha']),
+                          float(request.json['beta']),
+                          int(request.json['n_iter']))
+    dur = time.time() - start
+    # Return results
+    return jsonify({'time': dur, 'result': results}), 200
 
 
 #################################################################

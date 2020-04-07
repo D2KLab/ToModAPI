@@ -1,4 +1,5 @@
 import re
+import os
 from os import path
 import pickle
 import subprocess
@@ -20,6 +21,8 @@ DATA_ROOT = ROOT + '/data/lftm'  # these files are regenerated at each predictio
 DOC_PATH = DATA_ROOT + '/doc.txt'
 DATA_GLOVE = DATA_ROOT + '/data_glove.txt'
 THETA_PATH = DATA_ROOT + '/TEDLFLDAinf.theta'
+
+os.makedirs('/data/lftm', exist_ok=True)
 
 W2V_BIN = DATA_ROOT + '/word2vec.bin'
 
