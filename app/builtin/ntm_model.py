@@ -46,9 +46,15 @@ class NtmModel(AbstractModel):
 
         return json_topics
 
+    def get_corpus_predictions(self):
+        if self.model is None:
+            self.load()
+
+        return [self.model.get_document_topics(i) for i in range(0, len(self.model.get_docvecs()))]
+
     # Train the model
     def train(self,
-              datapath='/app/data/data.txt',
+              datapath='/data/data.txt',
               n_topics=35,
               batch_size=1024 * 6,
               n_epochs=20,

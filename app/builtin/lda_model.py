@@ -37,12 +37,11 @@ class LdaModel(AbstractModel):
         results = [{topic: weight} for topic, weight in
                    sorted(doc_topic_dist, key=lambda kv: kv[1], reverse=True)[:topn]]
 
-        print(results)
         return results
 
     # Train the model
     def train(self,
-              datapath=ROOT+'/data/data.txt',
+              datapath=ROOT + '/data/data.txt',
               num_topics=35,
               alpha=50,
               random_seed=5,
@@ -119,7 +118,7 @@ class LdaModel(AbstractModel):
         return json_topics
 
     # Get weighted similarity of topic words and tags
-    def evaluate(self, datapath=ROOT+'/data/data.txt', tagspath=ROOT+'/data/tags.txt', topn=5):
+    def evaluate(self, datapath=ROOT + '/data/data.txt', tagspath=ROOT + '/data/tags.txt', topn=5):
         # Load a KeyedVector model using a pre-trained word2vec
         word2vecmodel = gensim.models.KeyedVectors.load(W2V_PATH, mmap='r')
         # Load vocabulary
@@ -191,3 +190,9 @@ class LdaModel(AbstractModel):
 
         # Return score
         return score
+
+    def get_corpus_predictions(self):
+        if self.model is None:
+            self.load()
+
+        return list(self.model.load_document_topics())

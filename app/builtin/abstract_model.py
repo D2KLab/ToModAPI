@@ -9,7 +9,7 @@ class AbstractModel:
     def load(self):
         """
             Load the model and eventual dependencies.
-            Can also not be implemented.
+            Implementation not mandatory.
         """
         pass
 
@@ -21,7 +21,16 @@ class AbstractModel:
         """
         raise NotImplementedError
 
-    def train(self, datapath='/app/data/data.txt'):
+    def predict_corpus(self, datapath='/data/data.txt'):
+        if self.model is None:
+            self.load()
+
+        with open(datapath, "r") as datafile:
+            text = [line.rstrip() for line in datafile if line]
+
+        return [self.predict(t) for t in text]
+
+    def train(self, datapath='/data/data.txt'):
         """
             datapath: path to training data text file
         """
@@ -38,6 +47,14 @@ class AbstractModel:
     def topics(self):
         raise NotImplementedError
 
+    def get_corpus_predictions(self):
+        """
+        Returns the predictions computed on the training corpus.
+        This is not re-computing predictions, but reading training results.
+        """
+        raise NotImplementedError
+
+
     def coherence(self, datapath='/app/data/data.txt', coherence='c_v'):
         """ Get coherence of model topics """
         if self.model is None:
@@ -52,14 +69,15 @@ class AbstractModel:
         while True:
             try:
                 coherence_model = gensim.models.coherencemodel.CoherenceModel(topics=topic_words, texts=text,
-                                                                              dictionary=dictionary, coherence=coherence)
+                                                                              dictionary=dictionary,
+                                                                              coherence=coherence)
                 coherence_per_topic = coherence_model.get_coherence_per_topic()
 
                 for i in range(len(topic_words)):
                     json_topics[str(i)][coherence] = coherence_per_topic[i]
 
                 json_topics[coherence] = np.nanmean(coherence_per_topic)
-                json_topics[coherence+'_std'] = np.nanstd(coherence_per_topic)
+                json_topics[coherence + '_std'] = np.nanstd(coherence_per_topic)
 
                 break
 

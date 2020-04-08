@@ -136,3 +136,4 @@ data/*
 tests/
 
 !data/data.txt
+!data/20ng*.txt

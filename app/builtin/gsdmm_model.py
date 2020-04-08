@@ -82,7 +82,29 @@ class GsdmmModel(AbstractModel):
     def predict(self, doc, topn=5):
         if self.model is None:
             self.load()
+
+        # gsdmm works for short text
+        # given the preprocessing, here there is no punctuation nor stopwords
+        # we keep the first 10 words
+        doc = ''.join(doc.split()[0:7])
+
         results = [(topic, score) for topic, score in enumerate(self.model.score(doc))]
-        print(results)
         results = [{topic: weight} for topic, weight in sorted(results, key=lambda kv: kv[1], reverse=True)[:topn]]
         return results
+
+    def get_corpus_predictions(self):
+        if self.model is None:
+            self.load()
+
+        # gsdmm is not saving the training corpus predictions
+        # however, it is very fast to process a 11k documents corpus
+
+        with open('../data/20ng.txt', "r") as datafile:
+            docs = [line.rstrip() for line in datafile if line]
+
+        scores = [self.model.score(''.join(doc.split()[0:7])) for doc in docs]
+
+        topics = [[(topic, score) for topic, score in enumerate(doc)] for doc in scores]
+        topics = [sorted(doc, key=lambda t:-t[1]) for doc in topics]
+
+        return topics

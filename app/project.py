@@ -45,6 +45,18 @@ def predict(model_type):
     # Return results and score
     return jsonify({'time': dur, 'results': results}), 200
 
+@app.route('/api/<string:model_type>/predict_corpus', methods=['POST'])
+def predict_corpus(model_type):
+    start = time.time()
+
+    # Load the model
+    model = models[model_type]()
+    # Perform Inference
+    results = model.predict_corpus(request.json['datapath'])
+    dur = time.time() - start
+    # Return results and score
+    return jsonify({'time': dur, 'results': results}), 200
+
 
 #################################################################
 #							TAGS								#

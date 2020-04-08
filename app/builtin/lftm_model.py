@@ -16,13 +16,14 @@ ROOT = ''
 MODEL_ROOT = ROOT + '/models/lftm'
 TOP_WORDS = MODEL_ROOT + '/TEDLFLDA.topWords'
 PARAS_PATH = MODEL_ROOT + '/TEDLFLDA.paras'
+THETA_PATH_MODEL = MODEL_ROOT + '/TEDLFLDA.theta'
+DATA_GLOVE = MODEL_ROOT + '/data_glove.txt'
 
 DATA_ROOT = ROOT + '/data/lftm'  # these files are regenerated at each prediction
 DOC_PATH = DATA_ROOT + '/doc.txt'
-DATA_GLOVE = DATA_ROOT + '/data_glove.txt'
 THETA_PATH = DATA_ROOT + '/TEDLFLDAinf.theta'
 
-os.makedirs('/data/lftm', exist_ok=True)
+os.makedirs(ROOT + '/data/lftm', exist_ok=True)
 
 W2V_BIN = DATA_ROOT + '/word2vec.bin'
 
@@ -38,12 +39,7 @@ def remove_tokens(x, tok2remove):
 class LftmModel(AbstractModel):
 
     # Perform Inference
-    def predict(self,
-                doc,
-                initer=500,
-                niter=0,
-                topn=10,
-                name='TEDLFLDAinf'):
+    def predict(self, doc, initer=500, niter=0, topn=10, name='TEDLFLDAinf'):
         """
             doc: the document on which to make the inference
             initer: initial sampling iterations to separate the counts for the latent feature component and the Dirichlet multinomial component
@@ -60,18 +56,9 @@ class LftmModel(AbstractModel):
             f.write(doc)
 
         # Perform Inference
-        completedProc = subprocess.run(
-            'java -jar {} -model {} -paras {} -corpus {} -initers {} -niters {} -twords '
-            '{} -name {} -sstep {}'.format(
-                LFTM_JAR,
-                'LFLDAinf',
-                PARAS_PATH,
-                DOC_PATH,
-                str(initer),
-                str(niter),
-                str(topn),
-                name,
-                '0'), shell=True)
+        proc = 'java -jar {} -model {} -paras {} -corpus {} -initers {} -niters {} -twords {} -name {} -sstep {}' \
+            .format(LFTM_JAR, 'LFLDAinf', PARAS_PATH, DOC_PATH, str(initer), str(niter), str(topn), name, '0')
+        completedProc = subprocess.run(proc, shell=True)
 
         # os.system('mv /app/data/TEDLFLDAinf.* /app/models/lftm/')
 
@@ -131,23 +118,10 @@ class LftmModel(AbstractModel):
         completedProc = subprocess.run(
             'java -jar {} -model {} -corpus {} -vectors {} -ntopics {} -alpha {} -beta {}'
             ' -lambda {} -initers {} -niters {} -twords {} -name {} -sstep {}'.format(
-                LFTM_JAR,
-                'LFLDA',
-                DATA_GLOVE,
-                GLOVE_TXT,
-                str(ntopics),
-                str(alpha),
-                str(beta),
-                str(_lambda),
-                str(initer),
-                str(niter),
-                str(topn),
-                'TEDLFLDA',
-                '0'), shell=True)
+                LFTM_JAR, 'LFLDA', DATA_GLOVE, GLOVE_TXT, str(ntopics), str(alpha),
+                str(beta), str(_lambda), str(initer), str(niter), str(topn), 'TEDLFLDA', '0'), shell=True)
 
-        print(completedProc.returncode)
-
-        return 'success'
+        return 'success' if completedProc.returncode == 0 else ('error %d' % completedProc.returncode)
 
     def get_raw_topics(self):
         json_topics = {}
@@ -200,7 +174,6 @@ class LftmModel(AbstractModel):
                 if not tags:
                     continue
 
-                print('doc', num_doc)
                 doc_score = 0
                 topic_weights = 0
                 # Iterate over the top topics
@@ -224,7 +197,6 @@ class LftmModel(AbstractModel):
                     doc_score += topic_weight * topic_score
                     topic_weights += topic_weight
                 doc_score /= topic_weights
-                print('doc score', doc_score)
 
                 score += doc_score
 
@@ -232,3 +204,13 @@ class LftmModel(AbstractModel):
 
         print(score)
         return score
+
+    def get_corpus_predictions(self):
+        with open(THETA_PATH_MODEL, "r") as file:
+            doc_topic_dist = [line.strip().split() for line in file.readlines()]
+
+        topics = [[(i, float(score)) for i, score in enumerate(doc)]
+                  for doc in doc_topic_dist]
+
+        topics = [sorted(doc, key=lambda t:-t[1]) for doc in topics]
+        return topics
