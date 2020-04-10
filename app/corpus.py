@@ -47,7 +47,7 @@ def retrieve_prepare_subtitles(url):
     return 'not found'
 
 
-# Preprosses subtitles
+# Preprocess subtitles
 def prepare_subtitles(text):
     text = re.sub(r'\((.*?)\)', ' ', text)
     text = re.sub(r'\d+', '', text)

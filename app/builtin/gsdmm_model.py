@@ -86,7 +86,7 @@ class GsdmmModel(AbstractModel):
         # gsdmm works for short text
         # given the preprocessing, here there is no punctuation nor stopwords
         # we keep the first 10 words
-        doc = ''.join(doc.split()[0:7])
+        doc = ''.join(doc.split()[0:10])
 
         results = [(topic, score) for topic, score in enumerate(self.model.score(doc))]
         results = [{topic: weight} for topic, weight in sorted(results, key=lambda kv: kv[1], reverse=True)[:topn]]
@@ -99,7 +99,7 @@ class GsdmmModel(AbstractModel):
         # gsdmm is not saving the training corpus predictions
         # however, it is very fast to process a 11k documents corpus
 
-        with open('../data/20ng.txt', "r") as datafile:
+        with open(self.corpus, "r") as datafile:
             docs = [line.rstrip() for line in datafile if line]
 
         scores = [self.model.score(''.join(doc.split()[0:7])) for doc in docs]
