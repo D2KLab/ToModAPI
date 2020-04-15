@@ -7,6 +7,7 @@ from .gsdmm import MovieGroupProcess
 ROOT = ''
 MODEL_PATH = ROOT + '/models/gsdmm/gsdmm.pkl'
 
+DOC_LEN = 7
 
 # Gibbs Sampling Algorithm for a Dirichlet Mixture Model
 class GsdmmModel(AbstractModel):
@@ -85,8 +86,8 @@ class GsdmmModel(AbstractModel):
 
         # gsdmm works for short text
         # given the preprocessing, here there is no punctuation nor stopwords
-        # we keep the first 10 words
-        doc = ''.join(doc.split()[0:10])
+        # we keep the first N words
+        doc = doc.split()[0:DOC_LEN]
 
         results = [(topic, score) for topic, score in enumerate(self.model.score(doc))]
         results = [{topic: weight} for topic, weight in sorted(results, key=lambda kv: kv[1], reverse=True)[:topn]]
@@ -102,7 +103,7 @@ class GsdmmModel(AbstractModel):
         with open(self.corpus, "r") as datafile:
             docs = [line.rstrip() for line in datafile if line]
 
-        scores = [self.model.score(''.join(doc.split()[0:7])) for doc in docs]
+        scores = [self.model.score(doc.split()[0:DOC_LEN]) for doc in docs]
 
         topics = [[(topic, score) for topic, score in enumerate(doc)] for doc in scores]
         topics = [sorted(doc, key=lambda t:-t[1]) for doc in topics]

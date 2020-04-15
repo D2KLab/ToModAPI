@@ -1,7 +1,7 @@
+# Modified from the original
+from numpy import argmax, log, exp, zeros
 from numpy.random import multinomial
-from numpy import log, exp
-from numpy import argmax
-import json
+
 
 class MovieGroupProcess:
     def __init__(self, K=8, alpha=0.1, beta=0.1, n_iters=30):
@@ -38,9 +38,10 @@ class MovieGroupProcess:
         # slots for computed variables
         self.number_docs = None
         self.vocab_size = None
-        self.cluster_doc_count = [0 for _ in range(K)]
-        self.cluster_word_count = [0 for _ in range(K)]
+        self.cluster_doc_count = zeros(K)
+        self.cluster_word_count = zeros(K)
         self.cluster_word_distribution = [{} for i in range(K)]
+        self.doc_cluster_scores = zeros(K)
 
     @staticmethod
     def from_data(K, alpha, beta, D, vocab_size, cluster_doc_count, cluster_word_count, cluster_word_distribution):
@@ -129,6 +130,7 @@ class MovieGroupProcess:
 
                 # draw sample from distribution to find new cluster
                 p = self.score(doc)
+                self.doc_cluster_scores = p
                 z_new = self._sample(p)
 
                 # transfer doc to the new cluster
@@ -146,8 +148,8 @@ class MovieGroupProcess:
 
             cluster_count_new = sum([1 for v in m_z if v > 0])
             print("In stage %d: transferred %d clusters with %d clusters populated" % (
-            _iter, total_transfers, cluster_count_new))
-            if total_transfers == 0 and cluster_count_new == cluster_count and _iter>25:
+                _iter, total_transfers, cluster_count_new))
+            if total_transfers == 0 and cluster_count_new == cluster_count and _iter > 25:
                 print("Converged.  Breaking out.")
                 break
             cluster_count = cluster_count_new
@@ -185,14 +187,15 @@ class MovieGroupProcess:
             lD2 = 0
             for word in doc:
                 lN2 += log(n_z_w[label].get(word, 0) + beta)
-            for j in range(1, doc_size +1):
+            for j in range(1, doc_size + 1):
                 lD2 += log(n_z[label] + V * beta + j - 1)
+
             p[label] = exp(lN1 - lD1 + lN2 - lD2)
 
         # normalize the probability vector
         pnorm = sum(p)
-        pnorm = pnorm if pnorm>0 else 1
-        return [pp/pnorm for pp in p]
+        pnorm = pnorm if pnorm > 0 else 1
+        return [pp / pnorm for pp in p]
 
     def choose_best_label(self, doc):
         '''
@@ -201,4 +204,4 @@ class MovieGroupProcess:
         :return:
         '''
         p = self.score(doc)
-        return argmax(p),max(p)
+        return argmax(p), max(p)
