@@ -2,7 +2,7 @@ import time
 
 from flask import Flask, jsonify, request, make_response
 from flask_cors import CORS
-from swagger_ui import flask_api_doc
+from swagger_ui import api_doc
 
 from builtin import TfIdfModel, LdaModel, LftmModel, NtmModel, GsdmmModel
 from corpus import retrieve_prepare_tags, prepare_subtitles
@@ -11,7 +11,7 @@ __package__ = 'app'
 
 app = Flask(__name__)
 CORS(app)
-flask_api_doc(app, config_path='swagger.yml', url_prefix='', title='Topic Model API')
+api_doc(app, config_path='swagger.yml', url_prefix='', title='Topic Model API')
 
 models = {
     'gsdmm': GsdmmModel,
