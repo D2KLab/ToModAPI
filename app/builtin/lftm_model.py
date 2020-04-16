@@ -74,7 +74,7 @@ class LftmModel(AbstractModel):
 
     # Train the model
     def train(self,
-              datapath=DATA_ROOT + '/data.txt',
+              datapath=ROOT + '/data/data.txt',
               ntopics=35,
               alpha=0.1,
               beta=0.1,
@@ -212,5 +212,5 @@ class LftmModel(AbstractModel):
         topics = [[(i, float(score)) for i, score in enumerate(doc)]
                   for doc in doc_topic_dist]
 
-        topics = [sorted(doc, key=lambda t:-t[1]) for doc in topics]
+        topics = [sorted(doc, key=lambda t: -t[1]) for doc in topics]
         return topics

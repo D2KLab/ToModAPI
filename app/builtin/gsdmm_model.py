@@ -9,6 +9,7 @@ MODEL_PATH = ROOT + '/models/gsdmm/gsdmm.pkl'
 
 DOC_LEN = 7
 
+
 # Gibbs Sampling Algorithm for a Dirichlet Mixture Model
 class GsdmmModel(AbstractModel):
     # Load the saved model
@@ -97,15 +98,6 @@ class GsdmmModel(AbstractModel):
         if self.model is None:
             self.load()
 
-        # gsdmm is not saving the training corpus predictions
-        # however, it is very fast to process a 11k documents corpus
-
-        with open(self.corpus, "r") as datafile:
-            docs = [line.rstrip() for line in datafile if line]
-
-        scores = [self.model.score(doc.split()[0:DOC_LEN]) for doc in docs]
-
-        topics = [[(topic, score) for topic, score in enumerate(doc)] for doc in scores]
+        topics = [[(topic, score) for topic, score in enumerate(doc)] for doc in self.model.doc_cluster_scores]
         topics = [sorted(doc, key=lambda t:-t[1]) for doc in topics]
-
         return topics

@@ -45,6 +45,7 @@ def predict(model_type):
     # Return results and score
     return jsonify({'time': dur, 'results': results}), 200
 
+
 @app.route('/api/<string:model_type>/predict_corpus', methods=['POST'])
 def predict_corpus(model_type):
     start = time.time()
@@ -129,6 +130,7 @@ def train_tfidf():
                           float(request.json['max_df']),
                           float(request.json['min_df']))
     dur = time.time() - start
+    print('Training TFIDF done in %f' % dur)
     # return result
     return jsonify({'time': dur, 'result': results}), 200
 
@@ -147,6 +149,7 @@ def train_lda():
                           int(request.json['optimize_interval']),
                           float(request.json['topic_threshold']))
     dur = time.time() - start
+    print('Training LDA done in %f' % dur)
     # Return results
     return jsonify({'time': dur, 'result': results}), 200
 
@@ -166,6 +169,7 @@ def train_lftm():
                           request.json['niter'],
                           request.json['topn'])
     dur = time.time() - start
+    print('Training LFTM done in %f' % dur)
     # Return results
     return jsonify({'time': dur, 'result': results}), 200
 
@@ -185,6 +189,7 @@ def train_ntm():
                           float(request.json['l1_word']),
                           int(request.json['word_dim']))
     dur = time.time() - start
+    print('Training NTM done in %f' % dur)
     # return result
     return jsonify({'time': dur, 'result': results[0], 'fmeasure': str(results[1]), 'loss': str(results[2])}), 200
 
@@ -201,6 +206,7 @@ def train_gsdmm():
                           float(request.json['beta']),
                           int(request.json['n_iter']))
     dur = time.time() - start
+    print('Training GSDMM done in %f' % dur)
     # Return results
     return jsonify({'time': dur, 'result': results}), 200
 

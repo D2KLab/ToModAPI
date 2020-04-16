@@ -1,5 +1,6 @@
 data
-jupyter_notebooks
+notebooks
+asrael
 models
 
 .idea
