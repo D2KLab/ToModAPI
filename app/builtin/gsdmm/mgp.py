@@ -41,7 +41,7 @@ class MovieGroupProcess:
         self.cluster_doc_count = zeros(K)
         self.cluster_word_count = zeros(K)
         self.cluster_word_distribution = [{} for i in range(K)]
-        self.doc_cluster_scores = zeros(K)
+        self.doc_cluster_scores = list()
 
     @staticmethod
     def from_data(K, alpha, beta, D, vocab_size, cluster_doc_count, cluster_word_count, cluster_word_distribution):
@@ -96,6 +96,8 @@ class MovieGroupProcess:
         cluster_count = K
         d_z = [None for i in range(len(docs))]
 
+        self.doc_cluster_scores = [list() for i in range(len(docs))]
+
         # initialize the clusters
         for i, doc in enumerate(docs):
 
@@ -130,7 +132,7 @@ class MovieGroupProcess:
 
                 # draw sample from distribution to find new cluster
                 p = self.score(doc)
-                self.doc_cluster_scores = p
+                self.doc_cluster_scores[i] = p
                 z_new = self._sample(p)
 
                 # transfer doc to the new cluster
