@@ -195,4 +195,7 @@ class LdaModel(AbstractModel):
         if self.model is None:
             self.load()
 
-        return list(self.model.load_document_topics())
+        topics = self.model.load_document_topics()
+        topics = [sorted(doc, key=lambda t: -t[1]) for doc in topics]
+
+        return topics
