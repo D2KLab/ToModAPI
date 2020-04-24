@@ -1,6 +1,6 @@
 -model	LFLDA
--corpus	/app/data/lftm/data_glove.txt
--vectors	/app/data/glove.6B.50d.txt
+-corpus	/data/lftm/data_glove.txt
+-vectors	./builtin/glove/glove.6B.50d.txt
 -ntopics	25
 -alpha	0.1
 -beta	0.1
