@@ -8,6 +8,9 @@ COPY app/requirements.txt .
 RUN pip3 install --upgrade pip
 RUN pip3 install -r requirements.txt
 
+COPY patch_swagger.sh /app
+RUN /app/patch_swagger.sh
+
 ADD /app .
 
 ENV LANG C.UTF-8

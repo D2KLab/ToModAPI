@@ -5,96 +5,110 @@ info:
     Source code: [http://github.com/kandakji/ted-talk-topic-extraction](https://github.com/kandakji/ted-talk-topic-extraction).
   version: 1.0.0
   title: Topic Model API
-host: 'hyperted.eurecom.fr'
-basePath: /topic/api
+host: 'localhost:5000'
+basePath: /api
 schemes:
-- http
+  - http
 tags:
-- name: lda
-  description: Latent Dirichlet Allocation Topic Model - Mallet Package
-- name: lftm
-  description: Latent Feature Topic Model
-- name: ntm
-  description: Neural Topic Model
-- name: gsdmm
-  description:  Gibbs sampling algorithm for a Dirichlet Mixture Model
-  
+  - name: lda
+    description: Latent Dirichlet Allocation Topic Model - Mallet Package
+  - name: lftm
+    description: Latent Feature Topic Model
+  - name: ntm
+    description: Neural Topic Model
+  - name: gsdmm
+    description:  Gibbs sampling algorithm for a Dirichlet Mixture Model
+
 paths:
   /lda/train:
     post:
       tags:
-      - lda
+        - lda
       summary: Train LDA model
       operationId: trainLDA
       consumes:
-      - application/json
+        - application/json
       produces:
-      - application/json
+        - application/json
       parameters:
-      - in: body
-        name: body
-        description: Model parameters and hyper-parameters
-        required: true
-        schema:
-          $ref: '#/definitions/LDA'
+        - in: body
+          name: body
+          description: Model parameters and hyper-parameters
+          required: true
+          schema:
+            $ref: '#/definitions/LDA'
       responses:
         200:
           description: Training Complete
         400:
           description: Invalid Input or Error Occured
-          
+
   /lda/predict:
     post:
       tags:
-      - lda
+        - lda
       summary: Predict for new document
       operationId: predict
       produces:
-      - application/json
+        - application/json
       parameters:
-      - in: body
-        name: body
-        description: A text (sentence, paragraph, ...)
-        required: true
-        schema:
-          $ref: '#/definitions/DOC'
+        - in: body
+          name: body
+          description: A text (sentence, paragraph, ...)
+          required: true
+          schema:
+            $ref: '#/definitions/DOC'
       responses:
         200:
           description: Prediction Complete
         400:
           description: Invalid Input or Error Occured
-    
+
   /lda/topics:
     get:
       tags:
-      - lda
+        - lda
       summary: Get topic words
       operationId: topicsLDA
       produces:
-      - application/json
+        - application/json
       responses:
         200:
           description: successful operation
         400:
           description: An error occured
-          
+
+  /lda/training_predictions:
+    get:
+      tags:
+        - lda
+      summary: Get the predictions computed on the corpus at training time
+      operationId: trainPredLDA
+      produces:
+        - application/json
+      responses:
+        200:
+          description: successful operation
+        400:
+          description: An error occured
+
   /lda/coherence:
     post:
       tags:
-      - lda
+        - lda
       summary: Get Topic Coherences
       operationId: coherenceLDA
       consumes:
-      - application/json
+        - application/json
       produces:
-      - application/json
+        - application/json
       parameters:
-      - in: body
-        name: body
-        description: Model parameters and hyper-parameters
-        required: true
-        schema:
-          $ref: '#/definitions/DATA'
+        - in: body
+          name: body
+          description: Model parameters and hyper-parameters
+          required: true
+          schema:
+            $ref: '#/definitions/DATA'
       responses:
         200:
           description: Coherence Computed
@@ -103,78 +117,92 @@ paths:
   /lftm/train:
     post:
       tags:
-      - lftm
+        - lftm
       summary: Train LFTM model
       operationId: trainLFTM
       consumes:
-      - application/json
+        - application/json
       produces:
-      - application/json
+        - application/json
       parameters:
-      - in: body
-        name: body
-        description: Model parameters and hyper-parameters
-        required: true
-        schema:
-          $ref: '#/definitions/LFTM'
+        - in: body
+          name: body
+          description: Model parameters and hyper-parameters
+          required: true
+          schema:
+            $ref: '#/definitions/LFTM'
       responses:
         200:
           description: Training Complete
         400:
           description: Invalid Input or Error Occured
-          
+
   /lftm/predict:
     post:
       tags:
-      - lftm
+        - lftm
       summary: Predict for new document
       operationId: predictLFTM
       produces:
-      - application/json
+        - application/json
       parameters:
-      - in: body
-        name: body
-        description: A text (sentence, paragraph, ...)
-        required: true
-        schema:
-          $ref: '#/definitions/DOC'
+        - in: body
+          name: body
+          description: A text (sentence, paragraph, ...)
+          required: true
+          schema:
+            $ref: '#/definitions/DOC'
       responses:
         200:
           description: Prediction Complete
         400:
           description: Invalid Input or Error Occured
-    
+
   /lftm/topics:
     get:
       tags:
-      - lftm
+        - lftm
       summary: Get topic words
       operationId: topicsLFTM
       produces:
-      - application/json
+        - application/json
       responses:
         200:
           description: successful operation
         400:
           description: An error occured
-          
+
+  /lftm/training_predictions:
+    get:
+      tags:
+        - lftm
+      summary: Get the predictions computed on the corpus at training time
+      operationId: trainPredLFTM
+      produces:
+        - application/json
+      responses:
+        200:
+          description: successful operation
+        400:
+          description: An error occured
+
   /lftm/coherence:
     post:
       tags:
-      - lftm
+        - lftm
       summary: Get Topic Coherences
       operationId: coherenceLFTM
       consumes:
-      - application/json
+        - application/json
       produces:
-      - application/json
+        - application/json
       parameters:
-      - in: body
-        name: body
-        description: Model parameters and hyper-parameters
-        required: true
-        schema:
-          $ref: '#/definitions/DATA'
+        - in: body
+          name: body
+          description: Model parameters and hyper-parameters
+          required: true
+          schema:
+            $ref: '#/definitions/DATA'
       responses:
         200:
           description: Coherence Computed
@@ -184,158 +212,186 @@ paths:
   /ntm/train:
     post:
       tags:
-      - ntm
+        - ntm
       summary: Train NTM model
       operationId: trainNTM
       consumes:
-      - application/json
+        - application/json
       produces:
-      - application/json
+        - application/json
       parameters:
-      - in: body
-        name: body
-        description: Model parameters and hyper-parameters
-        required: true
-        schema:
-          $ref: '#/definitions/NTM'
+        - in: body
+          name: body
+          description: Model parameters and hyper-parameters
+          required: true
+          schema:
+            $ref: '#/definitions/NTM'
       responses:
         200:
           description: Training Complete
         400:
           description: Invalid Input or Error Occured
-          
+
   /ntm/predict:
     post:
       tags:
-      - ntm
+        - ntm
       summary: Predict for new document
       operationId: predictNTM
       produces:
-      - application/json
+        - application/json
       parameters:
-      - in: body
-        name: body
-        description: A text (sentence, paragraph, ...)
-        required: true
-        schema:
-          $ref: '#/definitions/DOC'
+        - in: body
+          name: body
+          description: A text (sentence, paragraph, ...)
+          required: true
+          schema:
+            $ref: '#/definitions/DOC'
       responses:
         200:
           description: Prediction Complete
         400:
           description: Invalid Input or Error Occured
       deprecated: True
-    
+
   /ntm/topics:
     get:
       tags:
-      - ntm
+        - ntm
       summary: Get topic words
       operationId: topicsNTM
       produces:
-      - application/json
+        - application/json
       responses:
         200:
           description: successful operation
         400:
           description: An error occured
-          
+
+  /ntm/training_predictions:
+    get:
+      tags:
+        - ntm
+      summary: Get the predictions computed on the corpus at training time
+      operationId: trainPredNTM
+      produces:
+        - application/json
+      responses:
+        200:
+          description: successful operation
+        400:
+          description: An error occured
+
   /ntm/coherence:
     post:
       tags:
-      - ntm
+        - ntm
       summary: Get Topic Coherences
       operationId: coherenceNTM
       consumes:
-      - application/json
+        - application/json
       produces:
-      - application/json
+        - application/json
       parameters:
-      - in: body
-        name: body
-        description: Model parameters and hyper-parameters
-        required: true
-        schema:
-          $ref: '#/definitions/DATA'
+        - in: body
+          name: body
+          description: Model parameters and hyper-parameters
+          required: true
+          schema:
+            $ref: '#/definitions/DATA'
       responses:
         200:
           description: Coherence Computed
         400:
           description: Invalid Input or Error Occured
-          
+
   /gsdmm/train:
     post:
       tags:
-      - gsdmm
+        - gsdmm
       summary: Train GSDMM model
       operationId: trainGSDMM
       consumes:
-      - application/json
+        - application/json
       produces:
-      - application/json
+        - application/json
       parameters:
-      - in: body
-        name: body
-        description: Model parameters and hyper-parameters
-        required: true
-        schema:
-          $ref: '#/definitions/GSDMM'
+        - in: body
+          name: body
+          description: Model parameters and hyper-parameters
+          required: true
+          schema:
+            $ref: '#/definitions/GSDMM'
       responses:
         200:
           description: Training Complete
         400:
           description: Invalid Input or Error Occured
-          
+
   /gsdmm/predict:
     post:
       tags:
-      - gsdmm
+        - gsdmm
       summary: Predict for new document
       operationId: predictGSDMM
       parameters:
-      - in: body
-        name: body
-        description: A text (sentence, paragraph, ...)
-        required: true
-        schema:
-          $ref: '#/definitions/DOC'
+        - in: body
+          name: body
+          description: A text (sentence, paragraph, ...)
+          required: true
+          schema:
+            $ref: '#/definitions/DOC'
       responses:
         200:
           description: Prediction Complete
         400:
           description: Invalid Input or Error Occured
-    
+
   /gsdmm/topics:
     get:
       tags:
-      - gsdmm
+        - gsdmm
       summary: Get topic words
       operationId: topicsGSDMM
       produces:
-      - application/json
+        - application/json
       responses:
         200:
           description: successful operation
         400:
           description: An error occured
-          
+
+  /gsdmm/training_predictions:
+    get:
+      tags:
+        - gsdmm
+      summary: Get the predictions computed on the corpus at training time
+      operationId: trainPredGSDMM
+      produces:
+        - application/json
+      responses:
+        200:
+          description: successful operation
+        400:
+          description: An error occured
+
   /gsdmm/coherence:
     post:
       tags:
-      - gsdmm
+        - gsdmm
       summary: Get Topic Coherences
       operationId: coherenceGSDMM
       consumes:
-      - application/json
+        - application/json
       produces:
-      - application/json
+        - application/json
       parameters:
-      - in: body
-        name: body
-        description: Model parameters and hyper-parameters
-        required: true
-        schema:
-          $ref: '#/definitions/DATA'
+        - in: body
+          name: body
+          description: Model parameters and hyper-parameters
+          required: true
+          schema:
+            $ref: '#/definitions/DATA'
       responses:
         200:
           description: Coherence Computed
@@ -367,7 +423,7 @@ definitions:
       random_seed:
         type: string
         example: "5"
-        
+
   LFTM:
     type: object
     properties:
@@ -395,7 +451,7 @@ definitions:
       topn:
         type: string
         example: "10"
-        
+
   NTM:
     type: object
     properties:
@@ -423,7 +479,7 @@ definitions:
       word_dim:
         type: string
         example: "0"
-        
+
   GSDMM:
     type: object
     properties:
@@ -442,11 +498,11 @@ definitions:
       n_iter:
         type: string
         example: "10"
-        
+
   DOC:
     type: string
     example: "Climate change is a global environmental issue that is affecting the lands, the oceans, the animals, and humans"
-        
+
   DATA:
     type: object
     properties:

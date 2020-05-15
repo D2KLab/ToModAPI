@@ -1,8 +1,10 @@
+import os
 import time
+import json
 
 from flask import Flask, jsonify, request, make_response
 from flask_cors import CORS
-from swagger_ui import api_doc
+from swagger_ui import flask_api_doc as api_doc
 
 from builtin import TfIdfModel, LdaModel, LftmModel, NtmModel, GsdmmModel
 from corpus import retrieve_prepare_tags, prepare_subtitles
@@ -93,25 +95,43 @@ def get_topics(model_type):
 
 
 #################################################################
+#							TRAINING PREDICTIONS								#
+#################################################################
+
+@app.route('/api/<string:model_type>/training_predictions', methods=['GET'])
+def get_training_prediction(model_type):
+    start = time.time()
+    # Load the model
+    model = models[model_type]()
+    # Retrieve topics
+    topics = model.get_corpus_predictions()
+    dur = time.time() - start
+    # Return results
+    return jsonify({'time': dur, 'topics': topics}), 200
+
+
+#################################################################
 #							COHERENCE							#
 #################################################################
 
 
 @app.route('/api/<string:model_type>/coherence', methods=['POST'])
 def get_coherence(model_type):
-    try:
         start = time.time()
         # Load the model
         model = models[model_type]()
         # Retrieve topics
         args = request.json
         c = args['metric'] if 'metric' in args else 'c_v'
+        print('Coherence %s for %s' % (c, model_type))
         topics = model.coherence(args['datapath'], coherence=c)
         dur = time.time() - start
         # Return results
-        return jsonify({'time': dur, 'topics': topics}), 200
-    except:
-        return jsonify({'error': "Invalid input or error occured."}), 400
+        response = jsonify({'time': dur, 'topics': topics})
+        os.makedirs('/data/out', exist_ok=True)
+        with open('/data/out/%s.%s.json' % (model_type, c), 'w') as f:
+            json.dump(response, f)
+        return response, 200
 
 
 #################################################################

@@ -39,7 +39,7 @@ def remove_tokens(x, tok2remove):
 class LftmModel(AbstractModel):
 
     # Perform Inference
-    def predict(self, doc, initer=500, niter=0, topn=10, name='TEDLFLDAinf'):
+    def predict(self, doc, topn=10):
         """
             doc: the document on which to make the inference
             initer: initial sampling iterations to separate the counts for the latent feature component and the Dirichlet multinomial component
@@ -47,6 +47,9 @@ class LftmModel(AbstractModel):
             topn: number of the most probable topical words
             name: prefix of the inference documents
         """
+        initer = 500
+        niter = 0
+        name = 'TEDLFLDAinf'
         with open(GLOVE_TOKENS, "rb") as input_file:
             glovetokens = pickle.load(input_file)
 
@@ -58,6 +61,7 @@ class LftmModel(AbstractModel):
         # Perform Inference
         proc = 'java -jar {} -model {} -paras {} -corpus {} -initers {} -niters {} -twords {} -name {} -sstep {}' \
             .format(LFTM_JAR, 'LFLDAinf', PARAS_PATH, DOC_PATH, str(initer), str(niter), str(topn), name, '0')
+        print(proc)
         completedProc = subprocess.run(proc, shell=True)
 
         # os.system('mv /app/data/TEDLFLDAinf.* /app/models/lftm/')
@@ -68,7 +72,7 @@ class LftmModel(AbstractModel):
             doc_topic_dist = file.readline()
 
         doc_topic_dist = [(topic, float(weight)) for topic, weight in enumerate(doc_topic_dist.split())]
-        sorted_doc_topic_dist = sorted(doc_topic_dist, key=lambda kv: kv[1], reverse=True)[:5]
+        sorted_doc_topic_dist = sorted(doc_topic_dist, key=lambda kv: kv[1], reverse=True)[:topn]
         results = [{topic: weight} for topic, weight in sorted_doc_topic_dist]
         return results
 
