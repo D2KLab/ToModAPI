@@ -35,10 +35,18 @@ class LdaModel(AbstractModel):
         doc_topic_dist = self.model[doc]
         # Sort to get the top n topics
         # Structure the results into a dictionary
-        results = [{topic: weight} for topic, weight in
-                   sorted(doc_topic_dist, key=lambda kv: kv[1], reverse=True)[:topn]]
+        results = sorted(doc_topic_dist, key=lambda kv: kv[1], reverse=True)[:topn]
 
         return results
+
+    def get_corpus_predictions(self):
+        if self.model is None:
+            self.load()
+
+        topics = self.model.load_document_topics()
+        topics = [sorted(doc, key=lambda t: -t[1]) for doc in topics]
+
+        return topics
 
     # Train the model
     def train(self,
@@ -108,11 +116,3 @@ class LdaModel(AbstractModel):
 
         return topics
 
-    def get_corpus_predictions(self):
-        if self.model is None:
-            self.load()
-
-        topics = self.model.load_document_topics()
-        topics = [sorted(doc, key=lambda t: -t[1]) for doc in topics]
-
-        return topics

@@ -81,12 +81,20 @@ class LftmModel(AbstractModel):
         with open(self.theta_path, "r") as file:
             doc_topic_dist = file.readline()
 
-        doc_topic_dist = [(topic, float(weight)) for topic, weight in enumerate(doc_topic_dist.split())]
-        sorted_doc_topic_dist = sorted(doc_topic_dist, key=lambda kv: kv[1], reverse=True)[:topn]
-        results = [{topic: weight} for topic, weight in sorted_doc_topic_dist]
+        doc_topic_dist = [(int(topic), float(weight)) for topic, weight in enumerate(doc_topic_dist.split())]
+        results = sorted(doc_topic_dist, key=lambda kv: kv[1], reverse=True)[:topn]
         return results
 
-    # Train the model
+    def get_corpus_predictions(self):
+        with open(self.theta_path_model, "r") as file:
+            doc_topic_dist = [line.strip().split() for line in file.readlines()]
+
+        topics = [[(i, float(score)) for i, score in enumerate(doc)]
+                  for doc in doc_topic_dist]
+
+        topics = [sorted(doc, key=lambda t: -t[1]) for doc in topics]
+        return topics
+
     def train(self,
               datapath=AbstractModel.ROOT + '/data/data.txt',
               ntopics=35,
@@ -157,14 +165,4 @@ class LftmModel(AbstractModel):
                 _id, words = match.groups()
                 topics.append({'words': words.split()})
 
-        return topics
-
-    def get_corpus_predictions(self):
-        with open(self.theta_path_model, "r") as file:
-            doc_topic_dist = [line.strip().split() for line in file.readlines()]
-
-        topics = [[(i, float(score)) for i, score in enumerate(doc)]
-                  for doc in doc_topic_dist]
-
-        topics = [sorted(doc, key=lambda t: -t[1]) for doc in topics]
         return topics

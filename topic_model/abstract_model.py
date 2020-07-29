@@ -60,7 +60,7 @@ class AbstractModel:
         topics = self.topics()
         topic_words = [x['words'] for x in topics]
 
-        print('loading dataset')
+        self.log.debug('loading dataset')
         with open(datapath, "r") as datafile:
             text = [line.rstrip().split() for line in datafile if line]
 
@@ -70,7 +70,7 @@ class AbstractModel:
 
         while True:
             try:
-                print('creating coherence model')
+                self.log.debug('creating coherence model')
                 coherence_model = gensim.models.coherencemodel.CoherenceModel(topics=topic_words, texts=text,
                                                                               dictionary=dictionary,
                                                                               coherence=coherence)

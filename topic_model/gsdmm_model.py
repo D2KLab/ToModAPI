@@ -68,8 +68,7 @@ class GsdmmModel(AbstractModel):
 
         return 'success'
 
-    # Perform Inference
-    def predict(self, doc, topn=5, doc_len=7):
+    def predict(self, doc: str, topn=5, doc_len=7):
         if self.model is None:
             self.load()
 
@@ -79,7 +78,7 @@ class GsdmmModel(AbstractModel):
         doc = doc.split()[0:doc_len]
 
         results = [(topic, score) for topic, score in enumerate(self.model.score(doc))]
-        results = [{topic: weight} for topic, weight in sorted(results, key=lambda kv: kv[1], reverse=True)[:topn]]
+        results = sorted(results, key=lambda kv: kv[1], reverse=True)[:topn]
         return results
 
     def get_corpus_predictions(self):

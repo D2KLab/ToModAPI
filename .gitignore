@@ -130,8 +130,8 @@ dmypy.json
 .pyre/
 
 # models and data
-topic_model/models/mallet-2.0.8
-topic_model/models/glove/glove.6B*
+topic_model/mallet-2.0.8
+topic_model/glove/glove.6B*
 data/*
 tests/
 
