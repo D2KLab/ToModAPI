@@ -6,10 +6,10 @@ from flask import Flask, jsonify, request, make_response
 from flask_cors import CORS
 from swagger_ui import flask_api_doc as api_doc
 
-from builtin import TfIdfModel, LdaModel, LftmModel, NtmModel, GsdmmModel
-from corpus import retrieve_prepare_tags, prepare_subtitles
+from topic_model.models import TfIdfModel, LdaModel, LftmModel, Doc2TopicModel, GsdmmModel
+from topic_model.corpus import retrieve_prepare_tags, prepare_subtitles
 
-__package__ = 'app'
+__package__ = 'topic_model'
 
 app = Flask(__name__)
 CORS(app)
@@ -17,7 +17,7 @@ api_doc(app, config_path='swagger.yml', url_prefix='', title='Topic Model API')
 
 models = {
     'gsdmm': GsdmmModel,
-    'ntm': NtmModel,
+    'doc2topic': Doc2TopicModel,
     'lftm': LftmModel,
     'lda': LdaModel,
     'tfidf': TfIdfModel
@@ -117,21 +117,21 @@ def get_training_prediction(model_type):
 
 @app.route('/api/<string:model_type>/coherence', methods=['POST'])
 def get_coherence(model_type):
-        start = time.time()
-        # Load the model
-        model = models[model_type]()
-        # Retrieve topics
-        args = request.json
-        c = args['metric'] if 'metric' in args else 'c_v'
-        print('Coherence %s for %s' % (c, model_type))
-        topics = model.coherence(args['datapath'], coherence=c)
-        dur = time.time() - start
-        # Return results
-        response = jsonify({'time': dur, 'topics': topics})
-        os.makedirs('/data/out', exist_ok=True)
-        with open('/data/out/%s.%s.json' % (model_type, c), 'w') as f:
-            json.dump(response, f)
-        return response, 200
+    start = time.time()
+    # Load the model
+    model = models[model_type]()
+    # Retrieve topics
+    args = request.json
+    c = args['metric'] if 'metric' in args else 'c_v'
+    print('Coherence %s for %s' % (c, model_type))
+    topics = model.coherence(args['datapath'], coherence=c)
+    dur = time.time() - start
+    # Return results
+    response = jsonify({'time': dur, 'topics': topics})
+    os.makedirs('/data/out', exist_ok=True)
+    with open('/data/out/%s.%s.json' % (model_type, c), 'w') as f:
+        json.dump(response, f)
+    return response, 200
 
 
 #################################################################
@@ -174,7 +174,7 @@ def train_lda():
     return jsonify({'time': dur, 'result': results}), 200
 
 
-@app.route('/api/lftm/train', methods=['POST'])
+@app.route('/api/lftm_0/train', methods=['POST'])
 def train_lftm():
     start = time.time()
     # Load model
@@ -194,11 +194,11 @@ def train_lftm():
     return jsonify({'time': dur, 'result': results}), 200
 
 
-@app.route('/api/ntm/train', methods=['POST'])
+@app.route('/api/doc2topic/train', methods=['POST'])
 def train_ntm():
     start = time.time()
     # Load model
-    model = NtmModel()
+    model = Doc2TopicModel()
     # Train model
     results = model.train(request.json['datapath'],
                           int(request.json['n_topics']),
@@ -207,7 +207,7 @@ def train_ntm():
                           float(request.json['lr']),
                           float(request.json['l1_doc']),
                           float(request.json['l1_word']),
-                          int(request.json['word_dim']))
+                          int(request.json['word_dim']), return_scores=True)
     dur = time.time() - start
     print('Training NTM done in %f' % dur)
     # return result
@@ -229,41 +229,6 @@ def train_gsdmm():
     print('Training GSDMM done in %f' % dur)
     # Return results
     return jsonify({'time': dur, 'result': results}), 200
-
-
-#################################################################
-#							EVALUATION							#
-#################################################################
-
-@app.route('/api/lda/eval', methods=['GET'])
-def eval_lda():
-    try:
-        start = time.time()
-        # Load model
-        model = LdaModel()
-        model.load()
-        # Evaluate model
-        score = model.evaluate()
-        dur = time.time() - start
-        # Return results
-        return jsonify({'time': dur, 'score': score}), 200
-    except:
-        return jsonify({'error': "An error occured."}), 400
-
-
-@app.route('/api/lftm/eval', methods=['GET'])
-def eval_lftm():
-    try:
-        start = time.time()
-        # Load model
-        model = LftmModel()
-        # Evaluate model
-        score = model.evaluate()
-        dur = time.time() - start
-        # Return results
-        return jsonify({'time': dur, 'score': score}), 200
-    except:
-        return jsonify({'error': "An error occured."}), 400
 
 
 if __name__ == '__main__':

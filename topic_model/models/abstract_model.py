@@ -1,10 +1,14 @@
 import numpy as np
 import gensim
+import logging
 
 
 class AbstractModel:
+    ROOT = '.'
+
     def __init__(self):
         self.model = None
+        self.log = logging.getLogger(self.__class__.__name__)
 
     def load(self):
         """
@@ -21,14 +25,14 @@ class AbstractModel:
         """
         raise NotImplementedError
 
-    def predict_corpus(self, datapath='/data/data.txt'):
+    def predict_corpus(self, datapath='/data/data.txt', topn=5):
         if self.model is None:
             self.load()
 
         with open(datapath, "r") as datafile:
             text = [line.rstrip() for line in datafile if line]
 
-        return [self.predict(t) for t in text]
+        return [self.predict(t, topn=topn) for t in text]
 
     def train(self, datapath='/data/data.txt'):
         """
@@ -36,15 +40,12 @@ class AbstractModel:
         """
         raise NotImplementedError
 
-    def get_raw_topics(self):
-        """
-            Returns
-            - json_topics
-            - topic_words
-        """
-        raise NotImplementedError
-
     def topics(self):
+        """
+            Returns a list of topic objects containing
+            - 'words' the list of words related to the topic
+            - 'weights' of those words in order (not always present)
+        """
         raise NotImplementedError
 
     def get_corpus_predictions(self):
@@ -56,15 +57,16 @@ class AbstractModel:
 
     def coherence(self, datapath='/data/data.txt', coherence='c_v'):
         """ Get coherence of model topics """
-        if self.model is None:
-            self.load()
-        json_topics, topic_words = self.get_raw_topics()
+        topics = self.topics()
+        topic_words = [x['words'] for x in topics]
 
         print('loading dataset')
         with open(datapath, "r") as datafile:
             text = [line.rstrip().split() for line in datafile if line]
 
         dictionary = gensim.corpora.hashdictionary.HashDictionary(text)
+
+        results = {}
 
         while True:
             try:
@@ -74,11 +76,12 @@ class AbstractModel:
                                                                               coherence=coherence)
                 coherence_per_topic = coherence_model.get_coherence_per_topic()
 
-                for i in range(len(topic_words)):
-                    json_topics[str(i)][coherence] = coherence_per_topic[i]
+                for i, t in enumerate(topics):
+                    t[coherence] = coherence_per_topic[i]
 
-                json_topics[coherence] = np.nanmean(coherence_per_topic)
-                json_topics[coherence + '_std'] = np.nanstd(coherence_per_topic)
+                results['topics'] = topics
+                results[coherence] = np.nanmean(coherence_per_topic)
+                results[coherence + '_std'] = np.nanstd(coherence_per_topic)
 
                 break
 
@@ -88,4 +91,4 @@ class AbstractModel:
                     if key in x:
                         x.remove(key)
 
-        return json_topics
+        return results

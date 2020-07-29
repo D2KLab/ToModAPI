@@ -4,54 +4,42 @@ import gensim
 from .abstract_model import AbstractModel
 from .gsdmm import MovieGroupProcess
 
-ROOT = ''
-MODEL_PATH = ROOT + '/models/gsdmm/gsdmm.pkl'
-
-DOC_LEN = 7
-
 
 # Gibbs Sampling Algorithm for a Dirichlet Mixture Model
 class GsdmmModel(AbstractModel):
+    def __init__(self, model_path=AbstractModel.ROOT + '/models/gsdmm/gsdmm.pkl'):
+        super().__init__()
+        self.model_path = model_path
+
     # Load the saved model
     def load(self):
-        with open(MODEL_PATH, "rb") as input_file:
+        with open(self.model_path, "rb") as input_file:
             self.model = pickle.load(input_file)
 
-    def get_raw_topics(self):
-        json_topics = {}
-        topic_words = []
-
-        for i, topic in enumerate(self.model.cluster_word_distribution):
-            json_topics[str(i)] = {
-                'words': {}
-            }
-            topic_words.append([])
-            total = sum(topic.values())
-            for word, freq in sorted(topic.items(), key=lambda item: item[1], reverse=True)[:10]:
-                json_topics[str(i)]['words'][word] = freq / total
-                topic_words[-1].append(word)
-
-        return json_topics, topic_words
-
-    # Get topic-word distribution
     def topics(self):
         if self.model is None:
             self.load()
 
-        json_topics = {}
+        topics = []
 
         for i, topic in enumerate(self.model.cluster_word_distribution):
-            json_topics[str(i)] = {
-                'words': []
-            }
+            current_words = []
+            current_freq = []
+            total = sum(topic.values())
             for word, freq in sorted(topic.items(), key=lambda item: item[1], reverse=True)[:10]:
-                json_topics[str(i)]['words'].append(word)
+                current_words.append(word)
+                current_freq.append(freq / total)
 
-        return json_topics
+            topics.append({
+                'words': current_words,
+                'weights': current_freq
+            })
+
+        return topics
 
     # Train the model
     def train(self,
-              datapath='/app/data/data.txt',
+              datapath=AbstractModel.ROOT + '/data/data.txt',
               n_topics=35,
               alpha=0.1,
               beta=0.1,
@@ -69,26 +57,26 @@ class GsdmmModel(AbstractModel):
 
         id2word = gensim.corpora.Dictionary(tokens)
 
-        print('start training GSDMM')
+        self.log.debug('start training GSDMM')
         # Fit the model
-        self.model.fit(tokens, len(id2word))
-        print('end training GSDMM')
+        self.model.fit(tokens, len(id2word), log=self.log.debug)
+        self.log.debug('end training GSDMM')
 
         # Save the new model
-        with open(MODEL_PATH, 'wb') as output:
+        with open(self.model_path, 'wb') as output:
             pickle.dump(self.model, output, pickle.HIGHEST_PROTOCOL)
 
         return 'success'
 
     # Perform Inference
-    def predict(self, doc, topn=5):
+    def predict(self, doc, topn=5, doc_len=7):
         if self.model is None:
             self.load()
 
         # gsdmm works for short text
         # given the preprocessing, here there is no punctuation nor stopwords
         # we keep the first N words
-        doc = doc.split()[0:DOC_LEN]
+        doc = doc.split()[0:doc_len]
 
         results = [(topic, score) for topic, score in enumerate(self.model.score(doc))]
         results = [{topic: weight} for topic, weight in sorted(results, key=lambda kv: kv[1], reverse=True)[:topn]]
@@ -99,5 +87,5 @@ class GsdmmModel(AbstractModel):
             self.load()
 
         topics = [[(topic, score) for topic, score in enumerate(doc)] for doc in self.model.doc_cluster_scores]
-        topics = [sorted(doc, key=lambda t:-t[1]) for doc in topics]
+        topics = [sorted(doc, key=lambda t: -t[1]) for doc in topics]
         return topics

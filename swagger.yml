@@ -5,16 +5,16 @@ info:
     Source code: [http://github.com/kandakji/ted-talk-topic-extraction](https://github.com/kandakji/ted-talk-topic-extraction).
   version: 1.0.0
   title: Topic Model API
-host: 'localhost:5000'
-basePath: /api
+host: 'hyperted.eurecom.fr'
+basePath: /topic/api
 schemes:
   - http
 tags:
   - name: lda
     description: Latent Dirichlet Allocation Topic Model - Mallet Package
-  - name: lftm
+  - name: lftm_0
     description: Latent Feature Topic Model
-  - name: ntm
+  - name: doc2topic
     description: Neural Topic Model
   - name: gsdmm
     description:  Gibbs sampling algorithm for a Dirichlet Mixture Model
@@ -117,7 +117,7 @@ paths:
   /lftm/train:
     post:
       tags:
-        - lftm
+        - lftm_0
       summary: Train LFTM model
       operationId: trainLFTM
       consumes:
@@ -140,7 +140,7 @@ paths:
   /lftm/predict:
     post:
       tags:
-        - lftm
+        - lftm_0
       summary: Predict for new document
       operationId: predictLFTM
       produces:
@@ -161,7 +161,7 @@ paths:
   /lftm/topics:
     get:
       tags:
-        - lftm
+        - lftm_0
       summary: Get topic words
       operationId: topicsLFTM
       produces:
@@ -175,7 +175,7 @@ paths:
   /lftm/training_predictions:
     get:
       tags:
-        - lftm
+        - lftm_0
       summary: Get the predictions computed on the corpus at training time
       operationId: trainPredLFTM
       produces:
@@ -189,7 +189,7 @@ paths:
   /lftm/coherence:
     post:
       tags:
-        - lftm
+        - lftm_0
       summary: Get Topic Coherences
       operationId: coherenceLFTM
       consumes:
@@ -212,7 +212,7 @@ paths:
   /ntm/train:
     post:
       tags:
-        - ntm
+        - doc2topic
       summary: Train NTM model
       operationId: trainNTM
       consumes:
@@ -235,7 +235,7 @@ paths:
   /ntm/predict:
     post:
       tags:
-        - ntm
+        - doc2topic
       summary: Predict for new document
       operationId: predictNTM
       produces:
@@ -257,7 +257,7 @@ paths:
   /ntm/topics:
     get:
       tags:
-        - ntm
+        - doc2topic
       summary: Get topic words
       operationId: topicsNTM
       produces:
@@ -271,7 +271,7 @@ paths:
   /ntm/training_predictions:
     get:
       tags:
-        - ntm
+        - doc2topic
       summary: Get the predictions computed on the corpus at training time
       operationId: trainPredNTM
       produces:
@@ -285,7 +285,7 @@ paths:
   /ntm/coherence:
     post:
       tags:
-        - ntm
+        - doc2topic
       summary: Get Topic Coherences
       operationId: coherenceNTM
       consumes:

@@ -5,7 +5,7 @@ from numpy.random import multinomial
 
 class MovieGroupProcess:
     def __init__(self, K=8, alpha=0.1, beta=0.1, n_iters=30):
-        '''
+        """
         A MovieGroupProcess is a conceptual model introduced by Yin and Wang 2014 to
         describe their Gibbs sampling algorithm for a Dirichlet Mixture Model for the
         clustering short text documents.
@@ -29,7 +29,7 @@ class MovieGroupProcess:
             that students desire to sit with students of similar interests. A high beta means they are less
             concerned with affinity and are more influenced by the popularity of a table
         :param n_iters:
-        '''
+        """
         self.K = K
         self.alpha = alpha
         self.beta = beta
@@ -45,7 +45,7 @@ class MovieGroupProcess:
 
     @staticmethod
     def from_data(K, alpha, beta, D, vocab_size, cluster_doc_count, cluster_word_count, cluster_word_distribution):
-        '''
+        """
         Reconstitute a MovieGroupProcess from previously fit data
         :param K:
         :param alpha:
@@ -56,7 +56,7 @@ class MovieGroupProcess:
         :param cluster_word_count:
         :param cluster_word_distribution:
         :return:
-        '''
+        """
         mgp = MovieGroupProcess(K, alpha, beta, n_iters=30)
         mgp.number_docs = D
         mgp.vocab_size = vocab_size
@@ -67,24 +67,24 @@ class MovieGroupProcess:
 
     @staticmethod
     def _sample(p):
-        '''
+        """
         Sample with probability vector p from a multinomial distribution
         :param p: list
             List of probabilities representing probability vector for the multinomial distribution
         :return: int
             index of randomly selected output
-        '''
+        """
         return [i for i, entry in enumerate(multinomial(1, p)) if entry != 0][0]
 
-    def fit(self, docs, vocab_size):
-        '''
+    def fit(self, docs, vocab_size, log=print):
+        """
         Cluster the input documents
         :param docs: list of list
             list of lists containing the unique token set of each document
         :param V: total vocabulary size for each document
         :return: list of length len(doc)
             cluster label for each document
-        '''
+        """
         alpha, beta, K, n_iters, V = self.alpha, self.beta, self.K, self.n_iters, vocab_size
 
         D = len(docs)
@@ -149,17 +149,17 @@ class MovieGroupProcess:
                     n_z_w[z_new][word] += 1
 
             cluster_count_new = sum([1 for v in m_z if v > 0])
-            print("In stage %d: transferred %d clusters with %d clusters populated" % (
+            log("In stage %d: transferred %d clusters with %d clusters populated" % (
                 _iter, total_transfers, cluster_count_new))
             if total_transfers == 0 and cluster_count_new == cluster_count and _iter > 25:
-                print("Converged.  Breaking out.")
+                log("Converged.  Breaking out.")
                 break
             cluster_count = cluster_count_new
         self.cluster_word_distribution = n_z_w
         return d_z
 
     def score(self, doc):
-        '''
+        """
         Score a document
 
         Implements formula (3) of Yin and Wang 2014.
@@ -168,7 +168,7 @@ class MovieGroupProcess:
         :param doc: list[str]: The doc token stream
         :return: list[float]: A length K probability vector where each component represents
                               the probability of the document appearing in a particular cluster
-        '''
+        """
         alpha, beta, K, V, D = self.alpha, self.beta, self.K, self.vocab_size, self.number_docs
         m_z, n_z, n_z_w = self.cluster_doc_count, self.cluster_word_count, self.cluster_word_distribution
 
@@ -200,10 +200,10 @@ class MovieGroupProcess:
         return [pp / pnorm for pp in p]
 
     def choose_best_label(self, doc):
-        '''
+        """
         Choose the highest probability label for the input document
         :param doc: list[str]: The doc token stream
         :return:
-        '''
+        """
         p = self.score(doc)
         return argmax(p), max(p)
