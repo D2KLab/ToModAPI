@@ -6,7 +6,7 @@ from flask import Flask, jsonify, request, make_response
 from flask_cors import CORS
 from swagger_ui import flask_api_doc as api_doc
 
-from topic_model.models import TfIdfModel, LdaModel, LftmModel, Doc2TopicModel, GsdmmModel
+from topic_model import TfIdfModel, LdaModel, LftmModel, Doc2TopicModel, GsdmmModel
 from topic_model.corpus import retrieve_prepare_tags, prepare_subtitles
 
 __package__ = 'topic_model'
