@@ -23,13 +23,11 @@ def remove_tokens(x, tok2remove):
 class LftmModel(AbstractModel):
     def __init__(self, model_root=AbstractModel.ROOT + '/models/lftm', data_root=AbstractModel.ROOT + '/data/lftm',
                  name='LFLDA'):
-        """
-        LFTM Model constructor
+        """LFTM Model constructor
 
-        Parameters:
-        model_root (path): Path of the computed model
-        data_root (path): Path of output files, regenerated at each prediction
-        name (str): Name of the model
+        :param model_root: Path of the computed model
+        :paramdata_root: Path of output files, regenerated at each prediction
+        :param name: Name of the model
         """
         super().__init__()
 
@@ -49,11 +47,12 @@ class LftmModel(AbstractModel):
 
     # Perform Inference
     def predict(self, doc, topn=10, initer=500, niter=0):
-        """
-            doc: the document on which to make the inference
-            topn: number of the most probable topical words
-            initer: initial sampling iterations to separate the counts for the latent feature component and the Dirichlet multinomial component
-            niter: sampling iterations for the latent feature topic models
+        """Predict topic of the given text
+
+            :param doc: the document on which to make the inference
+            :param int topn: number of the most probable topical words
+            :param int initer: initial sampling iterations to separate the counts for the latent feature component and the Dirichlet multinomial component
+            :param int niter: sampling iterations for the latent feature topic models
         """
         with open(GLOVE_TOKENS, "rb") as input_file:
             glovetokens = pickle.load(input_file)
@@ -85,37 +84,37 @@ class LftmModel(AbstractModel):
         results = sorted(doc_topic_dist, key=lambda kv: kv[1], reverse=True)[:topn]
         return results
 
-    def get_corpus_predictions(self):
+    def get_corpus_predictions(self, topn: int = 5):
         with open(self.theta_path_model, "r") as file:
             doc_topic_dist = [line.strip().split() for line in file.readlines()]
 
         topics = [[(i, float(score)) for i, score in enumerate(doc)]
                   for doc in doc_topic_dist]
 
-        topics = [sorted(doc, key=lambda t: -t[1]) for doc in topics]
+        topics = [sorted(doc, key=lambda t: -t[1])[:topn] for doc in topics]
         return topics
 
     def train(self,
               datapath=AbstractModel.ROOT + '/data/data.txt',
-              ntopics=35,
+              num_topics=35,
               alpha=0.1,
               beta=0.1,
               _lambda=1,
               initer=50,
               niter=5,
-              topn=10,
+              twords=10,
               model='LFLDA'):
-        """
-            datapath: the path to the training text file
-            model: topic model, LFLDA (default) or LFDMM.
-            ntopics: the number of topics
-            alpha: prior document-topic distribution
-            beta: prior topic-word distribution
-            lambda: mixture weight
-            initer: initial sampling iterations to separate the counts for the latent feature component
-                    and the Dirichlet multinomial component
-            niter: sampling iterations for the latent feature topic models
-            topn: number of the most probable topical words
+        """Train LFTM model.
+
+            :param datapath: The path of the training corpus
+            :param int num_topics: The desired number of topics
+            :param float alpha: Prior document-topic distribution
+            :param float beta: Prior topic-word distribution
+            :param int _lambda: Mixture weight
+            :param int initer: Initial sampling iterations to separate the counts for the latent feature component and the Dirichlet multinomial component
+            :param int niter: Sampling iterations for the latent feature topic models
+            :param int twords: Number of topical words to return
+            :param model: Topic model, among <LFLDA, LFDMM>.
         """
         if model not in ['LFLDA', 'LFDMM']:
             raise ValueError('Model should be LFLDA (default) or LFDMM.')
@@ -141,8 +140,8 @@ class LftmModel(AbstractModel):
             for doc in text:
                 file.write(doc + '\n')
 
-        proc = f'java -jar {LFTM_JAR} -model LFLDA -corpus {self.data_glove} -vectors {GLOVE_TXT} -ntopics {ntopics} ' \
-               f'-alpha {alpha} -beta {beta} -lambda {_lambda} -initers {initer} -niters {niter} -twords {topn} ' \
+        proc = f'java -jar {LFTM_JAR} -model LFLDA -corpus {self.data_glove} -vectors {GLOVE_TXT} -ntopics {num_topics} ' \
+               f'-alpha {alpha} -beta {beta} -lambda {_lambda} -initers {initer} -niters {niter} -twords {twords} ' \
                f'-name {self.name} -sstep 0'
         self.log.debug('Executing: ' + proc)
 

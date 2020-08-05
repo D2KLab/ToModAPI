@@ -36,23 +36,35 @@ class Doc2TopicModel(AbstractModel):
 
         return topics
 
-    def get_corpus_predictions(self):
+    def get_corpus_predictions(self, topn: int = 5):
         if self.model is None:
             self.load()
 
-        return [self.model.get_document_topics(i) for i in range(0, len(self.model.get_docvecs()))]
+        return [self.model.get_document_topics(i)[:topn] for i in range(0, len(self.model.get_docvecs()))]
 
     # Train the model
     def train(self,
               datapath=AbstractModel.ROOT + '/data/data.txt',
-              n_topics=35,
+              num_topics=35,
               batch_size=1024 * 6,
               n_epochs=20,
               lr=0.05,
               l1_doc=0.000002,
               l1_word=0.000000015,
               word_dim=None,
-              generator=None, return_scores=False):
+              return_scores=False):
+        """Train Doc2Topic model.
+
+            :param datapath: The path of the training corpus
+            :param int num_topics: The desired number of topics
+            :param int batch_size: Batch size
+            :param int n_epochs: Number of epochs
+            :param float lr: Learning rate
+            :param float l1_doc: Regularizer for doc embeddings
+            :param float l1_word: Regularizer for word embeddings
+            :param int word_dim: If set, an extra dense layer is inserted for projecting word vectors onto document vector space
+            :param float return_scores: If true, it returns ('success', fmeasure, loss)
+        """
 
         warnings.filterwarnings("ignore")
 
@@ -61,8 +73,8 @@ class Doc2TopicModel(AbstractModel):
 
         self.model = models.Doc2Topic()
 
-        self.model.build(data, n_topics=n_topics, batch_size=batch_size, n_epochs=n_epochs, lr=lr, l1_doc=l1_doc,
-                         l1_word=l1_word, word_dim=word_dim, generator=generator)
+        self.model.build(data, n_topics=num_topics, batch_size=batch_size, n_epochs=n_epochs, lr=lr, l1_doc=l1_doc,
+                         l1_word=l1_word, word_dim=word_dim)
 
         fmeasure = self.model.history.history['fmeasure'][-1]
         loss = self.model.history.history['loss'][-1]

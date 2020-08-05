@@ -5,9 +5,9 @@ from .lftm_model import LftmModel
 from .d2t_model import Doc2TopicModel
 
 __all__ = [
-    # LftmModel,
-    # GsdmmModel,
-    # LdaModel,
+    LftmModel,
+    GsdmmModel,
+    LdaModel,
     Doc2TopicModel
 ]
 

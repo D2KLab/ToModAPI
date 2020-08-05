@@ -1,235 +1,175 @@
 import os
+import re
 import time
 import json
 
 from flask import Flask, jsonify, request, make_response
+from flask_restx import Api, Resource, Namespace
 from flask_cors import CORS
-from swagger_ui import flask_api_doc as api_doc
 
-from topic_model import TfIdfModel, LdaModel, LftmModel, Doc2TopicModel, GsdmmModel
-from topic_model.corpus import retrieve_prepare_tags, prepare_subtitles
+from pydoc import locate
+from docstring_parser import parse as docparse
+
+from topic_model.abstract_model import AbstractModel
+
+AbstractModel.ROOT = ''
+import topic_model as models
+from topic_model.corpus import prepare_subtitles
 
 __package__ = 'topic_model'
 
 app = Flask(__name__)
-CORS(app)
-api_doc(app, config_path='swagger.yml', url_prefix='', title='Topic Model API')
+api = Api(app, version='1.0', title='Topic Model API', prefix='/api',
+          description='''This is an API used to train, evaluate, and operate unsupervised topic models.
+              Source code: [https://github.com/D2KLab/Topic-Model-API](https://github.com/D2KLab/Topic-Model-API).''')
 
-models = {
-    'gsdmm': GsdmmModel,
-    'doc2topic': Doc2TopicModel,
-    'lftm': LftmModel,
-    'lda': LdaModel,
-    'tfidf': TfIdfModel
-}
+CORS(app)
 
 
 @app.errorhandler(404)
 def not_found(error):
-    return make_response(jsonify({'error': 'Not found'}), 404)
+    return make_response(jsonify({'error': 'Not found', 'detail': str(error)}), 404)
 
 
-#################################################################
-#							PREDICTION							#
-#################################################################
+among_regex = r"among <(.+(?:, ?.+)+)>"
 
-@app.route('/api/<string:model_type>/predict', methods=['POST'])
-def predict(model_type):
-    start = time.time()
-    # Extract request body parameters
-    # Retrieve subtitles
-    subtitles = prepare_subtitles(str(request.data))
-    # Load the model
-    model = models[model_type]()
-    # Perform Inference
-    results = model.predict(subtitles)
-    dur = time.time() - start
-    # Return results and score
-    return jsonify({'time': dur, 'results': results}), 200
+model_index = {}
 
 
-@app.route('/api/<string:model_type>/predict_corpus', methods=['POST'])
-def predict_corpus(model_type):
-    start = time.time()
-
-    # Load the model
-    model = models[model_type]()
-    # Perform Inference
-    results = model.predict_corpus(request.json['datapath'])
-    dur = time.time() - start
-    # Return results and score
-    return jsonify({'time': dur, 'results': results}), 200
+def extract_model_id(req):
+    _, _, _model_id, _ = req.path.split('/')
+    return _model_id
 
 
-#################################################################
-#							TAGS								#
-#################################################################
+def extract_parameter(fun):
+    params = {}
+    argcount = fun.__code__.co_argcount
+    defaults = fun.__defaults__[0:]
+    for i, p in enumerate(fun.__code__.co_varnames[1:argcount]):
+        params[p] = {'default': defaults[i]}
+    for p in docparse(fun.__doc__).params:
+        if p.arg_name in ['datapath', 'num_topics', 'coherence', 'model']:
+            params[p.arg_name]['required'] = True
 
-@app.route('/api/tags', methods=['POST'])
-def extract_tags():
-    try:
-        start = time.time()
-        # Retrieve tags
-        tags = retrieve_prepare_tags(request.json['url'])
-        dur = time.time() - start
-        # Return results
-        return jsonify({'time': dur, 'tags': tags}), 200
-    except:
-        return jsonify({'error': "Invalid input or error occured."}), 400
+        if p.arg_name in params:
+            params[p.arg_name]['type'] = locate(p.type_name) if p.type_name else str
+            params[p.arg_name]['description'] = p.description
+            matches = re.finditer(among_regex, p.description, re.IGNORECASE)
+            for m in matches:
+                params[p.arg_name]['enum'] = [x.strip() for x in m.group(1).split(',')]
 
-
-#################################################################
-#							TOPICS								#
-#################################################################
-
-@app.route('/api/<string:model_type>/topics', methods=['GET'])
-def get_topics(model_type):
-    start = time.time()
-    # Load the model
-    model = models[model_type]()
-    # Retrieve topics
-    topics = model.topics()
-    dur = time.time() - start
-    # Return results
-    return jsonify({'time': dur, 'topics': topics}), 200
+        if p.arg_name in ['num_topics']:
+            params[p.arg_name]['type'] = int
+    return params
 
 
-#################################################################
-#							TRAINING PREDICTIONS								#
-#################################################################
+coherence_params = extract_parameter(AbstractModel.coherence)
 
-@app.route('/api/<string:model_type>/training_predictions', methods=['GET'])
-def get_training_prediction(model_type):
-    start = time.time()
-    # Load the model
-    model = models[model_type]()
-    # Retrieve topics
-    topics = model.get_corpus_predictions()
-    dur = time.time() - start
-    # Return results
-    return jsonify({'time': dur, 'topics': topics}), 200
+for model in models.__all__:
+    model_name = str(model.__name__).replace('Model', '').lower()
+    model_index[model_name] = model
+    ns = Namespace(model_name)
+
+    train_params = extract_parameter(model.train)
 
 
-#################################################################
-#							COHERENCE							#
-#################################################################
+    @ns.route('/train')
+    class Train(Resource):
+        @ns.doc(description='''Train the model''',
+                params=train_params)
+        def get(self):
+            start = time.time()
+
+            _model_name = extract_model_id(request)
+            m = model_index[_model_name]()
+            train_params = extract_parameter(m.train)
+            params = [request.args.get(k, default=p['default'], type=p['type']) for k, p in train_params.items()]
+            print(train_params.items())
+            print(params)
+            results = m.train(*params)
+            dur = time.time() - start
+            print(f'Training {_model_name} done in {dur}')
+            # Return results
+            return make_response(jsonify({'time': dur, 'result': results}), 200)
 
 
-@app.route('/api/<string:model_type>/coherence', methods=['POST'])
-def get_coherence(model_type):
-    start = time.time()
-    # Load the model
-    model = models[model_type]()
-    # Retrieve topics
-    args = request.json
-    c = args['metric'] if 'metric' in args else 'c_v'
-    print('Coherence %s for %s' % (c, model_type))
-    topics = model.coherence(args['datapath'], coherence=c)
-    dur = time.time() - start
-    # Return results
-    response = jsonify({'time': dur, 'topics': topics})
-    os.makedirs('/data/out', exist_ok=True)
-    with open('/data/out/%s.%s.json' % (model_type, c), 'w') as f:
-        json.dump(response, f)
-    return response, 200
+    @ns.route('/predict')
+    class Predict(Resource):
+        @ns.doc(description='Predict the topic of a text',
+                params={
+                    'text': {'description': 'The text on which performing the prediction',
+                             'required': True,
+                             'default': 'Climate change is a global environmental issue that is affecting the lands, '
+                                        'the oceans, the animals, and humans'},
+                    'topn': {
+                        'description': 'The number of most probable topics to return.',
+                        'type': int, 'default': 5
+                    }
+                },
+                required=['text'])
+        def get(self):
+            start = time.time()
+
+            text = request.args.get('text', type=str)
+            topn = request.args.get('topn', default=5, type=int)
+            m = model_index[extract_model_id(request)]()
+            subtitles = prepare_subtitles(text)
+            results = m.predict(subtitles, topn=topn)
+            dur = time.time() - start
+            print(results)
+            return make_response(jsonify({'time': dur, 'results': results}), 200)
 
 
-#################################################################
-#							TRAINING							#
-#################################################################
+    @ns.route('/corpus_prediction')
+    class CorpusPrediction(Resource):
+        @ns.doc(description='''Returns the predictions computed on the training corpus.
+        This is not re-computing predictions, but reading training results.''',
+                params={'topn': {
+                    'description': 'The number of most probable topics to return.',
+                    'type': int, 'default': 5
+                }})
+        def get(self):
+            start = time.time()
 
-@app.route('/api/tfidf/train', methods=['POST'])
-def train_tfidf():
-    start = time.time()
-    # Load model
-    model = TfIdfModel()
-    # Train model
-    results = model.train(request.json['datapath'],
-                          (int(request.json['min_ngram']),
-                           int(request.json['max_ngram'])),
-                          float(request.json['max_df']),
-                          float(request.json['min_df']))
-    dur = time.time() - start
-    print('Training TFIDF done in %f' % dur)
-    # return result
-    return jsonify({'time': dur, 'result': results}), 200
+            topn = request.args.get('topn', default=5, type=int)
+            m = model_index[extract_model_id(request)]()
+            results = m.get_corpus_predictions(topn)
+            dur = time.time() - start
+            return make_response(jsonify({'time': dur, 'results': results}), 200)
 
 
-@app.route('/api/lda/train', methods=['POST'])
-def train_lda():
-    start = time.time()
-    # Load model
-    model = LdaModel()
-    # Train model
-    results = model.train(request.json['datapath'],
-                          int(request.json['num_topics']),
-                          float(request.json['alpha']),
-                          int(request.json['random_seed']),
-                          int(request.json['iterations']),
-                          int(request.json['optimize_interval']),
-                          float(request.json['topic_threshold']))
-    dur = time.time() - start
-    print('Training LDA done in %f' % dur)
-    # Return results
-    return jsonify({'time': dur, 'result': results}), 200
+    @ns.route('/topics')
+    class Topics(Resource):
+        @ns.doc(description='''Returns the model topic list''')
+        def get(self):
+            start = time.time()
+            m = model_index[extract_model_id(request)]()
+            topics = m.topics()
+            dur = time.time() - start
+            return make_response(jsonify({'time': dur, 'topics': topics}), 200)
 
 
-@app.route('/api/lftm_0/train', methods=['POST'])
-def train_lftm():
-    start = time.time()
-    # Load model
-    model = LftmModel()
-    # Train model
-    results = model.train(request.json['datapath'],
-                          request.json['ntopics'],
-                          request.json['alpha'],
-                          request.json['beta'],
-                          request.json['lambda'],
-                          request.json['initer'],
-                          request.json['niter'],
-                          request.json['topn'])
-    dur = time.time() - start
-    print('Training LFTM done in %f' % dur)
-    # Return results
-    return jsonify({'time': dur, 'result': results}), 200
+    @ns.route('/coherence')
+    class Coherence(Resource):
+        @ns.doc(description='''Compute the coherence against a corpus''', params=coherence_params)
+        def get(self):
+            start = time.time()
+
+            m = model_index[extract_model_id(request)]()
+            params = [request.args.get(k, default=p['default'], type=p['type']) for k, p in coherence_params.items()]
+            dur = time.time() - start
+            topics = m.coherence(*params)
+            topics['time'] = dur
+            response = jsonify(topics)
+            # os.makedirs(AbstractModel.ROOT + '/data/out', exist_ok=True)
+            # output_file = AbstractModel.ROOT + '/data/out/%s.%s.json' % (
+            #     model_name, request.args.get('coherence', default='c_v'))
+            # with open(output_file, 'w') as f:
+            #     json.dump(response, f)
+            return make_response(response, 200)
 
 
-@app.route('/api/doc2topic/train', methods=['POST'])
-def train_ntm():
-    start = time.time()
-    # Load model
-    model = Doc2TopicModel()
-    # Train model
-    results = model.train(request.json['datapath'],
-                          int(request.json['n_topics']),
-                          int(request.json['batch_size']),
-                          int(request.json['n_epochs']),
-                          float(request.json['lr']),
-                          float(request.json['l1_doc']),
-                          float(request.json['l1_word']),
-                          int(request.json['word_dim']), return_scores=True)
-    dur = time.time() - start
-    print('Training NTM done in %f' % dur)
-    # return result
-    return jsonify({'time': dur, 'result': results[0], 'fmeasure': str(results[1]), 'loss': str(results[2])}), 200
-
-
-@app.route('/api/gsdmm/train', methods=['POST'])
-def train_gsdmm():
-    start = time.time()
-    # Load model
-    model = GsdmmModel()
-    # Train model
-    results = model.train(request.json['datapath'],
-                          int(request.json['num_topics']),
-                          float(request.json['alpha']),
-                          float(request.json['beta']),
-                          int(request.json['n_iter']))
-    dur = time.time() - start
-    print('Training GSDMM done in %f' % dur)
-    # Return results
-    return jsonify({'time': dur, 'result': results}), 200
-
+    api.add_namespace(ns)
 
 if __name__ == '__main__':
     app.run(debug=False, threaded=True, host='0.0.0.0')

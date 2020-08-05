@@ -1,17 +1,17 @@
 FROM openjdk:slim
 COPY --from=python:3.6.5 / /
 
-RUN mkdir /app
-WORKDIR /app
-
-COPY app/requirements.txt .
+COPY requirements.txt .
 RUN pip3 install --upgrade pip
 RUN pip3 install -r requirements.txt
 
-COPY patch_swagger.sh /app
-RUN /app/patch_swagger.sh
+#COPY download_dep.sh .
+#RUN download_dep.sh
 
-ADD /app .
+RUN mkdir topic_model
+ADD topic_model topic_model
+ADD server.py .
+ADD project.ini .
 
 ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8

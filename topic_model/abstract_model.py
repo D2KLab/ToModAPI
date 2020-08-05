@@ -25,7 +25,7 @@ class AbstractModel:
         """
         raise NotImplementedError
 
-    def predict_corpus(self, datapath='/data/data.txt', topn=5):
+    def predict_corpus(self, datapath=ROOT + '/data/data.txt', topn=5):
         if self.model is None:
             self.load()
 
@@ -34,7 +34,7 @@ class AbstractModel:
 
         return [self.predict(t, topn=topn) for t in text]
 
-    def train(self, datapath='/data/data.txt'):
+    def train(self, datapath=ROOT + '/data.txt'):
         """
             datapath: path to training data text file
         """
@@ -48,15 +48,19 @@ class AbstractModel:
         """
         raise NotImplementedError
 
-    def get_corpus_predictions(self):
+    def get_corpus_predictions(self, topn=5):
         """
         Returns the predictions computed on the training corpus.
         This is not re-computing predictions, but reading training results.
         """
         raise NotImplementedError
 
-    def coherence(self, datapath='/data/data.txt', coherence='c_v'):
-        """ Get coherence of model topics """
+    def coherence(self, datapath=ROOT + '/data/data.txt', coherence='c_v'):
+        """ Get the coherence of the topic mode.
+
+        :param datapath: Path of the corpus on which compute the coherence.
+        :param coherence: Type of coherence to compute, among <c_v, c_npmi, c_uci, u_mass>
+         """
         topics = self.topics()
         topic_words = [x['words'] for x in topics]
 

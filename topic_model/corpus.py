@@ -58,16 +58,3 @@ def prepare_subtitles(text):
     text = ' '.join(text)
     return text
 
-
-# Extract video tags from TED URL
-def retrieve_prepare_tags(url):
-    # Extract video title
-    title = url.split('/')[-1]
-    # Build metadata URL
-    metaURL = 'https://api.ted.com/v1/talks/{}.json?api-key=uzdyad5pnc2mv2dd8r8vd65c'
-    r = requests.get(url=metaURL.format(title))
-    data = r.json()
-    # Retrieve video tags
-    tags = ','.join([tag['tag'] for tag in data['talk']['tags']])
-    # Return tags
-    return tags

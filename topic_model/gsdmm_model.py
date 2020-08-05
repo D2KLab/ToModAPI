@@ -37,32 +37,33 @@ class GsdmmModel(AbstractModel):
 
         return topics
 
-    # Train the model
     def train(self,
               datapath=AbstractModel.ROOT + '/data/data.txt',
-              n_topics=35,
+              num_topics=35,
               alpha=0.1,
               beta=0.1,
-              n_iter=15):
+              iter=15):
+        """Train GSDMM model.
 
-        # Build the model
-        self.model = MovieGroupProcess(K=n_topics, alpha=alpha, beta=beta, n_iters=n_iter)
+            :param datapath: The path of the training corpus
+            :param int num_topics: The desired number of topics (upper bound)
+            :param float alpha: Prior document-topic distribution
+            :param float beta: Prior topic-word distribution
+            :param int iter: Sampling iterations for the latent feature topic models
+        """
 
-        # Load data
+        self.model = MovieGroupProcess(K=num_topics, alpha=alpha, beta=beta, n_iters=iter)
+
         with open(datapath, "r") as datafile:
             text = [line.rstrip() for line in datafile if line]
 
-        # Transform documents
         tokens = [doc.split() for doc in text]
-
         id2word = gensim.corpora.Dictionary(tokens)
 
         self.log.debug('start training GSDMM')
-        # Fit the model
         self.model.fit(tokens, len(id2word), log=self.log.debug)
         self.log.debug('end training GSDMM')
 
-        # Save the new model
         with open(self.model_path, 'wb') as output:
             pickle.dump(self.model, output, pickle.HIGHEST_PROTOCOL)
 
@@ -81,10 +82,10 @@ class GsdmmModel(AbstractModel):
         results = sorted(results, key=lambda kv: kv[1], reverse=True)[:topn]
         return results
 
-    def get_corpus_predictions(self):
+    def get_corpus_predictions(self, topn=5):
         if self.model is None:
             self.load()
 
         topics = [[(topic, score) for topic, score in enumerate(doc)] for doc in self.model.doc_cluster_scores]
-        topics = [sorted(doc, key=lambda t: -t[1]) for doc in topics]
+        topics = [sorted(doc, key=lambda t: -t[1])[:topn] for doc in topics]
         return topics

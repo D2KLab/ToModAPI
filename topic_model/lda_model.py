@@ -39,31 +39,32 @@ class LdaModel(AbstractModel):
 
         return results
 
-    def get_corpus_predictions(self):
+    def get_corpus_predictions(self, topn: int = 5):
         if self.model is None:
             self.load()
 
         topics = self.model.load_document_topics()
-        topics = [sorted(doc, key=lambda t: -t[1]) for doc in topics]
+        topics = [sorted(doc, key=lambda t: -t[1])[:topn] for doc in topics]
 
         return topics
 
-    # Train the model
     def train(self,
               datapath=AbstractModel.ROOT + '/data/data.txt',
               num_topics=35,
               alpha=50,
               random_seed=5,
-              iterations=500,
+              iter=500,
               optimize_interval=10,
               topic_threshold=0.0):
-        """
-            datapath: path to training data text file
-            num_topics: number of topics
-            alpha: prior document-topic distribution
-            iternations: number of iteration in EM
-            optimize_interval: hyperparameter optimization every optimize_interval
-            topic_threshold:  threshold of the probability above which we consider a topic
+        """Train LDA model.
+
+            :param datapath: The path of the training corpus
+            :param int num_topics: The desired number of topics
+            :param float alpha: Prior document-topic distribution
+            :param int random_seed: Random seed to ensure consistent results, if 0 - use system clock
+            :param int iter: Number of iteration in EM
+            :param int optimize_interval: Hyperparameter optimization every optimize_interval
+            :param float topic_threshold:  Threshold of the probability above which we consider a topic
         """
 
         # Load data
@@ -87,7 +88,7 @@ class LdaModel(AbstractModel):
                                                       id2word=id2word,
                                                       random_seed=random_seed,
                                                       prefix=self.mallet_dep_path,
-                                                      iterations=iterations,
+                                                      iterations=iter,
                                                       optimize_interval=optimize_interval,
                                                       topic_threshold=topic_threshold)
 
@@ -115,4 +116,3 @@ class LdaModel(AbstractModel):
             })
 
         return topics
-
