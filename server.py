@@ -34,7 +34,7 @@ model_index = {}
 
 
 def extract_model_id(req):
-    _, _, _model_id, _ = req.path.split('/')
+    _, _, _model_id, _ = req.path.split('/', 3)
     return _model_id
 
 
@@ -145,9 +145,19 @@ for model in models.__all__:
         def get(self):
             start = time.time()
             m = model_index[extract_model_id(request)]()
-            topics = m.topics()
+            topics = m.topics
             dur = time.time() - start
             return make_response(jsonify({'time': dur, 'topics': topics}), 200)
+
+
+    @ns.route('/topic/<id>')
+    class Topic(Resource):
+        @ns.doc(description='''Returns the model topic list''',
+                params={'id': {'description': 'Topic id', 'required': True, 'type': int}})
+        def get(self, id):
+            m = model_index[extract_model_id(request)]()
+            topics = m.topic(int(id))
+            return make_response(jsonify(topics), 200)
 
 
     @ns.route('/coherence')

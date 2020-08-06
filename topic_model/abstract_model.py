@@ -45,13 +45,26 @@ class AbstractModel:
         """
         raise NotImplementedError
 
+    @property
     def topics(self):
-        """
-            Returns a list of topic objects containing
+        """ List of the topics computed by the model
+
+            :returns: a list of topic objects containing
             - 'words' the list of words related to the topic
             - 'weights' of those words in order (not always present)
         """
         raise NotImplementedError
+
+    def topic(self, topic_id: int):
+        """ Get info on a given topic
+
+            :param int topic_id: Id of the topic
+            :returns: an object containing
+            - 'words' the list of words related to the topic
+            - 'weights' of those words in order (not always present)
+        """
+
+        return self.topics[topic_id]
 
     def get_corpus_predictions(self, topn=5):
         """
@@ -68,7 +81,7 @@ class AbstractModel:
         :param datapath: Path of the corpus on which compute the coherence.
         :param coherence: Type of coherence to compute, among <c_v, c_npmi, c_uci, u_mass>
          """
-        topics = self.topics()
+        topics = self.topics
         topic_words = [x['words'] for x in topics]
 
         self.log.debug('loading dataset')
@@ -87,7 +100,7 @@ class AbstractModel:
                                                                               coherence=coherence)
                 coherence_per_topic = coherence_model.get_coherence_per_topic()
 
-                for i, t in enumerate(topics):
+                for i, t in enumerate(self.topics):
                     t[coherence] = coherence_per_topic[i]
 
                 results['topics'] = topics

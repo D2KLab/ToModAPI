@@ -14,6 +14,7 @@ class Doc2TopicModel(AbstractModel):
     def __init__(self, model_path=AbstractModel.ROOT + '/models/doc2topic', name='d2t'):
         global models, corpora
         super().__init__()
+        from .doc2topic import models, corpora
 
         self.model_path = model_path
         self.name = name
@@ -24,6 +25,7 @@ class Doc2TopicModel(AbstractModel):
         self.model = models.Doc2Topic()
         self.model.load(filename=os.path.join(self.model_path, self.name))
 
+    @property
     def topics(self):
         if self.model is None:
             self.load()

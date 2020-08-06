@@ -162,13 +162,12 @@ class LftmModel(AbstractModel):
 
         return 'success' if completed_proc.returncode == 0 else ('error %d' % completed_proc.returncode)
 
+    @property
     def topics(self):
         topics = []
-
         with open(self.top_words, 'r') as f:
             for line in f:
-                l = line.strip()
-                match = re.match(TOPIC_REGEX, l)
+                match = re.match(TOPIC_REGEX, line.strip())
                 if not match:
                     continue
                 _id, words = match.groups()

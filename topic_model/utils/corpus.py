@@ -18,6 +18,7 @@ def input_to_list_string(data, preprocessing=False):
         raise ValueError('data should be a path or a list of strings')
     if preprocessing:
         text = [preprocess(doc) for doc in text]
+    return text
 
 
 def _init():

@@ -105,19 +105,23 @@ class LdaModel(AbstractModel):
 
         return 'success'
 
+    @property
     def topics(self):
-        topics = []
+        if self.model is None:
+            self.load()
 
-        for i in range(0, self.model.num_topics):
-            words = []
-            weights = []
-            for word, weight in self.model.show_topic(i, topn=10):
-                weights.append(weight)
-                words.append(word)
+        return [self.topic(i) for i in range(0, self.model.num_topics)]
 
-            topics.append({
-                'words': words,
-                'weights': weights
-            })
+    def topic(self, topic_id: int):
+        if self.model is None:
+            self.load()
 
-        return topics
+        words = []
+        weights = []
+        for word, weight in self.model.show_topic(topic_id, topn=10):
+            weights.append(weight)
+            words.append(word)
+        return {
+            'words': words,
+            'weights': weights
+        }

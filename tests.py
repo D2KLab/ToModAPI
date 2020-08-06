@@ -22,10 +22,18 @@ class MainTest(unittest.TestCase):
         for model in models.__all__:
             m = model()
 
-            res = m.topics()
+            res = m.topics
             print(res)
             self.assertIsInstance(res, list, '[%s] Topics output should be a list.' % model)
             self.assertIn('words', res[0], '[%s] Topics output should be like {words: [], weights: [] }.' % model)
+
+    def test_given_topic(self):
+        for model in models.__all__:
+            m = model()
+
+            res = m.topic(0)
+            print(res)
+            self.assertIn('words', res, '[%s] Topics output should be like {words: [], weights: [] }.' % model)
 
     def test_coherence(self):
         for model in models.__all__:

@@ -21,12 +21,12 @@ class GsdmmModel(AbstractModel):
         with open(self.model_path, "rb") as input_file:
             self.model = pickle.load(input_file)
 
+    @property
     def topics(self):
         if self.model is None:
             self.load()
 
         topics = []
-
         for i, topic in enumerate(self.model.cluster_word_distribution):
             current_words = []
             current_freq = []
