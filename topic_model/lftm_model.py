@@ -3,9 +3,11 @@ import os
 from os import path
 import pickle
 import subprocess
+import gensim
+
 from .utils.LoggerWrapper import LoggerWrapper
 from .abstract_model import AbstractModel
-import gensim
+from .utils.corpus import preprocess, input_to_list_string
 
 LFTM_JAR = path.join(path.dirname(__file__), 'lftm', 'LFTM.jar')
 GLOVE_TOKENS = path.join(path.dirname(__file__), 'glove', 'glovetokens.pkl')
@@ -21,12 +23,16 @@ def remove_tokens(x, tok2remove):
 
 # Latent Feature Topic Model
 class LftmModel(AbstractModel):
+    """Latent Feature Topic Model
+
+    Source: https://github.com/datquocnguyen/LFTM
+    """
     def __init__(self, model_root=AbstractModel.ROOT + '/models/lftm', data_root=AbstractModel.ROOT + '/data/lftm',
                  name='LFLDA'):
         """LFTM Model constructor
 
         :param model_root: Path of the computed model
-        :paramdata_root: Path of output files, regenerated at each prediction
+        :param data_root: Path of output files, regenerated at each prediction
         :param name: Name of the model
         """
         super().__init__()
@@ -46,16 +52,20 @@ class LftmModel(AbstractModel):
         os.makedirs(model_root, exist_ok=True)
 
     # Perform Inference
-    def predict(self, doc, topn=10, initer=500, niter=0):
+    def predict(self, text, topn=10, preprocessing=False, initer=500, niter=0):
         """Predict topic of the given text
 
-            :param doc: the document on which to make the inference
-            :param int topn: number of the most probable topical words
+            :param text: The text on which performing the prediction
+            :param int topn: Number of most probable topics to return
+            :param bool preprocessing: If True, execute preprocessing on the document
             :param int initer: initial sampling iterations to separate the counts for the latent feature component and the Dirichlet multinomial component
             :param int niter: sampling iterations for the latent feature topic models
         """
         with open(GLOVE_TOKENS, "rb") as input_file:
             glovetokens = pickle.load(input_file)
+
+        if preprocessing:
+            preprocess(text)
 
         params = {}
         with open(self.paras_path, "r") as f:
@@ -63,10 +73,10 @@ class LftmModel(AbstractModel):
                 k, v = line.strip().split('\t')
                 params[k[1:]] = v
 
-        doc = ' '.join([word for word in doc.split() if word in glovetokens])
+        text = ' '.join([word for word in text.split() if word in glovetokens])
 
         with open(self.doc_path, "w", encoding='utf-8') as f:
-            f.write(doc)
+            f.write(text)
 
         # Perform Inference
         proc = f'java -jar {LFTM_JAR} -model {params["model"]}inf -paras {self.paras_path} -corpus {self.doc_path} ' \
@@ -95,8 +105,9 @@ class LftmModel(AbstractModel):
         return topics
 
     def train(self,
-              datapath=AbstractModel.ROOT + '/data/data.txt',
+              data=AbstractModel.ROOT + '/data/data.txt',
               num_topics=35,
+              preprocessing=False,
               alpha=0.1,
               beta=0.1,
               _lambda=1,
@@ -104,10 +115,11 @@ class LftmModel(AbstractModel):
               niter=5,
               twords=10,
               model='LFLDA'):
-        """Train LFTM model.
+        """ Train LFTM model.
 
-            :param datapath: The path of the training corpus
+            :param data: The path of the training corpus
             :param int num_topics: The desired number of topics
+            :param bool preprocessing: If true, apply preprocessing to the corpus
             :param float alpha: Prior document-topic distribution
             :param float beta: Prior topic-word distribution
             :param int _lambda: Mixture weight
@@ -122,9 +134,7 @@ class LftmModel(AbstractModel):
         with open(GLOVE_TOKENS, "rb") as input_file:
             glovetokens = pickle.load(input_file)
 
-        with open(datapath, "r", encoding='utf-8') as datafile:
-            text = [line.rstrip() for line in datafile if line]
-
+        text = input_to_list_string(data, preprocessing)
         tokens = [doc.split() for doc in text]
 
         id2word = list(gensim.corpora.Dictionary(tokens).values())

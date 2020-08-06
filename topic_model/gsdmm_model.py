@@ -3,10 +3,15 @@ import gensim
 
 from .abstract_model import AbstractModel
 from .gsdmm import MovieGroupProcess
+from .utils.corpus import preprocess, input_to_list_string
 
 
-# Gibbs Sampling Algorithm for a Dirichlet Mixture Model
 class GsdmmModel(AbstractModel):
+    """Gibbs Sampling Algorithm for a Dirichlet Mixture Model
+
+    Source: https://github.com/rwalk/gsdmm
+    """
+
     def __init__(self, model_path=AbstractModel.ROOT + '/models/gsdmm/gsdmm.pkl'):
         super().__init__()
         self.model_path = model_path
@@ -38,25 +43,24 @@ class GsdmmModel(AbstractModel):
         return topics
 
     def train(self,
-              datapath=AbstractModel.ROOT + '/data/data.txt',
+              data=AbstractModel.ROOT + '/data/data.txt',
               num_topics=35,
+              preprocessing=False,
               alpha=0.1,
               beta=0.1,
               iter=15):
         """Train GSDMM model.
 
-            :param datapath: The path of the training corpus
+            :param data: The path of the training corpus
             :param int num_topics: The desired number of topics (upper bound)
+            :param bool preprocessing: If true, apply preprocessing to the corpus
             :param float alpha: Prior document-topic distribution
             :param float beta: Prior topic-word distribution
             :param int iter: Sampling iterations for the latent feature topic models
         """
-
         self.model = MovieGroupProcess(K=num_topics, alpha=alpha, beta=beta, n_iters=iter)
 
-        with open(datapath, "r") as datafile:
-            text = [line.rstrip() for line in datafile if line]
-
+        text = input_to_list_string(data, preprocessing)
         tokens = [doc.split() for doc in text]
         id2word = gensim.corpora.Dictionary(tokens)
 
@@ -69,16 +73,19 @@ class GsdmmModel(AbstractModel):
 
         return 'success'
 
-    def predict(self, doc: str, topn=5, doc_len=7):
+    def predict(self, text: str, topn=5, preprocessing=False, doc_len=7):
         if self.model is None:
             self.load()
+
+        if preprocessing:
+            preprocess(text)
 
         # gsdmm works for short text
         # given the preprocessing, here there is no punctuation nor stopwords
         # we keep the first N words
-        doc = doc.split()[0:doc_len]
+        text = text.split()[0:doc_len]
 
-        results = [(topic, score) for topic, score in enumerate(self.model.score(doc))]
+        results = [(topic, score) for topic, score in enumerate(self.model.score(text))]
         results = sorted(results, key=lambda kv: kv[1], reverse=True)[:topn]
         return results
 

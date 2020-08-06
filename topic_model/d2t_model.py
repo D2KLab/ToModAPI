@@ -2,14 +2,18 @@ import os
 import warnings
 
 from .abstract_model import AbstractModel
+from .utils.corpus import input_to_list_string
 
 
 # Neural Topic Model
 class Doc2TopicModel(AbstractModel):
+    """Doc2Topic
+
+    Source: https://github.com/sronnqvist/doc2topic"""
+
     def __init__(self, model_path=AbstractModel.ROOT + '/models/doc2topic', name='d2t'):
         global models, corpora
         super().__init__()
-        from .doc2topic import models, corpora
 
         self.model_path = model_path
         self.name = name
@@ -44,8 +48,9 @@ class Doc2TopicModel(AbstractModel):
 
     # Train the model
     def train(self,
-              datapath=AbstractModel.ROOT + '/data/data.txt',
+              data=AbstractModel.ROOT + '/data/data.txt',
               num_topics=35,
+              preprocessing=False,
               batch_size=1024 * 6,
               n_epochs=20,
               lr=0.05,
@@ -55,8 +60,9 @@ class Doc2TopicModel(AbstractModel):
               return_scores=False):
         """Train Doc2Topic model.
 
-            :param datapath: The path of the training corpus
+            :param data: The path of the training corpus
             :param int num_topics: The desired number of topics
+            :param bool preprocessing: If true, apply preprocessing to the corpus
             :param int batch_size: Batch size
             :param int n_epochs: Number of epochs
             :param float lr: Learning rate
@@ -65,11 +71,16 @@ class Doc2TopicModel(AbstractModel):
             :param int word_dim: If set, an extra dense layer is inserted for projecting word vectors onto document vector space
             :param float return_scores: If true, it returns ('success', fmeasure, loss)
         """
+        if preprocessing or type(data) != str:
+            data = input_to_list_string(data, preprocessing)
+            temp = 'temp.txt'
+            with open(temp, 'w') as f:
+                f.write('\n'.join(data))
+            data = temp
 
         warnings.filterwarnings("ignore")
-
         models.init_tf_memory()
-        data = corpora.DocData(datapath)
+        data = corpora.DocData(data)
 
         self.model = models.Doc2Topic()
 
@@ -86,5 +97,5 @@ class Doc2TopicModel(AbstractModel):
         else:
             return 'success'
 
-    def predict(self, doc, topn=5):
+    def predict(self, text, topn=5, preprocessing=False):
         return {'message': 'not implemented for this model'}

@@ -18,10 +18,12 @@ class AbstractModel:
         pass
 
     # Perform Inference
-    def predict(self, doc, topn=5):
-        """
-            doc: text on which to perform inference
-            topn: the number of top keywords to extract
+    def predict(self, text, topn=5, preprocessing=False):
+        """Predict topic of the given text
+
+            :param text: The text on which performing the prediction
+            :param int topn: Number of most probable topics to return
+            :param bool preprocess: If True, execute preprocessing on the document
         """
         raise NotImplementedError
 
@@ -34,9 +36,12 @@ class AbstractModel:
 
         return [self.predict(t, topn=topn) for t in text]
 
-    def train(self, datapath=ROOT + '/data.txt'):
-        """
-            datapath: path to training data text file
+    def train(self, data=ROOT + '/data.txt', num_topics=35, preprocessing=False):
+        """ Train topic model.
+
+            :param data: The training corpus as path or list of strings
+            :param int num_topics: The desired number of topics
+            :param bool preprocessing: If true, apply preprocessing to the corpus
         """
         raise NotImplementedError
 
@@ -52,6 +57,8 @@ class AbstractModel:
         """
         Returns the predictions computed on the training corpus.
         This is not re-computing predictions, but reading training results.
+
+        :param int topn: Number of most probable topics to return for each document
         """
         raise NotImplementedError
 

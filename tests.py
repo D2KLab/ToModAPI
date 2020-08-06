@@ -15,7 +15,7 @@ class MainTest(unittest.TestCase):
     def test_train(self):
         for model in models.__all__:
             m = model()
-            res = m.train(datapath=TEST_CORPUS)
+            res = m.train(data=TEST_CORPUS)
             self.assertEqual(res, 'success', '[%s] Problems in training.' % model)
 
     def test_topics(self):

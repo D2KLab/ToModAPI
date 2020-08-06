@@ -1,7 +1,5 @@
-import os
 import re
 import time
-import json
 
 from flask import Flask, jsonify, request, make_response
 from flask_restx import Api, Resource, Namespace
@@ -14,7 +12,6 @@ from topic_model.abstract_model import AbstractModel
 
 AbstractModel.ROOT = ''
 import topic_model as models
-from topic_model.corpus import prepare_subtitles
 
 __package__ = 'topic_model'
 
@@ -68,7 +65,8 @@ coherence_params = extract_parameter(AbstractModel.coherence)
 for model in models.__all__:
     model_name = str(model.__name__).replace('Model', '').lower()
     model_index[model_name] = model
-    ns = Namespace(model_name)
+    doc = model.__doc__
+    ns = Namespace(model_name, description=doc.split('\n')[0])
 
     train_params = extract_parameter(model.train)
 
@@ -102,8 +100,12 @@ for model in models.__all__:
                              'default': 'Climate change is a global environmental issue that is affecting the lands, '
                                         'the oceans, the animals, and humans'},
                     'topn': {
-                        'description': 'The number of most probable topics to return.',
+                        'description': 'The number of most probable topics to return',
                         'type': int, 'default': 5
+                    },
+                    'preprocessing': {
+                        'description': 'If True, execute preprocessing on the document',
+                        'type': bool, 'default': False
                     }
                 },
                 required=['text'])
@@ -113,8 +115,7 @@ for model in models.__all__:
             text = request.args.get('text', type=str)
             topn = request.args.get('topn', default=5, type=int)
             m = model_index[extract_model_id(request)]()
-            subtitles = prepare_subtitles(text)
-            results = m.predict(subtitles, topn=topn)
+            results = m.predict(text, topn=topn, preprocessing=True)
             dur = time.time() - start
             print(results)
             return make_response(jsonify({'time': dur, 'results': results}), 200)

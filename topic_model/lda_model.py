@@ -1,38 +1,44 @@
 from os import path
 import pickle
-
-from .abstract_model import AbstractModel
 import gensim
+
+from .utils.corpus import preprocess, input_to_list_string
+from .abstract_model import AbstractModel
 
 MALLET_PATH = path.join(path.dirname(__file__), 'mallet-2.0.8', 'bin', 'mallet')
 
 
-# Latent Dirichlet Allocation
 class LdaModel(AbstractModel):
+    """Latent Dirichlet Allocation
+
+    Source: https://radimrehurek.com/gensim/models/ldamodel.html
+    """
+
     def __init__(self, model_path=AbstractModel.ROOT + '/models/lda/lda.pkl',
                  mallet_dep_path=AbstractModel.ROOT + '/models/mallet-dep/'):
         super().__init__()
         self.model_path = model_path
         self.mallet_dep_path = mallet_dep_path
 
-    # Load saved model
     def load(self):
         with open(self.model_path, "rb") as input_file:
             self.model = pickle.load(input_file)
         self.model.mallet_path = MALLET_PATH
         self.model.prefix = self.mallet_dep_path
 
-    # Perform Inference
-    def predict(self, doc, topn=5):
+    def predict(self, text, topn=5, preprocessing=False):
         if self.model is None:
             self.load()
 
+        if preprocessing:
+            text = preprocess(text)
+
         # Transform document into BoW
-        doc = doc.split()
+        text = text.split()
         common_dictionary = self.model.id2word
-        doc = common_dictionary.doc2bow(doc)
+        text = common_dictionary.doc2bow(text)
         # Get topic distribution
-        doc_topic_dist = self.model[doc]
+        doc_topic_dist = self.model[text]
         # Sort to get the top n topics
         # Structure the results into a dictionary
         results = sorted(doc_topic_dist, key=lambda kv: kv[1], reverse=True)[:topn]
@@ -49,8 +55,9 @@ class LdaModel(AbstractModel):
         return topics
 
     def train(self,
-              datapath=AbstractModel.ROOT + '/data/data.txt',
+              data=AbstractModel.ROOT + '/data/data.txt',
               num_topics=35,
+              preprocessing=False,
               alpha=50,
               random_seed=5,
               iter=500,
@@ -58,18 +65,16 @@ class LdaModel(AbstractModel):
               topic_threshold=0.0):
         """Train LDA model.
 
-            :param datapath: The path of the training corpus
+            :param data: The training corpus as path or list of strings
             :param int num_topics: The desired number of topics
+            :param bool preprocessing: If true, apply preprocessing to the corpus
             :param float alpha: Prior document-topic distribution
             :param int random_seed: Random seed to ensure consistent results, if 0 - use system clock
             :param int iter: Number of iteration in EM
             :param int optimize_interval: Hyperparameter optimization every optimize_interval
             :param float topic_threshold:  Threshold of the probability above which we consider a topic
         """
-
-        # Load data
-        with open(datapath, "r") as datafile:
-            text = [line.rstrip() for line in datafile if line]
+        text = input_to_list_string(data, preprocessing)
 
         # Transform documents
         tokens = [doc.split() for doc in text]
