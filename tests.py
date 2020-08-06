@@ -44,7 +44,7 @@ class MainTest(unittest.TestCase):
             print(res)
             self.assertIsInstance(res, dict, '[%s] Coherence output should be a dict.' % model)
             self.assertIn('c_v', res,
-                          '[%s] Coherence output should be like {topics: [], c_v: 0.01, c_v_std: 0.01 }.' % model)
+                          '[%s] Coherence output should be like {c_v_per_topics: [], c_v: 0.01, c_v_std: 0.01 }.' % model)
             self.assertIsInstance(res['c_v'], float, '[%s] Coherence output should be a floating point.' % model)
 
     def test_predict(self):

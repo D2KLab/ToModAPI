@@ -105,7 +105,7 @@ class LftmModel(AbstractModel):
         return topics
 
     def train(self,
-              data=AbstractModel.ROOT + '/data/data.txt',
+              data=AbstractModel.ROOT + '/data/test.txt',
               num_topics=35,
               preprocessing=False,
               alpha=0.1,

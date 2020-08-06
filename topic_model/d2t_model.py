@@ -50,7 +50,7 @@ class Doc2TopicModel(AbstractModel):
 
     # Train the model
     def train(self,
-              data=AbstractModel.ROOT + '/data/data.txt',
+              data=AbstractModel.ROOT + '/data/test.txt',
               num_topics=35,
               preprocessing=False,
               batch_size=1024 * 6,

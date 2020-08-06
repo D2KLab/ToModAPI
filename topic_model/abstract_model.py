@@ -27,7 +27,7 @@ class AbstractModel:
         """
         raise NotImplementedError
 
-    def predict_corpus(self, datapath=ROOT + '/data/data.txt', topn=5):
+    def predict_corpus(self, datapath=ROOT + '/data/test.txt', topn=5):
         if self.model is None:
             self.load()
 
@@ -36,7 +36,7 @@ class AbstractModel:
 
         return [self.predict(t, topn=topn) for t in text]
 
-    def train(self, data=ROOT + '/data.txt', num_topics=35, preprocessing=False):
+    def train(self, data=ROOT + '/test.txt', num_topics=35, preprocessing=False):
         """ Train topic model.
 
             :param data: The training corpus as path or list of strings
@@ -75,7 +75,7 @@ class AbstractModel:
         """
         raise NotImplementedError
 
-    def coherence(self, datapath=ROOT + '/data/data.txt', coherence='c_v'):
+    def coherence(self, datapath=ROOT + '/data/test.txt', coherence='c_v'):
         """ Get the coherence of the topic mode.
 
         :param datapath: Path of the corpus on which compute the coherence.
@@ -100,10 +100,9 @@ class AbstractModel:
                                                                               coherence=coherence)
                 coherence_per_topic = coherence_model.get_coherence_per_topic()
 
-                for i, t in enumerate(self.topics):
-                    t[coherence] = coherence_per_topic[i]
+                topic_coherence = [coherence_per_topic[i] for i, t in enumerate(self.topics)]
 
-                results['topics'] = topics
+                results[coherence+'_per_topic'] = topic_coherence
                 results[coherence] = np.nanmean(coherence_per_topic)
                 results[coherence + '_std'] = np.nanstd(coherence_per_topic)
 
