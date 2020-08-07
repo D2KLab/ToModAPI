@@ -1,1 +1,0 @@
-from .mgp import MovieGroupProcess

@@ -130,13 +130,14 @@ dmypy.json
 .pyre/
 
 # models and data
-app/builtin/mallet-2.0.8
-app/builtin/glove/glove.6B*
+topic_model/mallet-2.0.8
+topic_model/glove/glove.6B*
 data/*
 tests/
 
-!data/data.txt
+!data/ted.txt
 !data/20ng*.txt
 !data/wiki.txt
+!data/test.txt
 asrael/text
 asrael/tlp.limsi.fr
