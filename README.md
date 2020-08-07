@@ -18,7 +18,7 @@ In this repository, we provide:
 * Data files containing pre-processed corpus:
   * `20ng.txt` and `20ng_labels.txt`, with 11314 news from the [20 NewsGroup dataset](http://qwone.com/~jason/20Newsgroups/)
   * `ted.txt` with 51898 subtitles of [TED Talks](https://www.ted.com/)
-  * `test.txt`, an extraction of 30 documents from `ted.txt`, used for testing reason
+  * `test.txt` and `test_labels.txt`, an extraction of 30 documents from `20_ng.txt`, used for testing reason
 
 Each model expose the following functions:
 
@@ -66,7 +66,7 @@ for topic, confidence in pred:
 
 ```python
 # coherence: Type of coherence to compute, among <c_v, c_npmi, c_uci, u_mass>. See https://radimrehurek.com/gensim/models/coherencemodel.html#gensim.models.coherencemodel.CoherenceModel
-pred = m.coherence(mycorpus, coherence='c_v')
+pred = m.coherence(mycorpus, metric='c_v')
 print(pred)
 #{
 #  "c_v": 0.5186710138972105,
@@ -80,6 +80,14 @@ print(pred)
 #}
 ```
 
+##### Evaluating against a grount truth
+
+```python
+# metric: Metric for computing the evaluation, among <purity, homogeneity, completeness, v-measure, nmi>.
+res = m.get_corpus_predictions(topn=1)
+v = m.evaluate(res, ground_truth_labels, metric='purity')
+# 0.7825333630516738
+```
 
 The possible parameters can differ depending on the model.
 

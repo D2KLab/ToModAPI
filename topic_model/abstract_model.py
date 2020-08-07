@@ -1,6 +1,8 @@
 import numpy as np
 import gensim
 import logging
+from sklearn.metrics.cluster import contingency_matrix
+from sklearn import metrics
 
 
 class AbstractModel:
@@ -75,11 +77,11 @@ class AbstractModel:
         """
         raise NotImplementedError
 
-    def coherence(self, datapath=ROOT + '/data/test.txt', coherence='c_v'):
+    def coherence(self, datapath=ROOT + '/data/test.txt', metric='c_v'):
         """ Get the coherence of the topic mode.
 
         :param datapath: Path of the corpus on which compute the coherence.
-        :param coherence: Type of coherence to compute, among <c_v, c_npmi, c_uci, u_mass>
+        :param metric: Metric for computing the coherence, among <c_v, c_npmi, c_uci, u_mass>
          """
         topics = self.topics
         topic_words = [x['words'] for x in topics]
@@ -97,14 +99,14 @@ class AbstractModel:
                 self.log.debug('creating coherence model')
                 coherence_model = gensim.models.coherencemodel.CoherenceModel(topics=topic_words, texts=text,
                                                                               dictionary=dictionary,
-                                                                              coherence=coherence)
+                                                                              coherence=metric)
                 coherence_per_topic = coherence_model.get_coherence_per_topic()
 
                 topic_coherence = [coherence_per_topic[i] for i, t in enumerate(self.topics)]
 
-                results[coherence+'_per_topic'] = topic_coherence
-                results[coherence] = np.nanmean(coherence_per_topic)
-                results[coherence + '_std'] = np.nanstd(coherence_per_topic)
+                results[metric + '_per_topic'] = topic_coherence
+                results[metric] = np.nanmean(coherence_per_topic)
+                results[metric + '_std'] = np.nanstd(coherence_per_topic)
 
                 break
 
@@ -115,3 +117,33 @@ class AbstractModel:
                         x.remove(key)
 
         return results
+
+    def evaluate(self, labels_pred: list, labels_true: list, metric='purity', average_method='arithmetic'):
+        """Evaluation against a ground truth
+
+        :param list labels_pred: Predicted topics
+        :param list labels_true: Ground truth labels
+        :param metric: Metric for computing the evaluation, among <purity, homogeneity, completeness, v-measure, nmi>
+        :param average_method: Only if metric is NMI, the average method among <arithmetic, min, max, geometric>
+        """
+
+        unique_labels = list(np.unique(labels_true))
+        l = [unique_labels.index(x) for x in labels_true]
+        if type(labels_pred[0]) == list:
+            p = np.array(labels_pred)[:, 0, 0]
+        else:
+            p = labels_pred
+
+        if metric == 'purity':
+            cm = contingency_matrix(l, p)
+            return np.sum(np.amax(cm, axis=0)) / np.sum(cm)
+        elif metric == 'homogeneity':
+            return metrics.homogeneity_score(l, p)
+        elif metric == 'completeness':
+            return metrics.completeness_score(l, p)
+        elif metric == 'v-measure':
+            return metrics.v_measure_score(l, p)
+        elif metric == 'nmi':
+            return metrics.normalized_mutual_info_score(l, p, average_method)
+        else:
+            raise ValueError(f'Unrecognised metrics: {metric}')
