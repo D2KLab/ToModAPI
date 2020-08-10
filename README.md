@@ -12,7 +12,7 @@ In this repository, we provide:
 * Code to perform training, inference, and evaluation for 4 Topic Modeling packages:
   * LDA from the [Mallet](http://mallet.cs.umass.edu/) package.
   * [LFTM](https://github.com/datquocnguyen/LFTM) (LF-LDA) - [paper](https://tacl2013.cs.columbia.edu/ojs/index.php/tacl/article/view/582/158).
-  * [Doc2Topic](https://github.com/sronnqvist/doc2topic), NTM in the code
+  * [Doc2Topic](https://github.com/sronnqvist/doc2topic)
   * [GSDMM](https://github.com/rwalk/gsdmm) - [paper](https://pdfs.semanticscholar.org/058a/d0815ce350f0e7538e00868c762be78fe5ef.pdf)
 * Pre-trained models in the **models/** directory. These are automatically used in the inference and evaluation API calls. The models have been trained using [these parameters](./params.md). **NOTE: Newly trained models are stored there, but replace the old ones.**
 * Data files containing pre-processed corpus:
