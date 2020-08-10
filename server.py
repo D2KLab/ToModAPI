@@ -86,6 +86,7 @@ for model in models.__all__:
             print(train_params.items())
             print(params)
             results = m.train(*params)
+            m.save()
             dur = time.time() - start
             print(f'Training {_model_name} done in {dur}')
             # Return results

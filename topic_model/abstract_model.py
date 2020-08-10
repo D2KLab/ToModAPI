@@ -10,14 +10,27 @@ class AbstractModel:
 
     def __init__(self):
         self.model = None
+        self.model_path = None
         self.log = logging.getLogger(self.__class__.__name__)
 
-    def load(self):
+    def load(self, path=None):
         """
             Load the model and eventual dependencies.
-            Implementation not mandatory.
+
+            :param path: Folder where the model to be loaded is. If not specified, a default one is assigned
         """
-        pass
+        #  Implementation not mandatory.
+        if path is not None:
+            self.model_path = path
+
+    def save(self, path=None):
+        """
+            Save the model and eventual dependencies.
+
+            :param path: Folder where to save the model. If not specified, a default one is assigned
+        """
+        if path is not None:
+            self.model_path = path
 
     # Perform Inference
     def predict(self, text, topn=5, preprocessing=False):
@@ -83,8 +96,7 @@ class AbstractModel:
         :param datapath: Path of the corpus on which compute the coherence.
         :param metric: Metric for computing the coherence, among <c_v, c_npmi, c_uci, u_mass>
          """
-        topics = self.topics
-        topic_words = [x['words'] for x in topics]
+        topic_words = [x['words'] for x in self.topics]
 
         self.log.debug('loading dataset')
         with open(datapath, "r") as datafile:

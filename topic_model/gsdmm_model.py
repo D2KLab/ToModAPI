@@ -16,32 +16,6 @@ class GsdmmModel(AbstractModel):
         super().__init__()
         self.model_path = model_path
 
-    # Load the saved model
-    def load(self):
-        with open(self.model_path, "rb") as input_file:
-            self.model = pickle.load(input_file)
-
-    @property
-    def topics(self):
-        if self.model is None:
-            self.load()
-
-        topics = []
-        for i, topic in enumerate(self.model.cluster_word_distribution):
-            current_words = []
-            current_freq = []
-            total = sum(topic.values())
-            for word, freq in sorted(topic.items(), key=lambda item: item[1], reverse=True)[:10]:
-                current_words.append(word)
-                current_freq.append(freq / total)
-
-            topics.append({
-                'words': current_words,
-                'weights': current_freq
-            })
-
-        return topics
-
     def train(self,
               data=AbstractModel.ROOT + '/data/test.txt',
               num_topics=35,
@@ -68,10 +42,40 @@ class GsdmmModel(AbstractModel):
         self.model.fit(tokens, len(id2word), log=self.log.debug)
         self.log.debug('end training GSDMM')
 
+        return 'success'
+
+    def save(self, path=None):
+        super().save(path)
+
         with open(self.model_path, 'wb') as output:
             pickle.dump(self.model, output, pickle.HIGHEST_PROTOCOL)
 
-        return 'success'
+    def load(self, path=None):
+        super().load(path)
+
+        with open(self.model_path, "rb") as input_file:
+            self.model = pickle.load(input_file)
+
+    @property
+    def topics(self):
+        if self.model is None:
+            self.load()
+
+        topics = []
+        for i, topic in enumerate(self.model.cluster_word_distribution):
+            current_words = []
+            current_freq = []
+            total = sum(topic.values())
+            for word, freq in sorted(topic.items(), key=lambda item: item[1], reverse=True)[:10]:
+                current_words.append(word)
+                current_freq.append(freq / total)
+
+            topics.append({
+                'words': current_words,
+                'weights': current_freq
+            })
+
+        return topics
 
     def predict(self, text: str, topn=5, preprocessing=False, doc_len=7):
         if self.model is None:

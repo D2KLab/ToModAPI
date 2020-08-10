@@ -5,7 +5,6 @@ from .abstract_model import AbstractModel
 from .utils.corpus import input_to_list_string
 
 
-# Neural Topic Model
 class Doc2TopicModel(AbstractModel):
     """Doc2Topic
 
@@ -20,35 +19,6 @@ class Doc2TopicModel(AbstractModel):
         self.name = name
         os.makedirs(model_path, exist_ok=True)
 
-    # Load the saved model
-    def load(self):
-        self.model = models.Doc2Topic()
-        self.model.load(filename=os.path.join(self.model_path, self.name))
-
-    @property
-    def topics(self):
-        if self.model is None:
-            self.load()
-        topics = []
-
-        for i, topic in self.model.get_topic_words().items():
-            words = []
-            weights = []
-            for word, weight in topic:
-                words.append(word)
-                weights.append(float(weight))
-            topics.append({'words': words,
-                           'weights': weights})
-
-        return topics
-
-    def get_corpus_predictions(self, topn: int = 5):
-        if self.model is None:
-            self.load()
-
-        return [self.model.get_document_topics(i)[:topn] for i in range(0, len(self.model.get_docvecs()))]
-
-    # Train the model
     def train(self,
               data=AbstractModel.ROOT + '/data/test.txt',
               num_topics=35,
@@ -92,12 +62,43 @@ class Doc2TopicModel(AbstractModel):
         fmeasure = self.model.history.history['fmeasure'][-1]
         loss = self.model.history.history['loss'][-1]
 
-        self.model.save(os.path.join(self.model_path, self.name))
         self.log.debug(f'Training complete. F-measure: {fmeasure}. Loss: {loss}')
         if return_scores:
             return 'success', fmeasure, loss
         else:
             return 'success'
+
+    def save(self, path=None):
+        super().save(path)
+        self.model.save(os.path.join(self.model_path, self.name))
+
+    def load(self, path=None):
+        super().load(path)
+        self.model = models.Doc2Topic()
+        self.model.load(filename=os.path.join(self.model_path, self.name))
+
+    @property
+    def topics(self):
+        if self.model is None:
+            self.load()
+        topics = []
+
+        for i, topic in self.model.get_topic_words().items():
+            words = []
+            weights = []
+            for word, weight in topic:
+                words.append(word)
+                weights.append(float(weight))
+            topics.append({'words': words,
+                           'weights': weights})
+
+        return topics
+
+    def get_corpus_predictions(self, topn: int = 5):
+        if self.model is None:
+            self.load()
+
+        return [self.model.get_document_topics(i)[:topn] for i in range(0, len(self.model.get_docvecs()))]
 
     def predict(self, text, topn=5, preprocessing=False):
         return {'message': 'not implemented for this model'}

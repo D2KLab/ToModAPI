@@ -1,17 +1,17 @@
 import re
 import os
-from os import path
 import pickle
 import subprocess
 import gensim
+import shutil
 
 from .utils.LoggerWrapper import LoggerWrapper
 from .abstract_model import AbstractModel
 from .utils.corpus import preprocess, input_to_list_string
 
-LFTM_JAR = path.join(path.dirname(__file__), 'lftm', 'LFTM.jar')
-GLOVE_TOKENS = path.join(path.dirname(__file__), 'glove', 'glovetokens.pkl')
-GLOVE_TXT = path.join(path.dirname(__file__), 'glove', 'glove.6B.50d.txt')
+LFTM_JAR = os.path.join(os.path.dirname(__file__), 'lftm', 'LFTM.jar')
+GLOVE_TOKENS = os.path.join(os.path.dirname(__file__), 'glove', 'glovetokens.pkl')
+GLOVE_TXT = os.path.join(os.path.dirname(__file__), 'glove', 'glove.6B.50d.txt')
 
 TOPIC_REGEX = r'Topic(\d+): (.+)'
 
@@ -27,6 +27,7 @@ class LftmModel(AbstractModel):
 
     Source: https://github.com/datquocnguyen/LFTM
     """
+
     def __init__(self, model_root=AbstractModel.ROOT + '/models/lftm', data_root=AbstractModel.ROOT + '/data/lftm',
                  name='LFLDA'):
         """LFTM Model constructor
@@ -37,13 +38,15 @@ class LftmModel(AbstractModel):
         """
         super().__init__()
 
-        model_root = path.abspath(model_root)
-        self.top_words = model_root + '/%s.topWords' % name
-        self.paras_path = model_root + '/%s.paras' % name
-        self.theta_path_model = model_root + '/%s.theta' % name
-        self.data_glove = model_root + '/%s.glove' % name
+        self.model_root = None
+        self.top_words = None
+        self.paras_path = None
+        self.theta_path_model = None
+        self.data_glove = None
 
-        data_root = path.abspath(data_root)
+        self.update_model_path(model_root, name)
+
+        data_root = os.path.abspath(data_root)
         self.doc_path = data_root + '/doc.txt'
         self.theta_path = data_root + '/%sinf.theta' % name
 
@@ -51,58 +54,18 @@ class LftmModel(AbstractModel):
         os.makedirs(data_root, exist_ok=True)
         os.makedirs(model_root, exist_ok=True)
 
-    # Perform Inference
-    def predict(self, text, topn=10, preprocessing=False, initer=500, niter=0):
-        """Predict topic of the given text
+    def update_model_path(self, model_root, name):
+        model_root = os.path.abspath(model_root)
+        self.model_root = model_root
+        self.top_words = model_root + '/%s.topWords' % name
+        self.paras_path = model_root + '/%s.paras' % name
+        self.theta_path_model = model_root + '/%s.theta' % name
+        self.data_glove = model_root + '/%s.glove' % name
 
-            :param text: The text on which performing the prediction
-            :param int topn: Number of most probable topics to return
-            :param bool preprocessing: If True, execute preprocessing on the document
-            :param int initer: initial sampling iterations to separate the counts for the latent feature component and the Dirichlet multinomial component
-            :param int niter: sampling iterations for the latent feature topic models
-        """
-        with open(GLOVE_TOKENS, "rb") as input_file:
-            glovetokens = pickle.load(input_file)
-
-        if preprocessing:
-            preprocess(text)
-
-        params = {}
-        with open(self.paras_path, "r") as f:
-            for line in f.readlines():
-                k, v = line.strip().split('\t')
-                params[k[1:]] = v
-
-        text = ' '.join([word for word in text.split() if word in glovetokens])
-
-        with open(self.doc_path, "w", encoding='utf-8') as f:
-            f.write(text)
-
-        # Perform Inference
-        proc = f'java -jar {LFTM_JAR} -model {params["model"]}inf -paras {self.paras_path} -corpus {self.doc_path} ' \
-               f'-initers {initer} -niters {niter} -twords {topn} -name {self.name}inf -sstep 0'
-        self.log.debug('Executing: ' + proc)
-
-        logWrap = LoggerWrapper(self.log)
-        completed_proc = subprocess.run(proc, shell=True, stderr=logWrap, stdout=logWrap)
-        self.log.debug(f'Completed with code {completed_proc.returncode}')
-
-        with open(self.theta_path, "r") as file:
-            doc_topic_dist = file.readline()
-
-        doc_topic_dist = [(int(topic), float(weight)) for topic, weight in enumerate(doc_topic_dist.split())]
-        results = sorted(doc_topic_dist, key=lambda kv: kv[1], reverse=True)[:topn]
-        return results
-
-    def get_corpus_predictions(self, topn: int = 5):
-        with open(self.theta_path_model, "r") as file:
-            doc_topic_dist = [line.strip().split() for line in file.readlines()]
-
-        topics = [[(i, float(score)) for i, score in enumerate(doc)]
-                  for doc in doc_topic_dist]
-
-        topics = [sorted(doc, key=lambda t: -t[1])[:topn] for doc in topics]
-        return topics
+    def save(self, path=None):
+        if path is not None and path != self.model_root:
+            shutil.move(self.model_root, path)
+            self.model_root = path
 
     def train(self,
               data=AbstractModel.ROOT + '/data/test.txt',
@@ -161,6 +124,59 @@ class LftmModel(AbstractModel):
         self.log.debug(f'Completed with code {completed_proc.returncode}')
 
         return 'success' if completed_proc.returncode == 0 else ('error %d' % completed_proc.returncode)
+
+    # Perform Inference
+    def predict(self, text, topn=10, preprocessing=False, initer=500, niter=0):
+        """Predict topic of the given text
+
+            :param text: The text on which performing the prediction
+            :param int topn: Number of most probable topics to return
+            :param bool preprocessing: If True, execute preprocessing on the document
+            :param int initer: initial sampling iterations to separate the counts for the latent feature component and the Dirichlet multinomial component
+            :param int niter: sampling iterations for the latent feature topic models
+        """
+        with open(GLOVE_TOKENS, "rb") as input_file:
+            glovetokens = pickle.load(input_file)
+
+        if preprocessing:
+            preprocess(text)
+
+        params = {}
+        with open(self.paras_path, "r") as f:
+            for line in f.readlines():
+                k, v = line.strip().split('\t')
+                params[k[1:]] = v
+
+        text = ' '.join([word for word in text.split() if word in glovetokens])
+
+        with open(self.doc_path, "w", encoding='utf-8') as f:
+            f.write(text)
+
+        # Perform Inference
+        proc = f'java -jar {LFTM_JAR} -model {params["model"]}inf -paras {self.paras_path} -corpus {self.doc_path} ' \
+               f'-initers {initer} -niters {niter} -twords {topn} -name {self.name}inf -sstep 0'
+        self.log.debug('Executing: ' + proc)
+
+        logWrap = LoggerWrapper(self.log)
+        completed_proc = subprocess.run(proc, shell=True, stderr=logWrap, stdout=logWrap)
+        self.log.debug(f'Completed with code {completed_proc.returncode}')
+
+        with open(self.theta_path, "r") as file:
+            doc_topic_dist = file.readline()
+
+        doc_topic_dist = [(int(topic), float(weight)) for topic, weight in enumerate(doc_topic_dist.split())]
+        results = sorted(doc_topic_dist, key=lambda kv: kv[1], reverse=True)[:topn]
+        return results
+
+    def get_corpus_predictions(self, topn: int = 5):
+        with open(self.theta_path_model, "r") as file:
+            doc_topic_dist = [line.strip().split() for line in file.readlines()]
+
+        topics = [[(i, float(score)) for i, score in enumerate(doc)]
+                  for doc in doc_topic_dist]
+
+        topics = [sorted(doc, key=lambda t: -t[1])[:topn] for doc in topics]
+        return topics
 
     @property
     def topics(self):

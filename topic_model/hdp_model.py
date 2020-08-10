@@ -2,47 +2,42 @@ import pickle
 import gensim
 
 from collections import defaultdict
-from utils.corpus import preprocess
 
 from gensim import models, corpora
 from gensim.models import HdpModel
+from .utils.corpus import preprocess
 
-from abstract_model import AbstractModel
+from .abstract_model import AbstractModel
 
 
-# Hierarchical Dirichlet Processing Model
 class HDPModel(AbstractModel):
     """Hierarchical Dirichlet Processing Model
 
     Source: https://radimrehurek.com/gensim/models/hdpmodel.html
     """
 
-    def __init__(self, name='HDP'):
-        """LFTM Model constructor
-        :param name: Name of the model
-        """
+    def __init__(self):
         super().__init__()
 
         self.model = None
         self.corpus = None
-        self.dictionairy = None
+        self.dictionary = None
 
-
-    def train(self, data, 
-              preprocessing=True, 
-              max_chunks=None, 
+    def train(self, data,
+              preprocessing=True,
+              max_chunks=None,
               max_time=None,
-              chunksize=256, 
-              kappa=1.0, 
-              tau=64.0, 
-              K=15, 
-              T=150, 
-              alpha=1, 
-              gamma=1, 
-              eta=0.01, 
-              scale=1.0, 
-              var_converge=0.0001, 
-              outputdir=None, 
+              chunksize=256,
+              kappa=1.0,
+              tau=64.0,
+              K=15,
+              T=150,
+              alpha=1,
+              gamma=1,
+              eta=0.01,
+              scale=1.0,
+              var_converge=0.0001,
+              outputdir=None,
               random_state=None):
         """
         Train the model and generate the results on the corpus
@@ -63,7 +58,7 @@ class HDPModel(AbstractModel):
             :param str outputdir: Stores topic and options information in the specified directory.
             :param str outputdir: Stores topic and options information in the specified directory.
         """
-        
+
         if preprocessing:
             data = map(preprocess, data)
 
@@ -76,27 +71,26 @@ class HDPModel(AbstractModel):
         corpus = [dictionary.doc2bow(text) for text in texts]
 
         lsi_model = models.HdpModel(corpus, id2word=dictionary,
-                                    max_chunks=max_chunks, 
+                                    max_chunks=max_chunks,
                                     max_time=max_time,
-                                    chunksize=chunksize, 
-                                    kappa=kappa, 
-                                    tau=tau, 
-                                    K=K, 
-                                    T=T, 
-                                    alpha=alpha, 
-                                    gamma=gamma, 
-                                    eta=eta, 
-                                    scale=scale, 
-                                    var_converge=var_converge, 
-                                    outputdir=outputdir, 
+                                    chunksize=chunksize,
+                                    kappa=kappa,
+                                    tau=tau,
+                                    K=K,
+                                    T=T,
+                                    alpha=alpha,
+                                    gamma=gamma,
+                                    eta=eta,
+                                    scale=scale,
+                                    var_converge=var_converge,
+                                    outputdir=outputdir,
                                     random_state=random_state)
 
         self.model = lsi_model
         self.dictionary = dictionary
         self.corpus = lsi_model[corpus]
-        
-        return 'success'
 
+        return 'success'
 
     # Perform Inference
     def predict(self, text, topn=10, preprocessing=True):
@@ -109,9 +103,8 @@ class HDPModel(AbstractModel):
         if preprocessing:
             text = preprocess(text)
         preds = self.model[self.dictionary.doc2bow(text.split())]
-        
-        return sorted(preds, key=lambda x: -abs(x[1]))[:topn]
 
+        return sorted(preds, key=lambda x: -abs(x[1]))[:topn]
 
     def get_corpus_predictions(self, topn: int = 5):
         """Predict topic of the given text
@@ -128,6 +121,7 @@ class HDPModel(AbstractModel):
         n_top_words = 10
         topics = []
         for topic_words in self.model.get_topics():
-            topics.append([(x[1][1], x[0]) for x in sorted(zip(topic_words, self.dictionary.items()), key=lambda x: -x[0])[:n_top_words]])
+            topics.append([(x[1][1], x[0]) for x in
+                           sorted(zip(topic_words, self.dictionary.items()), key=lambda x: -x[0])[:n_top_words]])
 
         return topics

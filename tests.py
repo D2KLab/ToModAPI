@@ -4,8 +4,8 @@ import topic_model as models
 
 TEST_SENTENCE = 'In the time since the industrial revolution the climate has increasingly been affected by human ' \
                 'activities that are causing global warming and climate change.'
-TEST_CORPUS = './data/20ng.txt'
-TEST_LABELS = './data/20ng_labels.txt'
+TEST_CORPUS = './data/test.txt'
+TEST_LABELS = './data/test_labels.txt'
 
 
 # logging.basicConfig(level=logging.DEBUG)
@@ -13,54 +13,55 @@ TEST_LABELS = './data/20ng_labels.txt'
 
 class MainTest(unittest.TestCase):
 
-    # def test_train(self):
-    #     for model in models.__all__:
-    #         m = model()
-    #         res = m.train(data=TEST_CORPUS, num_topics=20)
-    #         self.assertEqual(res, 'success', '[%s] Problems in training.' % model)
-    #
-    # def test_predict(self):
-    #     for model in models.__all__:
-    #         m = model()
-    #         res = m.predict(TEST_SENTENCE, topn=5)
-    #         print(res)
-    #         if 'message' in res:
-    #             self.assertEqual(res['message'], 'not implemented for this model',
-    #                              '[%s] Unexpected output for the prediction')
-    #         else:
-    #             self.assertIsInstance(res, list, '[%s] Predict output should be a list.' % model)
-    #             self.assertEqual(len(res), 5, '[%s] Predict output should match topn.' % model)
-    #             self.assertIsInstance(res[0], tuple,
-    #                                   '[%s] Predictions should be represented as tuple.' % model)
+    def test_train(self):
+        for model in models.__all__:
+            m = model()
+            res = m.train(data=TEST_CORPUS, num_topics=20)
+            self.assertEqual(res, 'success', '[%s] Problems in training.' % model)
+            m.save()
 
-    # def test_topics(self):
-    #     for model in models.__all__:
-    #         m = model()
-    #
-    #         res = m.topics
-    #         print(res)
-    #         self.assertIsInstance(res, list, '[%s] Topics output should be a list.' % model)
-    #         self.assertIn('words', res[0], '[%s] Topics output should be like {words: [], weights: [] }.' % model)
-    #
-    # def test_given_topic(self):
-    #     for model in models.__all__:
-    #         m = model()
-    #
-    #         res = m.topic(0)
-    #         print(res)
-    #         self.assertIn('words', res, '[%s] Topics output should be like {words: [], weights: [] }.' % model)
-    #
-    # def test_coherence(self):
-    #     for model in models.__all__:
-    #         m = model()
-    #         m.load()
-    #
-    #         res = m.coherence(datapath=TEST_CORPUS)
-    #         print(res)
-    #         self.assertIsInstance(res, dict, '[%s] Coherence output should be a dict.' % model)
-    #         self.assertIn('c_v', res,
-    #                       '[%s] Coherence output should be like {c_v_per_topics: [], c_v: 0.01, c_v_std: 0.01 }.' % model)
-    #         self.assertIsInstance(res['c_v'], float, '[%s] Coherence output should be a floating point.' % model)
+    def test_predict(self):
+        for model in models.__all__:
+            m = model()
+            res = m.predict(TEST_SENTENCE, topn=5)
+            print(res)
+            if 'message' in res:
+                self.assertEqual(res['message'], 'not implemented for this model',
+                                 '[%s] Unexpected output for the prediction')
+            else:
+                self.assertIsInstance(res, list, '[%s] Predict output should be a list.' % model)
+                self.assertEqual(len(res), 5, '[%s] Predict output should match topn.' % model)
+                self.assertIsInstance(res[0], tuple,
+                                      '[%s] Predictions should be represented as tuple.' % model)
+
+    def test_topics(self):
+        for model in models.__all__:
+            m = model()
+
+            res = m.topics
+            print(res)
+            self.assertIsInstance(res, list, '[%s] Topics output should be a list.' % model)
+            self.assertIn('words', res[0], '[%s] Topics output should be like {words: [], weights: [] }.' % model)
+
+    def test_given_topic(self):
+        for model in models.__all__:
+            m = model()
+
+            res = m.topic(0)
+            print(res)
+            self.assertIn('words', res, '[%s] Topics output should be like {words: [], weights: [] }.' % model)
+
+    def test_coherence(self):
+        for model in models.__all__:
+            m = model()
+            m.load()
+
+            res = m.coherence(datapath=TEST_CORPUS)
+            print(res)
+            self.assertIsInstance(res, dict, '[%s] Coherence output should be a dict.' % model)
+            self.assertIn('c_v', res,
+                          '[%s] Coherence output should be like {c_v_per_topics: [], c_v: 0.01, c_v_std: 0.01 }.' % model)
+            self.assertIsInstance(res['c_v'], float, '[%s] Coherence output should be a floating point.' % model)
 
 
     def test_corpus_predictions(self):

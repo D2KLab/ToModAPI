@@ -2,13 +2,13 @@ import pickle
 import gensim
 
 from collections import defaultdict
-from utils.corpus import preprocess
+from .utils.corpus import preprocess
 
 from gensim import models, corpora
 from gensim.models.nmf import Nmf
 from gensim.corpora.dictionary import Dictionary
 
-from abstract_model import AbstractModel
+from .abstract_model import AbstractModel
 
 
 # Non-Negative Matrix factorization

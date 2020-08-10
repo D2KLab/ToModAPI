@@ -1,14 +1,9 @@
+import joblib
+import numpy as np
 from pvtm import pvtm
 
-from os import path
-import pickle
-import gensim
-import numpy as np
-import joblib
-
-from .utils.corpus import preprocess, input_to_list_string
 from .abstract_model import AbstractModel
-import inspect
+from .utils.corpus import preprocess, input_to_list_string
 
 
 class PvtmModel(AbstractModel):
@@ -63,13 +58,16 @@ class PvtmModel(AbstractModel):
         self.model.fit(vector_size=vector_size, n_components=num_topics, hs=hs, dbow_words=dbow_words, dm=dm,
                        epochs=epochs, window=window, seed=seed, min_count=min_count, workers=workers, alpha=alpha,
                        min_alpha=min_alpha, random_state=random_state, covariance_type=covariance_type)
-
-        self.model.save(path=self.model_path)
         self.log.debug('end training PVTM')
 
         return 'success'
 
-    def load(self):
+    def save(self, path=None):
+        super().save()
+        self.model.save(path=self.model_path)
+
+    def load(self, path=None):
+        super().load()
         self.model = joblib.load(self.model_path)
 
     def predict(self, text, topn=5, preprocessing=False, ):
