@@ -61,6 +61,7 @@ def extract_parameter(fun):
 
 
 coherence_params = extract_parameter(AbstractModel.coherence)
+evaluate_params = extract_parameter(AbstractModel.evaluate)
 
 for model in models.__all__:
     model_name = str(model.__name__).replace('Model', '').lower()
@@ -177,6 +178,23 @@ for model in models.__all__:
             #     model_name, request.args.get('coherence', default='c_v'))
             # with open(output_file, 'w') as f:
             #     json.dump(response, f)
+            return make_response(response, 200)
+
+
+    @ns.route('/evaluate')
+    class Evaluate(Resource):
+        @ns.doc(description='''Evaluate against a ground truth''', params=evaluate_params)
+        def get(self):
+            start = time.time()
+
+            m = model_index[extract_model_id(request)]()
+            params = [request.args.get(k, default=p['default'], type=p['type']) for k, p in evaluate_params.items()]
+            dur = time.time() - start
+            result = m.evaluate(*params)
+            response = jsonify({
+                'time': dur,
+                'result': result
+            })
             return make_response(response, 200)
 
 

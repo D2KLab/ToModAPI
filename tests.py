@@ -5,6 +5,7 @@ import topic_model as models
 TEST_SENTENCE = 'In the time since the industrial revolution the climate has increasingly been affected by human ' \
                 'activities that are causing global warming and climate change.'
 TEST_CORPUS = './data/test.txt'
+TEST_LABELS = './data/test_labels.txt'
 
 
 # logging.basicConfig(level=logging.DEBUG)
@@ -73,6 +74,23 @@ class MainTest(unittest.TestCase):
             self.assertIsInstance(res[0], list, '[%s] Corpus prediction output should be a list of lists.' % model)
             self.assertIsInstance(res[0][0], tuple,
                                   '[%s] Corpus prediction topics should be represented as tuple.' % model)
+
+    def test_evaluate(self):
+        with open(TEST_LABELS, 'r') as f:
+            labels = [x.strip() for x in f.readlines()]
+
+        for model in models.__all__:
+            m = model()
+            m.load()
+            print(model)
+
+            res = m.get_corpus_predictions(topn=1)
+            v = m.evaluate(res, labels, metric='nmi')
+            v2 = m.evaluate(res, labels, metric='purity')
+            print(v)
+
+            self.assertIsInstance(v, float, '[%s] Evaluate NMI should return a float.' % model)
+            self.assertIsInstance(v2, float, '[%s] Evaluate Purity should return a float.' % model)
 
 
 if __name__ == '__main__':

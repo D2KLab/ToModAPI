@@ -137,7 +137,7 @@ tests/
 
 !data/ted.txt
 !data/20ng*.txt
-!data/wiki.txt
 !data/test.txt
+!data/test_labels.txt
 asrael/text
 asrael/tlp.limsi.fr

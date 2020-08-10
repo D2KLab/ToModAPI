@@ -1,25 +1,35 @@
-0	0.027	cancer cell body patient blood heart surgery disease drug tumor tissue organ stem doctor bone breast treatment surgeon muscle lung 
-1	0.05602	country africa state china india united south african america europe chinese north today american east place west percent middle history 
-2	0.04404	earth planet universe space star light mar sun galaxy particle energy billion theory big system telescope moon physic dark matter 
-3	0.15213	change problem system global social society country important today power issue government technology percent good economic future challenge growth economy 
-4	0.07197	computer machine robot technology human system game design model build part idea simple create move real structure video material built 
-5	0.06497	foot leg air fly hand body head put arm move hour walk flying long minute speed guy flight front side 
-6	0.03261	animal tree specie plant bird forest human dog ant bee insect male female egg elephant monkey nature flower food colony 
-7	0.06911	book story read great called film movie wrote man god guy write thought john word character writing poem king named 
-8	0.20708	human feel love story experience good sense mind question change idea live future fear word hope understand fact talk choice 
-9	0.06281	health disease percent patient care child doctor drug medical problem hospital death hiv treatment risk rate medicine number million study 
-10	0.15997	idea question problem science talk design project good answer working scientist started team research game thinking thought find great today 
-11	0.07351	dollar money company percent business million cost market billion pay buy product give job price bank industry country good government 
-12	0.06502	city car building place street space york community built road build house urban design park center neighborhood public home day 
-13	0.0356	gene dna human cell specie genome genetic bacteria evolution molecule organism biology million dinosaur virus ago protein microbe animal form 
-14	0.03717	music sound play song hear voice dance playing listen instrument yeah listening noise audience note piece musician video hearing played 
-15	0.06863	word language medium video news page show story read internet day english number picture talk started online message letter write 
-16	0.08617	light image art show color piece made picture line sort artist eye object space camera painting put red shape wall 
-17	0.05894	water food energy oil carbon fuel plant percent power gas material waste eat air put solar electricity nuclear clean system 
-18	0.06147	data information technology phone internet network computer digital system open device online mobile access tool web company call software communication 
-19	0.19395	day thought guy room home night started good hour put week hand kid remember friend wanted told feel minute morning 
-20	0.04711	water ocean sea fish ice place area coral river island earth shark planet mountain find land mile forest animal specie 
-21	0.03998	brain neuron body memory cell part area information control signal pattern system activity visual behavior sleep human mind face region 
-22	0.08111	war state country government law police american united violence military case group prison refugee political president weapon election soldier court 
-23	0.08678	woman child men family girl mother young father baby man story boy parent sex friend age black born told daughter 
-24	0.05764	school kid student child teacher education high class learning college learn university parent teach young teaching classroom program job grade 
+0	0,00577	tiff image program complexity application inability format file worried word unnecessary trapped success start specification sort simplicity significance save reasoning 
+1	0,00291	plant water nuclear cooling tower fossil boiler site fuel hot steam run cycle cool condenser cold closed apr cylinder walker 
+2	0,00291	moral parent child code morality swear jew yhwh multiple image god unknowable torah man live interpretation christ believed wrong understand 
+3	0,00574	weitek dodge wrote writes winter stuff sense scare robert requires quadrilateral pretty phone person nice low level kyanko jonathan joe 
+4	0,00589	scsi chip quadra mac range problem burst bit ide ibm fast controller loop version mode faster worked drive wide statement 
+5	0,00884	voice input ken vendor specific unix information keywords spos mvp length hill game workstation visualization virginia user sufficient respond purchasing 
+6	0,0029	captain traded leaf yeah worn vaive troy torn thomas speaking sittler season sabre rotate rick playing pittsburgh penguin pen olcyzk 
+7	0,00291	power shuttle redesign add port jsc bus time spacelab propulsion key habitation floor docking deleted capability added top york vms 
+8	0,00576	clock poll experience add upgrade speed floppy final call day hassle adresses easily usage upgraded top summarizing soul sink shared 
+9	0,00871	germany motto worse social similar semitism rank population pompous pevasive order keith imperail hitler german distinguish austria arrived anti lead 
+10	0,0029	error warning launch bug expected waivered understanding till suchlike software shuttle set quote previously possibly parity memory meaning liftoff knew 
+11	0	
+12	0	
+13	0,00288	rod cerkoney regard packard hpdesk hewlett harmony gqxf fort fekvh east collins 
+14	0	
+15	0,00292	putting million killed keeping find destructive defined coming class article back 
+16	0,00289	thermocouple circuit voltage amplify amplifier sufficiently simple signal seeking resulting preferably practice pointer personal output nicely greatly fed factor degree 
+17	0,00291	god intricate handiwork earth environment lie ultimate tapestry respect pantheism health half glory generation future facet environmentalism beauty important complete 
+18	0	
+19	0,00875	board icon file stac autodoubler problem work technology sigma product lost licensing double diskdoubler design decompress compression win figure mail 
+20	0,0029	trial war camp world unusual total solution short punishment prepared political partly painless originally nazi mutilated minority method mathew malnutrition 
+21	0,00289	safety priority mph lot collision buying important car worry wall volvos unsafe seatbelt mileage jim higher econoboxes depends brick spend 
+22	0,0029	absolute david required hold created supposed yep water utterance undoubtably told theologically talmud swam shaky sea script recorded previous popular 
+23	0,00289	car door wondering tellme sport spec small separate rest production neighborhood model mail made looked lerxst late info history funky 
+24	0,00575	catalog tool scien mailing free engineer copy personal application computing list data mail waste vip trick touch ton toll tists 
+25	0,00576	oil leak gts ducati bike saftey personally frost common tuba trans thinking stable sold shop sat run richardson recommendation pop 
+26	0,0029	car policy ticket rate insurance house driving defensive accident single performance university umbrella twin turbo steve stealth state security quoted 
+27	0,0029	purchased moving speed tape sale portable dryer case reasonable zoom yds vaccum treble sunbeam steam spray sound silex salon reply 
+28	0,00574	rubbish apostle adamantly soem show 
+29	0,0029	powerbook machine display store heard bunch disk day wow worth weekend tom time taking supposed summer sooo solicit size rumor 
+30	0,00594	info treatment news hit tumor thought sharon september sean responded request publicly hmmm directly delete debra brain astrocytomas accidentally yea 
+31	0,0029	terminal ncd tcp boot list file control access syntax sun parameter loaded entry edit configuration add xhost worthless unix telnet 
+32	0,00291	weapon mass destruction term individual rutledge needle modern foxvog doug make write understood topic today thousand switching sweeper street stating 
+33	0,00289	window font mode size small trivial spacify normal monitor include fairly excuse enhanced alavi world reference answer message card 
+34	0,00291	option ssf module flight station capability space orbiter team tank external human acrv power vehicle tended solar orbit mission lab 
