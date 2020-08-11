@@ -12,16 +12,14 @@ class Doc2TopicModel(AbstractModel):
 
     def __init__(self, model_path=AbstractModel.ROOT + '/models/doc2topic', name='d2t'):
         global models, corpora
-        super().__init__()
+        super().__init__(model_path)
         from .doc2topic import models, corpora
 
-        self.model_path = model_path
         self.name = name
-        os.makedirs(model_path, exist_ok=True)
 
     def train(self,
               data=AbstractModel.ROOT + '/data/test.txt',
-              num_topics=35,
+              num_topics=20,
               preprocessing=False,
               batch_size=1024 * 6,
               n_epochs=20,

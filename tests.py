@@ -16,21 +16,21 @@ class MainTest(unittest.TestCase):
     def test_train(self):
         for model in models.__all__:
             m = model()
-            res = m.train(data=TEST_CORPUS, num_topics=20)
+            res = m.train(data=TEST_CORPUS)
             self.assertEqual(res, 'success', '[%s] Problems in training.' % model)
             m.save()
 
     def test_predict(self):
         for model in models.__all__:
             m = model()
-            res = m.predict(TEST_SENTENCE, topn=5)
+            res = m.predict(TEST_SENTENCE, topn=3)
             print(res)
             if 'message' in res:
                 self.assertEqual(res['message'], 'not implemented for this model',
                                  '[%s] Unexpected output for the prediction')
             else:
                 self.assertIsInstance(res, list, '[%s] Predict output should be a list.' % model)
-                self.assertEqual(len(res), 5, '[%s] Predict output should match topn.' % model)
+                self.assertEqual(len(res), 3, '[%s] Predict output should match topn.' % model)
                 self.assertIsInstance(res[0], tuple,
                                       '[%s] Predictions should be represented as tuple.' % model)
 

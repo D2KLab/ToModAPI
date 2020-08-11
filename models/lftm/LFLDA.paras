@@ -1,7 +1,7 @@
 -model	LFLDA
 -corpus	/Users/pasquale/git/ted-talk-topic-extraction/models/lftm/LFLDA.glove
 -vectors	/Users/pasquale/git/ted-talk-topic-extraction/topic_model/glove/glove.6B.50d.txt
--ntopics	35
+-ntopics	20
 -alpha	0.1
 -beta	0.1
 -lambda	1.0

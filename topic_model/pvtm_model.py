@@ -1,3 +1,4 @@
+import os
 import joblib
 import numpy as np
 from pvtm import pvtm
@@ -12,13 +13,12 @@ class PvtmModel(AbstractModel):
     Source: https://github.com/davidlenz/pvtm
     """
 
-    def __init__(self, model_path=AbstractModel.ROOT + '/models/pvtm/pvtm.gz'):
-        super().__init__()
-        self.model_path = model_path
+    def __init__(self, model_path=AbstractModel.ROOT + '/models/pvtm/'):
+        super().__init__(model_path)
 
     def train(self,
               data=AbstractModel.ROOT + '/data/test.txt',
-              num_topics=35,
+              num_topics=20,
               preprocessing=False,
               vector_size=50,
               hs=0,
@@ -64,11 +64,11 @@ class PvtmModel(AbstractModel):
 
     def save(self, path=None):
         super().save()
-        self.model.save(path=self.model_path)
+        self.model.save(path=os.path.join(self.model_path, 'pvtm.gz'))
 
     def load(self, path=None):
         super().load()
-        self.model = joblib.load(self.model_path)
+        self.model = joblib.load(os.path.join(self.model_path, 'pvtm.gz'))
 
     def predict(self, text, topn=5, preprocessing=False, ):
         """Predict topic of the given text

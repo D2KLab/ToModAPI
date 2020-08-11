@@ -10,12 +10,12 @@ from .pvtm_model import PvtmModel
 from .utils.corpus import preprocess
 
 __all__ = [
-    # LftmModel,
-    # GsdmmModel,
-    # LdaModel,
-    # Doc2TopicModel,
-    # PvtmModel,
-    # LSIModel,
+    LftmModel,
+    GsdmmModel,
+    LdaModel,
+    Doc2TopicModel,
+    PvtmModel,
+    LSIModel,
     HDPModel,
-    # NMFModel
+    NMFModel
 ]

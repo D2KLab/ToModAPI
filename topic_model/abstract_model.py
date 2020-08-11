@@ -1,4 +1,5 @@
 import numpy as np
+import os
 import gensim
 import logging
 from sklearn.metrics.cluster import contingency_matrix
@@ -8,9 +9,11 @@ from sklearn import metrics
 class AbstractModel:
     ROOT = '.'
 
-    def __init__(self):
+    def __init__(self, model_path=None):
         self.model = None
-        self.model_path = None
+        self.model_path = model_path
+        os.makedirs(model_path, exist_ok=True)
+
         self.log = logging.getLogger(self.__class__.__name__)
 
     def load(self, path=None):
@@ -51,7 +54,7 @@ class AbstractModel:
 
         return [self.predict(t, topn=topn) for t in text]
 
-    def train(self, data=ROOT + '/test.txt', num_topics=35, preprocessing=False):
+    def train(self, data=ROOT + '/data/test.txt', num_topics=20, preprocessing=False):
         """ Train topic model.
 
             :param data: The training corpus as path or list of strings

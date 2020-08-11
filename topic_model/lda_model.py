@@ -15,14 +15,12 @@ class LdaModel(AbstractModel):
     Source: https://radimrehurek.com/gensim/models/ldamodel.html
     """
 
-    def __init__(self, model_path=AbstractModel.ROOT + '/models/lda/',
-                 mallet_dep_path=AbstractModel.ROOT + '/models//'):
-        super().__init__()
-        self.model_path = model_path
+    def __init__(self, model_path=AbstractModel.ROOT + '/models/lda/'):
+        super().__init__(model_path)
 
     def train(self,
               data=AbstractModel.ROOT + '/data/test.txt',
-              num_topics=35,
+              num_topics=20,
               preprocessing=False,
               alpha=50,
               random_seed=5,

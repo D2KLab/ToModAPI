@@ -28,23 +28,22 @@ class LftmModel(AbstractModel):
     Source: https://github.com/datquocnguyen/LFTM
     """
 
-    def __init__(self, model_root=AbstractModel.ROOT + '/models/lftm', data_root=AbstractModel.ROOT + '/data/lftm',
+    def __init__(self, model_path=AbstractModel.ROOT + '/models/lftm', data_root=AbstractModel.ROOT + '/data/lftm',
                  name='LFLDA'):
         """LFTM Model constructor
 
-        :param model_root: Path of the computed model
+        :param model_path: Path of the computed model
         :param data_root: Path of output files, regenerated at each prediction
         :param name: Name of the model
         """
-        super().__init__()
+        super().__init__(model_path)
 
-        self.model_root = None
         self.top_words = None
         self.paras_path = None
         self.theta_path_model = None
         self.data_glove = None
 
-        self.update_model_path(model_root, name)
+        self.update_model_path(model_path, name)
 
         data_root = os.path.abspath(data_root)
         self.doc_path = data_root + '/doc.txt'
@@ -52,24 +51,24 @@ class LftmModel(AbstractModel):
 
         self.name = name
         os.makedirs(data_root, exist_ok=True)
-        os.makedirs(model_root, exist_ok=True)
+        os.makedirs(model_path, exist_ok=True)
 
     def update_model_path(self, model_root, name):
         model_root = os.path.abspath(model_root)
-        self.model_root = model_root
+        self.model_path = model_root
         self.top_words = model_root + '/%s.topWords' % name
         self.paras_path = model_root + '/%s.paras' % name
         self.theta_path_model = model_root + '/%s.theta' % name
         self.data_glove = model_root + '/%s.glove' % name
 
     def save(self, path=None):
-        if path is not None and path != self.model_root:
-            shutil.move(self.model_root, path)
-            self.model_root = path
+        if path is not None and path != self.model_path:
+            shutil.move(self.model_path, path)
+            self.model_path = path
 
     def train(self,
               data=AbstractModel.ROOT + '/data/test.txt',
-              num_topics=35,
+              num_topics=20,
               preprocessing=False,
               alpha=0.1,
               beta=0.1,

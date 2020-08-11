@@ -1,3 +1,4 @@
+import os
 import pickle
 import gensim
 
@@ -12,13 +13,12 @@ class GsdmmModel(AbstractModel):
     Source: https://github.com/rwalk/gsdmm
     """
 
-    def __init__(self, model_path=AbstractModel.ROOT + '/models/gsdmm/gsdmm.pkl'):
-        super().__init__()
-        self.model_path = model_path
+    def __init__(self, model_path=AbstractModel.ROOT + '/models/gsdmm/'):
+        super().__init__(model_path)
 
     def train(self,
               data=AbstractModel.ROOT + '/data/test.txt',
-              num_topics=35,
+              num_topics=20,
               preprocessing=False,
               alpha=0.1,
               beta=0.1,
@@ -47,13 +47,13 @@ class GsdmmModel(AbstractModel):
     def save(self, path=None):
         super().save(path)
 
-        with open(self.model_path, 'wb') as output:
+        with open(os.path.join(self.model_path, 'gsdmm.pkl'), 'wb') as output:
             pickle.dump(self.model, output, pickle.HIGHEST_PROTOCOL)
 
     def load(self, path=None):
         super().load(path)
 
-        with open(self.model_path, "rb") as input_file:
+        with open(os.path.join(self.model_path, 'gsdmm.pkl'), "rb") as input_file:
             self.model = pickle.load(input_file)
 
     @property
