@@ -111,7 +111,6 @@ class HDPModel(AbstractModel):
 
             :param text: The text on which performing the prediction
             :param int topn: Number of most probable topics to return
-            :param bool preprocessing: If True, execute preprocessing on the document
         """
         topics = [sorted(doc, key=lambda x: -abs(x[1]))[:topn] for doc in self.corpus]
         return topics
