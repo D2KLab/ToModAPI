@@ -13,12 +13,12 @@ TEST_LABELS = './data/test_labels.txt'
 
 class MainTest(unittest.TestCase):
 
-    def test_train(self):
-        for model in models.__all__:
-            m = model()
-            res = m.train(data=TEST_CORPUS)
-            self.assertEqual(res, 'success', '[%s] Problems in training.' % model)
-            m.save()
+    # def test_train(self):
+    #     for model in models.__all__:
+    #         m = model()
+    #         res = m.train(data=TEST_CORPUS)
+    #         self.assertEqual(res, 'success', '[%s] Problems in training.' % model)
+    #         m.save()
 
     def test_predict(self):
         for model in models.__all__:

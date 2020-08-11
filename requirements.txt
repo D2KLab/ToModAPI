@@ -17,3 +17,4 @@ pandas
 matplotlib
 wordcloud
 spacy
+contextualized_topic_models
