@@ -1,4 +1,4 @@
-# Topic Model API
+# Topic Modeling API
 
 This API is built to dynamically perform training, inference, and evaluation for different topic modeling techniques.
 The API grant common interfaces and command for accessing the different models, make easier to compare them.
@@ -100,7 +100,7 @@ Install this package
 Use it in a Python script
 
 ```python
-from topic_model import LdaModel
+from topic_modeling import LdaModel
 
 # init the model 
 m = LdaModel(model_path=path_location) 

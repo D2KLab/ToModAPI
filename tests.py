@@ -1,6 +1,6 @@
 import unittest
 import logging
-import topic_model as models
+import topic_modeling as models
 
 TEST_SENTENCE = 'In the time since the industrial revolution the climate has increasingly been affected by human ' \
                 'activities that are causing global warming and climate change.'

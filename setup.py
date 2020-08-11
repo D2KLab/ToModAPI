@@ -8,7 +8,7 @@ from urllib import request
 from setuptools import setup, find_packages
 from setuptools.command.install import install
 
-NAME = 'topic_model'
+NAME = 'topic_modeling'
 
 MALLET_URI = 'http://mallet.cs.umass.edu/dist/mallet-2.0.8.tar.gz'
 MALLET_FILE = 'mallet.tar.gz'

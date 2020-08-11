@@ -8,12 +8,12 @@ from flask_cors import CORS
 from pydoc import locate
 from docstring_parser import parse as docparse
 
-from topic_model.abstract_model import AbstractModel
+from topic_modeling.abstract_model import AbstractModel
 
 AbstractModel.ROOT = ''
-import topic_model as models
+import topic_modeling as models
 
-__package__ = 'topic_model'
+__package__ = 'topic_modeling'
 
 app = Flask(__name__)
 api = Api(app, version='1.0', title='Topic Model API', prefix='/api',
