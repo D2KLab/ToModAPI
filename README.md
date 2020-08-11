@@ -11,9 +11,13 @@ In this repository, we provide:
 
 * Code to perform training, inference, and evaluation for 4 Topic Modeling packages:
   * LDA from the [Mallet](http://mallet.cs.umass.edu/) package.
-  * [LFTM](https://github.com/datquocnguyen/LFTM) (LF-LDA) - [paper](https://tacl2013.cs.columbia.edu/ojs/index.php/tacl/article/view/582/158).
+  * [LFTM](https://github.com/datquocnguyen/LFTM) - [paper](https://tacl2013.cs.columbia.edu/ojs/index.php/tacl/article/view/582/158).
   * [Doc2Topic](https://github.com/sronnqvist/doc2topic)
   * [GSDMM](https://github.com/rwalk/gsdmm) - [paper](https://pdfs.semanticscholar.org/058a/d0815ce350f0e7538e00868c762be78fe5ef.pdf)
+  * [Non-Negative Matrix factorization (NMF)](https://radimrehurek.com/gensim/models/nmf.html) 
+  * [Hierarchical Dirichlet Processing Model (HDP)](https://radimrehurek.com/gensim/models/hdpmodel.html) 
+  * [Latent Semantic Indexing (LSI)](https://radimrehurek.com/gensim/models/lsimodel.html)
+  * [Paragraph Vector Topic Model (PVTM)](https://github.com/davidlenz/pvtm) - [paper](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0226685)
 * Pre-trained models in the **models/** directory. These are automatically used in the inference and evaluation API calls. The models have been trained using [these parameters](./params.md). **NOTE: Newly trained models are stored there, but replace the old ones.**
 * Data files containing pre-processed corpus:
   * `20ng.txt` and `20ng_labels.txt`, with 11314 news from the [20 NewsGroup dataset](http://qwone.com/~jason/20Newsgroups/)
