@@ -17,6 +17,8 @@ class LdaModel(AbstractModel):
 
     def __init__(self, model_path=AbstractModel.ROOT + '/models/lda/'):
         super().__init__(model_path)
+        mallet_dep_path = os.path.join(self.model_path, 'mallet-dep/')
+        os.makedirs(mallet_dep_path, exist_ok=True)
 
     def train(self,
               data=AbstractModel.ROOT + '/data/test.txt',

@@ -18,7 +18,8 @@ In this repository, we provide:
   * [Hierarchical Dirichlet Processing Model (HDP)](https://radimrehurek.com/gensim/models/hdpmodel.html) 
   * [Latent Semantic Indexing (LSI)](https://radimrehurek.com/gensim/models/lsimodel.html)
   * [Paragraph Vector Topic Model (PVTM)](https://github.com/davidlenz/pvtm) - [paper](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0226685)
-* Pre-trained models in the **models/** directory. These are automatically used in the inference and evaluation API calls. The models have been trained using [these parameters](./params.md). **NOTE: Newly trained models are stored there, but replace the old ones.**
+  * [Context Topic Model (CTM)](https://github.com/MilaNLProc/contextualized-topic-models) - [paper](https://arxiv.org/abs/2004.03974)
+* A set of pre-trained models, downloadable from [here](https://www.dropbox.com/sh/sc0ffz1sig3ii5b/AAAWlM4DMpWMy2MN3CGKbWjwa?dl=0). **NOTE: Newly trained models are by default stored in `.\models`, replacing the old ones, unless a new model path is given **
 * Data files containing pre-processed corpus:
   * `20ng.txt` and `20ng_labels.txt`, with 11314 news from the [20 NewsGroup dataset](http://qwone.com/~jason/20Newsgroups/)
   * `ted.txt` with 51898 subtitles of [TED Talks](https://www.ted.com/)
