@@ -30,8 +30,9 @@ class CTMModel(AbstractModel):
               num_topics=20,
               preprocessing=True,
               bert_input_size=512,
-              num_epochs=10,
+              num_epochs=100,
               hidden_sizes=(100,),
+              batch_size=200,
               inference_type="contextual",
               num_data_loader_workers=0):
         """
@@ -39,11 +40,12 @@ class CTMModel(AbstractModel):
             :param data: The training corpus as path or list of strings
             :param int num_topics: The desired number of topics
             :param bool preprocessing: If true, apply preprocessing to the corpus
-            :param int bert_input_size: size of bert embeddings,
-            :param int num_epochs: number of epochs for trainng the model, 
+            :param int bert_input_size: Size of bert embeddings
+            :param int num_epochs: Number of epochs for trainng the model,
             :param tuple hidden_sizes: n_layers,
-            :param str inference_type among <contextual, combined>
-            :param int num_data_loader_workers: number of data loader workers (default cpu_count). set it to 0 if you are using Windows
+            :param int batch_size: Batch size
+            :param str inference_type: Inference type among <contextual, combined>
+            :param int num_data_loader_workers: Number of data loader workers (default cpu_count). Set it to 0 if you are using Windows
         """
         data = input_to_list_string(data, preprocessing)
 
@@ -67,7 +69,7 @@ class CTMModel(AbstractModel):
 
         bert_embeddings = bert_embeddings_from_list(data, SBERT_MODEL)
         ctm_model = CTM(input_size=len(vocabulary), bert_input_size=bert_input_size, num_epochs=num_epochs,
-                        inference_type=inference_type, n_components=num_topics)
+                        inference_type=inference_type, n_components=num_topics, batch_size=batch_size)
 
         training_dataset = CTMDataset(bow, bert_embeddings, idx2token)
         ctm_model.fit(training_dataset)
