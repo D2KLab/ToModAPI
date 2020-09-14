@@ -53,11 +53,11 @@ These are the parameters used for the experiment in the paper.
 |       	| T       	            | 150 	        |           	| 10          	|
 |       	| alpha       	        | 1	            |           	| 10          	|
 |       	| gamma       	        | 1 	        |           	| 10          	|
-|       	| eta       	        | 0.01 	        |           	| 10          	|
-|       	| scale       	        | 1.0	        |           	| 10          	|
+|       	| eta       	        | 0.1 	        |           	| 10          	|
+|       	| scale       	        | 2.0	        |           	| 10          	|
 |       	| var_converge       	| None 	        |           	| 10          	|
 |       	| random_state          | None 	        |           	| 10          	|
-| **LSI**   | use_tfidf             | True        	|         	    | 0.1         	|
+| **LSI**   | use_tfidf             | False        	|         	    | 0.1         	|
 |       	| chunksize             | 20000         |           	| 10          	|
 |       	| decay                 | 1.0          	|           	| 10          	|
 |       	| distributed       	| False 	    |           	| 10          	|
@@ -65,8 +65,8 @@ These are the parameters used for the experiment in the paper.
 |       	| power_iters       	| 2 	        |           	| 10          	|
 |       	| extra_samples         | 100 	        |           	| 10          	|
 | **NMF**   | passes                | 1        	    |         	    | 0.1         	|
-|       	| kappa                 | 1.0         	|           	| 10          	|
-|       	| minimum_probability   | 0.01         	|           	| 10          	|
+|       	| kappa                 | 2.0         	|           	| 10          	|
+|       	| minimum_probability   | 0.001         	|           	| 10          	|
 |       	| w_max_iter       	    | 200 	        |           	| 10          	|
 |       	| w_stop_condition      | 0.0001 	    |           	| 10          	|
 |       	| h_max_iter            | 50 	        |           	| 10          	|
