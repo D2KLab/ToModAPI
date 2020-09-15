@@ -4,6 +4,7 @@
 import os
 import re
 import nltk
+from nltk import pos_tag
 import argparse
 import fnmatch
 from tqdm import tqdm
@@ -20,7 +21,8 @@ def preprocess(text):
     text = nltk.tokenize.RegexpTokenizer(r'\w+').tokenize(text.lower())
     text = [w for w in text if w not in nltk.corpus.stopwords.words('english')]
     text = [w for w in text if len(w) >= 3]
-    text = [lem.lemmatize(w) for w in text]
+    text = [lem.lemmatize(i, j[0].lower()) if j[0].lower() in ['a', 'n', 'v']
+            else lem.lemmatize(i) for i, j in pos_tag(text)]
     text = ' '.join(text)
     return text
 
