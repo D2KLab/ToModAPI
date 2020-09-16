@@ -1,5 +1,6 @@
 import re
 import nltk
+from nltk import pos_tag
 
 init_done = False
 
@@ -53,7 +54,8 @@ def preprocess(text, strip_brackets=False):
 
     lem = nltk.stem.WordNetLemmatizer()
 
-    text = [lem.lemmatize(w) for w in text]
     text = [w for w in text if len(w) >= 3]
+    text = [lem.lemmatize(i, j[0].lower()) if j[0].lower() in ['a', 'n', 'v']
+            else lem.lemmatize(i) for i, j in pos_tag(text)]
     text = ' '.join(text)
     return text

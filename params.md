@@ -36,11 +36,11 @@ These are the parameters used for the experiment in the paper.
 |       	| dbow_words            | 1          	|           	| 10          	|
 |       	| dm                   	| 0          	|           	| 10          	|
 |       	| epochs       	        | 30 	        |           	| 10          	|
-|       	| window       	        | 1 	        |           	| 10          	|
+|       	| window       	        | 20   	        |           	| 10          	|
 |       	| seed       	        | 123 	        |           	| 10          	|
 |       	| min_count       	    | 5 	        |           	| 10          	|
-|       	| workers       	    | 1 	        |           	| 10          	|
-|       	| alpha       	        | 0.025 	    |              	| 10          	|
+|       	| workers       	    | 5 	        |           	| 10          	|
+|       	| alpha       	        | 0.1    	    |              	| 10          	|
 |       	| min_alpha       	    | 0.025 	    |           	| 10          	|
 |       	| random_state       	| 123 	        |           	| 10          	|
 |       	| covariance_type       | 'diag' 	    |           	| 10          	|

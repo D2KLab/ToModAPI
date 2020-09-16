@@ -28,7 +28,7 @@ class CTMModel(AbstractModel):
 
     def train(self, data=AbstractModel.ROOT + '/data/test.txt',
               num_topics=20,
-              preprocessing=True,
+              preprocessing=False,
               bert_input_size=512,
               num_epochs=100,
               hidden_sizes=(100,),

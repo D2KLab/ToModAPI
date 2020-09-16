@@ -19,7 +19,7 @@ class LSIModel(GensimModel):
 
     def train(self, data=AbstractModel.ROOT + '/data/test.txt',
               num_topics=20,
-              preprocessing=True,
+              preprocessing=False,
               use_tfidf=True,
               chunksize=20000,
               decay=1.0,

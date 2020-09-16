@@ -19,7 +19,7 @@ class NMFModel(GensimModel):
 
     def train(self, data=AbstractModel.ROOT + '/data/test.txt',
               num_topics=20,
-              preprocessing=True,
+              preprocessing=False,
               passes=1,
               kappa=1.0,
               minimum_probability=0.01,

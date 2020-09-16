@@ -16,7 +16,7 @@ class HDPModel(GensimModel):
         super().__init__(model_path)
 
     def train(self, data=AbstractModel.ROOT + '/data/test.txt',
-              preprocessing=True,
+              preprocessing=False,
               max_chunks=None,
               max_time=None,
               chunksize=256,
