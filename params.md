@@ -25,52 +25,53 @@ These are the parameters used for the experiment in the paper.
 |       	| word_dim          	| 0           	| 0           	| 0           	|
 | **GSDMM** | alpha             	| 0.1         	| 0.1         	| 0.1         	|
 |       	| beta              	| 0.1         	| 0.1         	| 0.1         	|
-|       	| n_iter            	| 10          	| 10          	| 10          	|
-| **CTM**   | bert_input_size       | 512        	|         	    | 0.1         	|
-|       	| num_epochs            | 100         	|         	    | 0.1         	|
-|       	| hidden_sizes          | (100,)       	|           	| 10          	|
-|       	| batch_size           	| 200          	|           	| 10          	|
-|       	| inference_type       	| 'contextual' 	|           	| 10          	|
-| **PVTM**  | vector_size           | 50        	|         	    | 0.1         	|
-|       	| hs                    | 0         	|         	    | 0.1         	|
-|       	| dbow_words            | 1          	|           	| 10          	|
-|       	| dm                   	| 0          	|           	| 10          	|
-|       	| epochs       	        | 30 	        |           	| 10          	|
-|       	| window       	        | 20   	        |           	| 10          	|
-|       	| seed       	        | 123 	        |           	| 10          	|
-|       	| min_count       	    | 5 	        |           	| 10          	|
-|       	| workers       	    | 5 	        |           	| 10          	|
-|       	| alpha       	        | 0.1    	    |              	| 10          	|
-|       	| min_alpha       	    | 0.025 	    |           	| 10          	|
-|       	| random_state       	| 123 	        |           	| 10          	|
-|       	| covariance_type       | 'diag' 	    |           	| 10          	|
-| **HDP**   | max_chunks            | None        	|         	    | 0.1         	|
-|       	| max_time              | None         	|         	    | 0.1         	|
-|       	| chunksize             | 256         	|           	| 10          	|
-|       	| kappa                 | 1.0          	|           	| 10          	|
-|       	| tau       	        | 64.0 	        |           	| 10          	|
-|       	| K       	            | 15 	        |           	| 10          	|
-|       	| T       	            | 150 	        |           	| 10          	|
-|       	| alpha       	        | 1	            |           	| 10          	|
-|       	| gamma       	        | 1 	        |           	| 10          	|
-|       	| eta       	        | 0.1 	        |           	| 10          	|
-|       	| scale       	        | 2.0	        |           	| 10          	|
-|       	| var_converge       	| None 	        |           	| 10          	|
-|       	| random_state          | None 	        |           	| 10          	|
-| **LSI**   | use_tfidf             | False        	|         	    | 0.1         	|
-|       	| chunksize             | 20000         |           	| 10          	|
-|       	| decay                 | 1.0          	|           	| 10          	|
-|       	| distributed       	| False 	    |           	| 10          	|
-|       	| onepass       	    | True 	        |           	| 10          	|
-|       	| power_iters       	| 2 	        |           	| 10          	|
-|       	| extra_samples         | 100 	        |           	| 10          	|
-| **NMF**   | passes                | 1        	    |         	    | 0.1         	|
-|       	| kappa                 | 2.0         	|           	| 10          	|
-|       	| minimum_probability   | 0.001         	|           	| 10          	|
-|       	| w_max_iter       	    | 200 	        |           	| 10          	|
-|       	| w_stop_condition      | 0.0001 	    |           	| 10          	|
-|       	| h_max_iter            | 50 	        |           	| 10          	|
-|       	| h_stop_condition      | 0.001 	    |           	| 10          	|
-|       	| eval_every            | 10 	        |           	| 10          	|
-|       	| normalize             | True 	        |           	| 10          	|
-|       	| random_state          | None 	        |           	| 10          	|
+|       	| n_iter            	| 15          	| 10          	| 10          	|
+| **CTM**   | bert_input_size       | 512        	| 512      	    | 0.1         	|
+|       	| num_epochs            | 200         	| 100     	    | 0.1         	|
+|       	| hidden_sizes          | (100,)       	| (100,)         	| 10          	|
+|       	| batch_size           	| 200          	| 200          	| 10          	|
+|       	| dropout           	| 0.4          	| 0.4          	| 10          	|
+|       	| inference_type       	| 'combined' 	| 'combined'  	| 10          	|
+| **PVTM**  | vector_size           | 50        	| 50            | 0.1         	|
+|       	| hs                    | 0         	|  0      	    | 0.1         	|
+|       	| dbow_words            | 1          	|  1        	| 10          	|
+|       	| dm                   	| 0          	|  0        	| 10          	|
+|       	| epochs       	        | 30 	        |  100        	| 10          	|
+|       	| window       	        | 20   	        |  20       	| 10          	|
+|       	| seed       	        | 123 	        |  123       	| 10          	|
+|       	| min_count       	    | 5 	        |  5         	| 10          	|
+|       	| workers       	    | 5 	        |  5         	| 10          	|
+|       	| alpha       	        | 0.1    	    |  0.05         | 10          	|
+|       	| min_alpha       	    | 0.025 	    |  0.25        	| 10          	|
+|       	| random_state       	| 123 	        |  123         	| 10          	|
+|       	| covariance_type       | 'diag' 	    |  'diag'      	| 10          	|
+| **HDP**   | max_chunks            | None        	| None          | 0.1         	|
+|       	| max_time              | None         	| None     	    | 0.1         	|
+|       	| chunksize             | 256         	| 256          	| 10          	|
+|       	| kappa                 | 1.0          	| 1.0          	| 10          	|
+|       	| tau       	        | 64.0 	        | 64.0        	| 10          	|
+|       	| K       	            | 15 	        | 15          	| 10          	|
+|       	| T       	            | 150 	        | 150          	| 10          	|
+|       	| alpha       	        | 1	            | 1         	| 10          	|
+|       	| gamma       	        | 1 	        | 1          	| 10          	|
+|       	| eta       	        | 0.1 	        | 0.1          	| 10          	|
+|       	| scale       	        | 2.0	        | 2.0          	| 10          	|
+|       	| var_converge       	| None 	        | None        	| 10          	|
+|       	| random_state          | None 	        | None        	| 10          	|
+| **LSI**   | use_tfidf             | False        	| True        	| 0.1         	|
+|       	| chunksize             | 20000         | 20000         | 10          	|
+|       	| decay                 | 1.0          	| 2.0          	| 10          	|
+|       	| distributed       	| False 	    | False      	| 10          	|
+|       	| onepass       	    | True 	        | True       	| 10          	|
+|       	| power_iters       	| 2 	        | 2         	| 10          	|
+|       	| extra_samples         | 100 	        | 100          	| 10          	|
+| **NMF**   | passes                | 1        	    | 1        	    | 0.1         	|
+|       	| kappa                 | 2.0         	| 2.0          	| 10          	|
+|       	| minimum_probability   | 0.001         | 0.01        	| 10          	|
+|       	| w_max_iter       	    | 200 	        | 200          	| 10          	|
+|       	| w_stop_condition      | 0.0001 	    | 0.0001      	| 10          	|
+|       	| h_max_iter            | 50 	        | 50        	| 10          	|
+|       	| h_stop_condition      | 0.01 	        | 0.01       	| 10          	|
+|       	| eval_every            | 10 	        | 10          	| 10          	|
+|       	| normalize             | True 	        | True      	| 10          	|
+|       	| random_state          | None 	        | None      	| 10          	|
