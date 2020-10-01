@@ -19,7 +19,7 @@ These are the parameters used for the experiment in the paper.
 |       	| topn              	| 10          	| 10          	| 10          	|
 | **D2T**  	| batch_size        	| 6144        	| 6144        	| 6144        	|
 |       	| n_epochs          	| 80          	| 15          	| 50          	|
-|       	| lr                	| 0,05        	| 0,04        	| 0,05        	|
+|       	| lr                	| 0.05        	| 0.04        	| 0,05        	|
 |       	| l1_doc            	| 0,000002    	| 0,000002    	| 0,000002    	|
 |       	| l1_word           	| 0,000000015 	| 0,000000015 	| 0,000000015 	|
 |       	| word_dim          	| 0           	| 0           	| 0           	|
@@ -28,7 +28,7 @@ These are the parameters used for the experiment in the paper.
 |       	| n_iter            	| 15          	| 10          	| 10          	|
 | **CTM**   | bert_input_size       | 512        	| 512      	    | 0.1         	|
 |       	| num_epochs            | 200         	| 100     	    | 0.1         	|
-|       	| hidden_sizes          | (100,)       	| (100,)         	| 10          	|
+|       	| hidden_sizes          | (100,)       	| (100,)        | 10          	|
 |       	| batch_size           	| 200          	| 200          	| 10          	|
 |       	| dropout           	| 0.4          	| 0.4          	| 10          	|
 |       	| inference_type       	| 'combined' 	| 'combined'  	| 10          	|
