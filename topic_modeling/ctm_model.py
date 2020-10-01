@@ -34,6 +34,14 @@ class CTMModel(AbstractModel):
               hidden_sizes=(100,),
               batch_size=200,
               inference_type="contextual",
+              model_type='prodLDA',
+              activation='softplus',
+              dropout=0.2,
+              learn_priors=True,
+              lr=2e-3,
+              momentum=0.99,
+              solver='adam',
+              reduce_on_plateau=False,
               num_data_loader_workers=0):
         """
         Train the model and generate the results on the corpus
@@ -41,10 +49,18 @@ class CTMModel(AbstractModel):
             :param int num_topics: The desired number of topics
             :param bool preprocessing: If true, apply preprocessing to the corpus
             :param int bert_input_size: Size of bert embeddings
-            :param int num_epochs: Number of epochs for trainng the model,
+            :param int num_epochs: Number of epochs for training the model,
             :param tuple hidden_sizes: n_layers,
             :param int batch_size: Batch size
             :param str inference_type: Inference type among <contextual, combined>
+            :param str model_type: Model type among <prodLDA, LDA>
+            :param str activation: Activation among <softplus, relu>
+            :param float dropout: dropout to use (default 0.2)
+            :param bool learn_priors: If true, make priors a learnable parameter (default True)
+            :param float lr: Learning rate to use for training (default 2e-3)
+            :param float momentum: Momentum to use for training (default 0.99)
+            :param str solver: Optimizer among <adam, sgd>
+            :param bool reduce_on_plateau: If true, reduce learning rate by 10x on plateau of 10 epochs (default False)
             :param int num_data_loader_workers: Number of data loader workers (default cpu_count). Set it to 0 if you are using Windows
         """
         data = input_to_list_string(data, preprocessing)
@@ -56,7 +72,6 @@ class CTMModel(AbstractModel):
         indices = []
         ones = []
         vocabulary = {}
-
         for d in data:
             for term in d.split():
                 index = vocabulary.setdefault(term, len(vocabulary))
@@ -69,6 +84,9 @@ class CTMModel(AbstractModel):
 
         bert_embeddings = bert_embeddings_from_list(data, SBERT_MODEL)
         ctm_model = CTM(input_size=len(vocabulary), bert_input_size=bert_input_size, num_epochs=num_epochs,
+                        model_type=model_type, hidden_sizes=hidden_sizes, activation=activation,
+                        dropout=dropout, learn_priors=learn_priors, lr=lr, momentum=momentum,
+                        solver=solver, reduce_on_plateau=reduce_on_plateau,
                         inference_type=inference_type, n_components=num_topics, batch_size=batch_size)
 
         training_dataset = CTMDataset(bow, bert_embeddings, idx2token)

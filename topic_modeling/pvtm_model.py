@@ -63,7 +63,7 @@ class PvtmModel(AbstractModel):
         return 'success'
 
     def save(self, path=None):
-        super().save()
+        super().save(path)
         self.model.save(path=os.path.join(self.model_path, 'pvtm.gz'))
 
     def load(self, path=None):
