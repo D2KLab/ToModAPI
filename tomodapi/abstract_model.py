@@ -37,7 +37,18 @@ class AbstractModel:
 
     # Perform Inference
     def predict(self, text, topn=5, preprocessing=False):
-        """Predict topic of the given text
+        """Predict topic of the given text.
+
+            :param text: The text on which performing the prediction
+            :param int topn: Number of most probable topics to return
+            :param bool preprocess: If True, execute preprocessing on the document
+        """
+
+        pred = self.predict_proba(text, topn, preprocessing)
+        return [_topic for _topic, score in pred]
+
+    def predict_proba(self, text, topn=5, preprocessing=False):
+        """Predict topic of the given text and return them together with probabilities.
 
             :param text: The text on which performing the prediction
             :param int topn: Number of most probable topics to return
@@ -62,6 +73,15 @@ class AbstractModel:
             :param bool preprocessing: If true, apply preprocessing to the corpus
         """
         raise NotImplementedError
+
+    def fit(self, **kwargs):
+        """Alias for train"""
+        return self.train(**kwargs)
+
+    def fit_transform(self, **kwargs):
+        """Train the model and return the topic on the training corpus"""
+        self.train(**kwargs)
+        return self.get_corpus_predictions()
 
     @property
     def topics(self):
