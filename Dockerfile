@@ -9,7 +9,7 @@ RUN pip3 install -r requirements.txt
 #RUN download_dep.sh
 
 RUN mkdir topic_model
-ADD topic_modeling topic_model
+ADD tomodapi topic_model
 ADD server.py .
 ADD project.ini .
 

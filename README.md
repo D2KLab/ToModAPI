@@ -105,7 +105,7 @@ Install this package
 Use it in a Python script
 
 ```python
-from topic_modeling import LdaModel
+from tomodapi import LdaModel
 
 # init the model 
 m = LdaModel(model_path=path_location) 

@@ -1,5 +1,5 @@
 from tqdm import tqdm
-from topic_modeling.utils.corpus import preprocess
+from tomodapi.utils.corpus import preprocess
 
 with open('data/20ng.txt') as f:
     corpus = f.readlines()
