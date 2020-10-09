@@ -156,3 +156,10 @@ The container uses **mounted volumes** so that you can easily update/access to t
     docker stop hyperted_topic
     docker rm hyperted_topic
     docker rmi hyperted/topic
+
+
+# Credits
+
+Pasquale Lisena, Ismail Harrando, Oussama Kandakji and Raphaël Troncy.
+**ToModAPI: A Topic Modeling API to Train, Use and Compare Topic Models**
+In _2nd Workshop for Natural Language Processing Open Source Software (NLP-OSS)_, November 19, 2020.
