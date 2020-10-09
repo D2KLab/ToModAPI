@@ -1,10 +1,14 @@
 import numpy as np
 import os
+import pickle
 import gensim
 import logging
 from sklearn.metrics.cluster import contingency_matrix
 from sklearn import metrics
 
+from gensim.test import utils
+from gensim.models import KeyedVectors
+from gensim.scripts.glove2word2vec import glove2word2vec
 
 class AbstractModel:
     ROOT = '.'
@@ -37,18 +41,7 @@ class AbstractModel:
 
     # Perform Inference
     def predict(self, text, topn=5, preprocessing=False):
-        """Predict topic of the given text.
-
-            :param text: The text on which performing the prediction
-            :param int topn: Number of most probable topics to return
-            :param bool preprocess: If True, execute preprocessing on the document
-        """
-
-        pred = self.predict_proba(text, topn, preprocessing)
-        return [_topic for _topic, score in pred]
-
-    def predict_proba(self, text, topn=5, preprocessing=False):
-        """Predict topic of the given text and return them together with probabilities.
+        """Predict topic of the given text
 
             :param text: The text on which performing the prediction
             :param int topn: Number of most probable topics to return
@@ -73,15 +66,6 @@ class AbstractModel:
             :param bool preprocessing: If true, apply preprocessing to the corpus
         """
         raise NotImplementedError
-
-    def fit(self, **kwargs):
-        """Alias for train"""
-        return self.train(**kwargs)
-
-    def fit_transform(self, **kwargs):
-        """Train the model and return the topic on the training corpus"""
-        self.train(**kwargs)
-        return self.get_corpus_predictions()
 
     @property
     def topics(self):
@@ -113,7 +97,7 @@ class AbstractModel:
         """
         raise NotImplementedError
 
-    def coherence(self, datapath=ROOT + '/data/test.txt', metric='c_v'):
+    def coherence(self, datapath=ROOT + '/data/test.txt', metric='c_v', glove_path='glove/glove.6B.50d.txt'):
         """ Get the coherence of the topic mode.
 
         :param datapath: Path of the corpus on which compute the coherence.
@@ -129,6 +113,38 @@ class AbstractModel:
 
         results = {}
 
+        if metric == 'c_we':
+            print('Loading', glove_path, end='..')
+            # glove_file = utils.datapath(glove_path)
+            
+            if os.path.exists(glove_path.replace('txt', 'pickle')):
+                glove = pickle.load(open(glove_path.replace('txt', 'pickle'), 'rb'))
+            else:
+                w2v = utils.get_tmpfile("w2v")
+                glove2word2vec(glove_path, w2v)
+                glove = KeyedVectors.load_word2vec_format(w2v)
+                pickle.dump(glove, open(glove_path.replace('txt', 'pickle'), 'wb'))
+                
+            print('Done.')
+            
+            results['c_we_per_topic'] = []
+            
+            for topic in topic_words:
+                score = 0
+                count = 0
+                for word1 in topic:
+                    for word2 in topic:
+                        if word1 == word2: continue
+                        if word1 not in glove or word2 not in glove: continue
+                        score += glove.similarity(word1, word2)
+                        count += 1
+
+                results['c_we_per_topic'].append(0 if count == 0 else score/count)
+            results['c_we'] = np.mean(results['c_we_per_topic'])
+            results['c_we_std'] = np.std(results['c_we_per_topic'])
+
+            return results
+            
         while True:
             try:
                 self.log.debug('creating coherence model')
