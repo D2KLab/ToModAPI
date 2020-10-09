@@ -97,7 +97,7 @@ class AbstractModel:
         """
         raise NotImplementedError
 
-    def coherence(self, datapath=ROOT + '/data/test.txt', metric='c_v', glove_path='glove/glove.6B.50d.txt'):
+    def coherence(self, datapath=ROOT + '/data/test.txt', metric='c_v', glove_path='glove/glove.6B.300d.txt'):
         """ Get the coherence of the topic mode.
 
         :param datapath: Path of the corpus on which compute the coherence.
