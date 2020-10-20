@@ -8,8 +8,8 @@ RUN pip3 install -r requirements.txt
 #COPY download_dep.sh .
 #RUN download_dep.sh
 
-RUN mkdir topic_model
-ADD tomodapi topic_model
+RUN mkdir tomodapi
+ADD tomodapi tomodapi
 ADD server.py .
 ADD project.ini .
 

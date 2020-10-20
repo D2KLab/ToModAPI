@@ -42,7 +42,7 @@ def extract_parameter(fun):
     params = {}
     argcount = fun.__code__.co_argcount
     defaults = fun.__defaults__[0:]
-    for i, p in enumerate(fun.__code__.co_varnames[1:argcount]):
+    for i, p in enumerate(fun.__code__.co_varnames[argcount-len(defaults):argcount]):
         params[p] = {'default': defaults[i]}
     for p in docparse(fun.__doc__).params:
         if p.arg_name in ['datapath', 'num_topics', 'coherence', 'model']:

@@ -174,8 +174,8 @@ class AbstractModel:
 
         :param list labels_pred: Predicted topics
         :param list labels_true: Ground truth labels
-        :param metric: Metric for computing the evaluation, among <purity, homogeneity, completeness, v-measure, nmi>
-        :param average_method: Only if metric is NMI, the average method among <arithmetic, min, max, geometric>
+        :param str metric: Metric for computing the evaluation, among <purity, homogeneity, completeness, v-measure, nmi>
+        :param str average_method: Only if metric is NMI, the average method among <arithmetic, min, max, geometric>
         """
 
         unique_labels = list(np.unique(labels_true))
