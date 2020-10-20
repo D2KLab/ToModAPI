@@ -1,8 +1,9 @@
+import os
 import re
 import time
 
-from flask import Flask, jsonify, request, make_response
-from flask_restx import Api, Resource, Namespace
+from flask import Flask, jsonify, request, make_response, url_for, render_template
+from flask_restx import Api, Resource, Namespace, apidoc
 from flask_cors import CORS
 
 from pydoc import locate
@@ -16,16 +17,61 @@ import tomodapi as models
 __package__ = 'tomodapi'
 
 app = Flask(__name__)
-api = Api(app, version='1.0', title='Topic Model API', prefix='/api',
-          description='''This is an API used to train, evaluate, and operate unsupervised topic models.
-              Source code: [https://github.com/D2KLab/Topic-Model-API](https://github.com/D2KLab/Topic-Model-API).''')
 
+
+# workaround
+class ReverseProxiedApi(Api):
+    # handles dynamic root path when running local and on aks cluster
+    @property
+    def specs_url(self):
+        return url_for(self.endpoint('specs'))
+
+    # handles dynamic root path when running local and on aks cluster
+    @property
+    def base_path(self):
+        base_path = os.getenv("APP_BASE_PATH") or None
+        if base_path:
+            return base_path
+        else:
+            return url_for(self.endpoint("root"), _external=False)
+
+
+api = ReverseProxiedApi(app, version='1.0', title='Topic Model API', prefix='/api',
+                        description='''This is an API used to train, evaluate, and operate unsupervised topic models.
+              Source code: [https://github.com/D2KLab/Topic-Model-API](https://github.com/D2KLab/Topic-Model-API).''')
 CORS(app)
 
 
-@app.errorhandler(404)
-def not_found(error):
-    return make_response(jsonify({'error': 'Not found', 'detail': str(error)}), 404)
+# handles dynamic root path when running local and on aks cluster
+@apidoc.apidoc.add_app_template_global
+def swagger_static(filename):
+    base_path = os.getenv("APP_BASE_PATH") or None
+    if base_path:
+        return "{0}/swaggerui/{1}".format(base_path, filename)
+    else:
+        return url_for("restx_doc.static", filename=filename)
+
+
+# handles dynamic root path when running local and on aks cluster
+@api.documentation
+def custom_ui():
+    base_path = os.getenv("APP_BASE_PATH") or None
+    if base_path:
+        return render_template("swagger-ui.html", title=api.title, specs_url="{}/swagger.json".format(base_path))
+    else:
+        return render_template("swagger-ui.html", title=api.title, specs_url=api.specs_url)
+
+
+# # only when running on aks
+# @api.documentation
+# def custom_ui():
+#     return render_template("swagger-ui.html", title=api.title,
+#                            specs_url="{}/swagger.json".format("http://hyperted.eurecom.fr/topic"))
+# 
+# 
+# @app.errorhandler(404)
+# def not_found(error):
+#     return make_response(jsonify({'error': 'Not found', 'detail': str(error)}), 404)
 
 
 among_regex = r"among <(.+(?:, ?.+)+)>"
@@ -42,7 +88,7 @@ def extract_parameter(fun):
     params = {}
     argcount = fun.__code__.co_argcount
     defaults = fun.__defaults__[0:]
-    for i, p in enumerate(fun.__code__.co_varnames[argcount-len(defaults):argcount]):
+    for i, p in enumerate(fun.__code__.co_varnames[argcount - len(defaults):argcount]):
         params[p] = {'default': defaults[i]}
     for p in docparse(fun.__doc__).params:
         if p.arg_name in ['datapath', 'num_topics', 'coherence', 'model']:
