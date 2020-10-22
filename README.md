@@ -9,7 +9,7 @@ A demo is available at http://hyperted.eurecom.fr/topic.
 
 In this repository, we provide:
 
-* Code to perform training, inference, and evaluation for 4 Topic Modeling packages:
+* Code to perform training, inference, and evaluation for 9 Topic Modeling packages:
   * LDA from the [Mallet](http://mallet.cs.umass.edu/) package.
   * [LFTM](https://github.com/datquocnguyen/LFTM) - [paper](https://tacl2013.cs.columbia.edu/ojs/index.php/tacl/article/view/582/158).
   * [Doc2Topic](https://github.com/sronnqvist/doc2topic)
