@@ -162,9 +162,11 @@ The container uses **mounted volumes** so that you can easily update/access to t
 
 If you find this library or API useful in your research, please consider citing our [paper](http://www.eurecom.fr/fr/publication/6371/download/data-publi-6371_1.pdf):
 
-   @inproceedings{Lisena:NLPOSS2020,
-     author = {Pasquale Lisena and Ismail Harrando and Oussama Kandakji and Raphael Troncy},
-     title =  {{ToModAPI: A Topic Modeling API to Train, Use and Compare Topic Models}},
-     booktitle = {2$^{nd}$ International Workshop for Natural Language Processing Open Source Software (NLP-OSS)},
-     year =   {2020}
-   }
+```
+@inproceedings{Lisena:NLPOSS2020,
+   author = {Pasquale Lisena and Ismail Harrando and Oussama Kandakji and Raphael Troncy},
+   title =  {{ToModAPI: A Topic Modeling API to Train, Use and Compare Topic Models}},
+   booktitle = {2$^{nd}$ International Workshop for Natural Language Processing Open Source Software (NLP-OSS)},
+   year =   {2020}
+}
+```
