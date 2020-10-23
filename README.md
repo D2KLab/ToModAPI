@@ -100,7 +100,7 @@ The possible parameters can differ depending on the model.
 
 Install this package
 
-    pip install .
+    pip install tomodapi
 
 Use it in a Python script
 
@@ -150,7 +150,7 @@ The container uses **mounted volumes** so that you can easily update/access to t
 #### Manual Docker installation
 
     docker build -t hyperted/topic .
-    docker run -p 27020:5000  -d -v /home/semantic/hyperted/tomodapi/models:/models -v /home/semantic/hyperted/tomodapi/data:/data --name hyperted_topic hyperted/topic
+    docker run -p 27020:5000 --env APP_BASE_PATH=http://hyperted.eurecom.fr/topic/api -d -v /home/semantic/hyperted/tomodapi/models:/models -v /home/semantic/hyperted/tomodapi/data:/data --name hyperted_topic hyperted/topic
 
     # Uninstall
     docker stop hyperted_topic

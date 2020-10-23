@@ -8,6 +8,7 @@ from flask_cors import CORS
 
 from pydoc import locate
 from docstring_parser import parse as docparse
+from urllib.parse import urlparse
 
 from tomodapi.abstract_model import AbstractModel
 
@@ -18,20 +19,18 @@ __package__ = 'tomodapi'
 
 app = Flask(__name__)
 
+base_path = os.getenv("APP_BASE_PATH") or None
 
 # workaround
 class ReverseProxiedApi(Api):
-    # handles dynamic root path when running local and on aks cluster
     @property
     def specs_url(self):
         return url_for(self.endpoint('specs'))
 
-    # handles dynamic root path when running local and on aks cluster
     @property
     def base_path(self):
-        base_path = os.getenv("APP_BASE_PATH") or None
         if base_path:
-            return base_path
+            return urlparse(base_path).path
         else:
             return url_for(self.endpoint("root"), _external=False)
 
@@ -42,37 +41,20 @@ api = ReverseProxiedApi(app, version='1.0', title='Topic Model API', prefix='/ap
 CORS(app)
 
 
-# handles dynamic root path when running local and on aks cluster
 @apidoc.apidoc.add_app_template_global
 def swagger_static(filename):
-    base_path = os.getenv("APP_BASE_PATH") or None
     if base_path:
         return "{0}/swaggerui/{1}".format(base_path, filename)
     else:
         return url_for("restx_doc.static", filename=filename)
 
 
-# handles dynamic root path when running local and on aks cluster
 @api.documentation
 def custom_ui():
-    base_path = os.getenv("APP_BASE_PATH") or None
     if base_path:
         return render_template("swagger-ui.html", title=api.title, specs_url="{}/swagger.json".format(base_path))
     else:
         return render_template("swagger-ui.html", title=api.title, specs_url=api.specs_url)
-
-
-# # only when running on aks
-# @api.documentation
-# def custom_ui():
-#     return render_template("swagger-ui.html", title=api.title,
-#                            specs_url="{}/swagger.json".format("http://hyperted.eurecom.fr/topic"))
-# 
-# 
-# @app.errorhandler(404)
-# def not_found(error):
-#     return make_response(jsonify({'error': 'Not found', 'detail': str(error)}), 404)
-
 
 among_regex = r"among <(.+(?:, ?.+)+)>"
 

@@ -45,7 +45,6 @@ class PostInstallCommand(install):
 
     def download_glove(self):
         main_dir = os.path.join(find_module_path(), 'glove')
-        print(main_dir)
         os.makedirs(main_dir, exist_ok=True)
 
         print('downloading glove')
@@ -60,25 +59,36 @@ class PostInstallCommand(install):
 
 
 with open('requirements.txt') as f:
-    required = f.read().splitlines()
+    requirements = f.read().splitlines()
+
+required = []
+extra_required = []
+for r in requirements:
+    if r.startswith('git'):
+        extra_required.append(r)
+    else:
+        required.append(r)
+
 
 setup(
     name=NAME,
     version='0.1',
-    packages=find_packages(),
-    # install_requires=required,
-
+    install_requires=required,
+    dependency_links=extra_required,
     # metadata to display on PyPI
     author='Pasquale Lisena',
     author_email='pasquale.lisena@eurecom.com',
     description='A framework for performing topic modelling',
     keywords='topic-model topic nlp',
     project_urls={
-        'Bug Tracker': 'https://github.com/D2KLab/Topic-Model-API/issues/',
-        'Documentation': 'https://github.com/D2KLab/Topic-Model-API/blob/master/README.md',
-        'Source Code': 'https://github.com/D2KLab/Topic-Model-API/',
+        'Bug Tracker': 'https://github.com/D2KLab/tomodapi/issues/',
+        'Documentation': 'https://github.com/D2KLab/tomodapi/blob/master/README.md',
+        'Source Code': 'https://github.com/D2KLab/tomodapi/',
     },
+    package_dir={'': 'tomodapi'},
+    packages=find_packages(where='tomodapi'),
     cmdclass={
         'install': PostInstallCommand,
     },
 )
+

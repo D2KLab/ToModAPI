@@ -2,6 +2,7 @@ import re
 import nltk
 from nltk import pos_tag
 
+
 init_done = False
 
 
@@ -26,6 +27,7 @@ def _init():
     global init_done
     nltk.download('stopwords')
     nltk.download('wordnet')
+    nltk.download('averaged_perceptron_tagger')
     init_done = True
 
 
