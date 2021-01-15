@@ -10,8 +10,6 @@ from contextualized_topic_models.utils.data_preparation import bert_embeddings_f
 from .utils.corpus import preprocess, input_to_list_string
 from .abstract_model import AbstractModel
 
-SBERT_MODEL = 'distiluse-base-multilingual-cased'
-
 
 class CTMModel(AbstractModel):
     """Contextualized Topic Model
@@ -22,6 +20,7 @@ class CTMModel(AbstractModel):
     def __init__(self, model_path=AbstractModel.ROOT + '/models/ctm'):
         super().__init__(model_path)
 
+        self.bert_model = None
         self.corpus_predictions = None
         self.bow = None
         self.dictionary = None
@@ -29,7 +28,8 @@ class CTMModel(AbstractModel):
     def train(self, data=AbstractModel.ROOT + '/data/test.txt',
               num_topics=20,
               preprocessing=False,
-              bert_input_size=512,
+              bert_model='distilbert-base-nli-mean-tokens',
+              bert_input_size=768,
               num_epochs=100,
               hidden_sizes=(100,),
               batch_size=200,
@@ -48,6 +48,7 @@ class CTMModel(AbstractModel):
             :param data: The training corpus as path or list of strings
             :param int num_topics: The desired number of topics
             :param bool preprocessing: If true, apply preprocessing to the corpus
+            :param string bert_model: BERT pretraining to use (see https://www.sbert.net/docs/pretrained_models.html)
             :param int bert_input_size: Size of bert embeddings
             :param int num_epochs: Number of epochs for training the model,
             :param tuple hidden_sizes: n_layers,
@@ -63,6 +64,7 @@ class CTMModel(AbstractModel):
             :param bool reduce_on_plateau: If true, reduce learning rate by 10x on plateau of 10 epochs (default False)
             :param int num_data_loader_workers: Number of data loader workers (default cpu_count). Set it to 0 if you are using Windows
         """
+        self.bert_model = bert_model
         data = input_to_list_string(data, preprocessing)
 
         if preprocessing:
@@ -82,7 +84,7 @@ class CTMModel(AbstractModel):
         idx2token = {v: k for (k, v) in vocabulary.items()}
         bow = scipy.sparse.csr_matrix((ones, indices, indptr), dtype=int)
 
-        bert_embeddings = bert_embeddings_from_list(data, SBERT_MODEL)
+        bert_embeddings = bert_embeddings_from_list(data, bert_model)
         ctm_model = CTM(input_size=len(vocabulary), bert_input_size=bert_input_size, num_epochs=num_epochs,
                         model_type=model_type, hidden_sizes=hidden_sizes, activation=activation,
                         dropout=dropout, learn_priors=learn_priors, lr=lr, momentum=momentum,
@@ -114,6 +116,9 @@ class CTMModel(AbstractModel):
         with open(os.path.join(self.model_path, 'bow.pkl'), 'rb') as f:
             self.bow = pickle.load(f)
 
+        with open(os.path.join(self.model_path, 'model.txt'), 'r') as f:
+            self.bert_model = f.read(self.bert_model)
+
     def save(self, path=None):
         super().save(path)
 
@@ -128,6 +133,9 @@ class CTMModel(AbstractModel):
 
         with open(os.path.join(self.model_path, 'bow.pkl'), 'wb') as f:
             pickle.dump(self.bow, f, pickle.HIGHEST_PROTOCOL)
+
+        with open(os.path.join(self.model_path, 'model.txt'), 'w') as f:
+            f.write(self.bert_model)
 
     def predict(self, text, topn=10, preprocessing=True, n_trials=10):
         """Predict topic of the given text
@@ -159,7 +167,7 @@ class CTMModel(AbstractModel):
         indptr_test.append(len(indices_test))
 
         bow_test = scipy.sparse.csr_matrix((data_test, indices_test, indptr_test), dtype=int)
-        bert_embeddings = bert_embeddings_from_list([text], SBERT_MODEL)
+        bert_embeddings = bert_embeddings_from_list([text], self.bert_model)
         testing_dataset = CTMDataset(bow_test, bert_embeddings, [])
 
         thetas = np.zeros((len(testing_dataset), len(self.model.get_topic_lists())))
