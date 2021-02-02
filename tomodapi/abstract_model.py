@@ -101,8 +101,11 @@ class AbstractModel:
         """ Get the coherence of the topic mode.
 
         :param datapath: Path of the corpus on which compute the coherence.
-        :param metric: Metric for computing the coherence, among <c_v, c_npmi, c_uci, u_mass>
+        :param metric: Metric for computing the coherence, among <c_v, c_npmi, c_uci, u_mass, c_we>
          """
+        if metric not in ['c_v', 'c_npmi', 'c_uci', 'u_mass', 'c_we']:
+            raise RuntimeError('Unrecognised metric: '+metric)
+
         topic_words = [x['words'] for x in self.topics]
 
         self.log.debug('loading dataset')
@@ -114,9 +117,7 @@ class AbstractModel:
         results = {}
 
         if metric == 'c_we':
-            print('Loading', glove_path, end='..')
-            # glove_file = utils.datapath(glove_path)
-            
+
             if os.path.exists(glove_path.replace('txt', 'pickle')):
                 glove = pickle.load(open(glove_path.replace('txt', 'pickle'), 'rb'))
             else:
@@ -124,11 +125,9 @@ class AbstractModel:
                 glove2word2vec(glove_path, w2v)
                 glove = KeyedVectors.load_word2vec_format(w2v)
                 pickle.dump(glove, open(glove_path.replace('txt', 'pickle'), 'wb'))
-                
-            print('Done.')
-            
+
             results['c_we_per_topic'] = []
-            
+
             for topic in topic_words:
                 score = 0
                 count = 0
@@ -144,7 +143,7 @@ class AbstractModel:
             results['c_we_std'] = np.std(results['c_we_per_topic'])
 
             return results
-            
+
         while True:
             try:
                 self.log.debug('creating coherence model')

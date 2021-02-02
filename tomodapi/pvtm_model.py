@@ -67,7 +67,7 @@ class PvtmModel(AbstractModel):
         self.model.save(path=os.path.join(self.model_path, 'pvtm.gz'))
 
     def load(self, path=None):
-        super().load()
+        super().load(path)
         self.model = joblib.load(os.path.join(self.model_path, 'pvtm.gz'))
 
     def predict(self, text, topn=5, preprocessing=False, ):
