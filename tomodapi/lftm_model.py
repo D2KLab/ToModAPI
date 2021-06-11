@@ -4,6 +4,8 @@ import pickle
 import subprocess
 import gensim
 import shutil
+from urllib import request
+from zipfile import ZipFile
 
 from .utils.LoggerWrapper import LoggerWrapper
 from .abstract_model import AbstractModel
@@ -12,6 +14,8 @@ from .utils.corpus import preprocess, input_to_list_string
 LFTM_JAR = os.path.join(os.path.dirname(__file__), 'lftm', 'LFTM.jar')
 GLOVE_TOKENS = os.path.join(os.path.dirname(__file__), 'glove', 'glovetokens.pkl')
 GLOVE_TXT = os.path.join(os.path.dirname(__file__), 'glove', 'glove.6B.50d.txt')
+GLOVE_URI = 'http://nlp.stanford.edu/data/glove.6B.zip'
+GLOVE_FILE = 'glove.zip'
 
 TOPIC_REGEX = r'Topic(\d+): (.+)'
 
@@ -19,6 +23,20 @@ TOPIC_REGEX = r'Topic(\d+): (.+)'
 # Function to remove specified tokens from a string
 def remove_tokens(x, tok2remove):
     return ' '.join(['' if t in tok2remove else t for t in x.split()])
+
+
+def download_glove():
+    main_dir = os.path.join(os.path.dirname(__file__), 'glove')
+
+    print('downloading glove')
+    request.urlretrieve(GLOVE_URI, GLOVE_FILE)
+    print('extracting glove')
+    with ZipFile(GLOVE_FILE, 'r') as file:
+        file.extractall(path=main_dir)
+
+    print('glove installed')
+
+    os.remove(GLOVE_FILE)
 
 
 # Latent Feature Topic Model
@@ -52,6 +70,9 @@ class LftmModel(AbstractModel):
         self.name = name
         os.makedirs(data_root, exist_ok=True)
         os.makedirs(model_path, exist_ok=True)
+
+        if not os.path.isfile(GLOVE_TXT):
+            download_glove()
 
     def update_model_path(self, model_root, name):
         model_root = os.path.abspath(model_root)

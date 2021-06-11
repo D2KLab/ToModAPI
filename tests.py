@@ -24,13 +24,13 @@ class MainTest(unittest.TestCase):
         for model in models.__all__:
             m = model()
             res = m.predict(TEST_SENTENCE, topn=3)
-            print(res)
+
             if 'message' in res:
                 self.assertEqual(res['message'], 'not implemented for this model',
                                  '[%s] Unexpected output for the prediction')
             else:
                 self.assertIsInstance(res, list, '[%s] Predict output should be a list.' % model)
-                self.assertEqual(len(res), 3, '[%s] Predict output should match topn.' % model)
+                self.assertEqual(len(res), min(3, len(m.topics)), '[%s] Predict output should match topn.' % model)
                 self.assertIsInstance(res[0], tuple,
                                       '[%s] Predictions should be represented as tuple.' % model)
 

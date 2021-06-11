@@ -2,12 +2,29 @@ import os
 import pickle
 import gensim
 import shutil
+import tarfile
+from urllib import request
 
 from .utils.corpus import preprocess, input_to_list_string
 from .abstract_model import AbstractModel
 
 MALLET_PATH = os.path.join(os.path.dirname(__file__), 'mallet-2.0.8', 'bin', 'mallet')
+MALLET_URI = 'http://mallet.cs.umass.edu/dist/mallet-2.0.8.tar.gz'
+MALLET_FILE = 'mallet.tar.gz'
 
+
+def download_mallet():
+    main_dir = os.path.dirname(__file__)
+
+    print('downloading mallet')
+    request.urlretrieve(MALLET_URI, MALLET_FILE)
+    print('extracting mallet')
+    tar = tarfile.open(MALLET_FILE, "r:gz")
+    tar.extractall(path=main_dir)
+    tar.close()
+    print('mallet installed')
+
+    os.remove(MALLET_FILE)
 
 class LdaModel(AbstractModel):
     """Latent Dirichlet Allocation
@@ -19,6 +36,9 @@ class LdaModel(AbstractModel):
         super().__init__(model_path)
         mallet_dep_path = os.path.join(self.model_path, 'mallet-dep/')
         os.makedirs(mallet_dep_path, exist_ok=True)
+        if not os.path.isfile(MALLET_PATH):
+            download_mallet()
+
 
     def train(self,
               data=AbstractModel.ROOT + '/data/test.txt',

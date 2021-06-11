@@ -1,9 +1,8 @@
 # Evaluation metrics from old Keras code base
 
-import keras.backend as K
 import numpy as np
 import requests
-import collections, json
+import tensorflow.keras.backend as K
 
 
 def precision(y_true, y_pred):

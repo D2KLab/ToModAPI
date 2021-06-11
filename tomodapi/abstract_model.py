@@ -10,6 +10,7 @@ from gensim.test import utils
 from gensim.models import KeyedVectors
 from gensim.scripts.glove2word2vec import glove2word2vec
 
+
 class AbstractModel:
     ROOT = '.'
 
@@ -104,7 +105,7 @@ class AbstractModel:
         :param metric: Metric for computing the coherence, among <c_v, c_npmi, c_uci, u_mass, c_we>
          """
         if metric not in ['c_v', 'c_npmi', 'c_uci', 'u_mass', 'c_we']:
-            raise RuntimeError('Unrecognised metric: '+metric)
+            raise RuntimeError('Unrecognised metric: ' + metric)
 
         topic_words = [x['words'] for x in self.topics]
 
@@ -138,7 +139,7 @@ class AbstractModel:
                         score += glove.similarity(word1, word2)
                         count += 1
 
-                results['c_we_per_topic'].append(0 if count == 0 else score/count)
+                results['c_we_per_topic'].append(0 if count == 0 else score / count)
             results['c_we'] = np.mean(results['c_we_per_topic'])
             results['c_we_std'] = np.std(results['c_we_per_topic'])
 
@@ -180,7 +181,7 @@ class AbstractModel:
         unique_labels = list(np.unique(labels_true))
         l = [unique_labels.index(x) for x in labels_true]
         if type(labels_pred[0]) == list:
-            p = np.array(labels_pred)[:, 0, 0]
+            p = [x[0][0] if len(x) > 0 else 0 for x in labels_pred]
         else:
             p = labels_pred
 

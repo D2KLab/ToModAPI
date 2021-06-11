@@ -1,12 +1,8 @@
 import os
 import pickle
-from collections import defaultdict
-
-from gensim import corpora
-from gensim.models import LsiModel, TfidfModel
 
 from .abstract_model import AbstractModel
-from .utils.corpus import preprocess, input_to_list_string
+from .utils.corpus import preprocess
 
 
 class GensimModel(AbstractModel):

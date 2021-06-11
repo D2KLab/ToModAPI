@@ -3,8 +3,8 @@ import pickle
 import scipy
 
 import numpy as np
-from contextualized_topic_models.models.ctm import CTM
-from contextualized_topic_models.datasets.dataset import CTMDataset
+from contextualized_topic_models.models.ctm import ZeroShotTM, CombinedTM
+from contextualized_topic_models.utils.data_preparation import TopicModelDataPreparation
 from contextualized_topic_models.utils.data_preparation import bert_embeddings_from_list
 
 from .utils.corpus import preprocess, input_to_list_string
@@ -22,18 +22,17 @@ class CTMModel(AbstractModel):
 
         self.bert_model = None
         self.corpus_predictions = None
-        self.bow = None
         self.dictionary = None
 
     def train(self, data=AbstractModel.ROOT + '/data/test.txt',
               num_topics=20,
               preprocessing=False,
               bert_model='distilbert-base-nli-mean-tokens',
-              bert_input_size=768,
+              contextual_size=768,
               num_epochs=100,
               hidden_sizes=(100,),
               batch_size=200,
-              inference_type="contextual",
+              inference_type="combined",
               model_type='prodLDA',
               activation='softplus',
               dropout=0.2,
@@ -49,7 +48,7 @@ class CTMModel(AbstractModel):
             :param int num_topics: The desired number of topics
             :param bool preprocessing: If true, apply preprocessing to the corpus
             :param string bert_model: BERT pretraining to use (see https://www.sbert.net/docs/pretrained_models.html)
-            :param int bert_input_size: Size of bert embeddings
+            :param int contextual_size: Size of bert embeddings
             :param int num_epochs: Number of epochs for training the model,
             :param tuple hidden_sizes: n_layers,
             :param int batch_size: Batch size
@@ -68,7 +67,9 @@ class CTMModel(AbstractModel):
         data = input_to_list_string(data, preprocessing)
 
         if preprocessing:
-            data = list(map(preprocess, data))
+            data_prep = list(map(preprocess, data))
+        else:
+            data_prep = data
 
         indptr = [0]
         indices = []
@@ -81,21 +82,20 @@ class CTMModel(AbstractModel):
                 ones.append(1)
             indptr.append(len(indices))
 
-        idx2token = {v: k for (k, v) in vocabulary.items()}
-        bow = scipy.sparse.csr_matrix((ones, indices, indptr), dtype=int)
+        qt = TopicModelDataPreparation("paraphrase-distilroberta-base-v2")
+        training_dataset = qt.fit(text_for_contextual=data, text_for_bow=data_prep)
 
-        bert_embeddings = bert_embeddings_from_list(data, bert_model)
-        ctm_model = CTM(input_size=len(vocabulary), bert_input_size=bert_input_size, num_epochs=num_epochs,
-                        model_type=model_type, hidden_sizes=hidden_sizes, activation=activation,
-                        dropout=dropout, learn_priors=learn_priors, lr=lr, momentum=momentum,
-                        solver=solver, reduce_on_plateau=reduce_on_plateau,
-                        inference_type=inference_type, n_components=num_topics, batch_size=batch_size)
+        md = ZeroShotTM if inference_type == 'zeroshot' else CombinedTM
+        ctm_model = md(bow_size=len(vocabulary), contextual_size=contextual_size, num_epochs=num_epochs,
+                       model_type=model_type, hidden_sizes=hidden_sizes, activation=activation,
+                       dropout=dropout, learn_priors=learn_priors, lr=lr, momentum=momentum,
+                       solver=solver, reduce_on_plateau=reduce_on_plateau, n_components=num_topics,
+                       batch_size=batch_size)
 
-        training_dataset = CTMDataset(bow, bert_embeddings, idx2token)
         ctm_model.fit(training_dataset)
 
-        self.bow = bow
         self.model = ctm_model
+        self.qt = qt
         self.corpus_predictions = ctm_model.get_thetas(training_dataset)
         self.dictionary = vocabulary
 
@@ -110,11 +110,11 @@ class CTMModel(AbstractModel):
         with open(os.path.join(self.model_path, 'dictionary.pkl'), 'rb') as f:
             self.dictionary = pickle.load(f)
 
+        with open(os.path.join(self.model_path, 'qt.pkl'), 'rb') as f:
+            self.qt = pickle.load(f)
+
         with open(os.path.join(self.model_path, 'corpus_predictions.pkl'), 'rb') as f:
             self.corpus_predictions = pickle.load(f)
-
-        with open(os.path.join(self.model_path, 'bow.pkl'), 'rb') as f:
-            self.bow = pickle.load(f)
 
         with open(os.path.join(self.model_path, 'model.txt'), 'r') as f:
             self.bert_model = f.read(self.bert_model)
@@ -128,11 +128,11 @@ class CTMModel(AbstractModel):
         with open(os.path.join(self.model_path, 'dictionary.pkl'), 'wb') as f:
             pickle.dump(self.dictionary, f, pickle.HIGHEST_PROTOCOL)
 
+        with open(os.path.join(self.model_path, 'qt.pkl'), 'wb') as f:
+            pickle.dump(self.qt, f, pickle.HIGHEST_PROTOCOL)
+
         with open(os.path.join(self.model_path, 'corpus_predictions.pkl'), 'wb') as f:
             pickle.dump(self.corpus_predictions, f, pickle.HIGHEST_PROTOCOL)
-
-        with open(os.path.join(self.model_path, 'bow.pkl'), 'wb') as f:
-            pickle.dump(self.bow, f, pickle.HIGHEST_PROTOCOL)
 
         with open(os.path.join(self.model_path, 'model.txt'), 'w') as f:
             f.write(self.bert_model)
@@ -149,35 +149,17 @@ class CTMModel(AbstractModel):
             self.load()
 
         if preprocessing:
-            text = preprocess(text)
+            text_prep = preprocess(text)
+        else:
+            text_prep = text
 
-        indices_test = []
-        data_test = []
-        indptr_test = [0]
+        if isinstance(self.model, CombinedTM):
+            testing_dataset = self.qt.transform(text_for_contextual=[text], text_for_bow=[text_prep])
+        else:
+            testing_dataset = self.qt.transform(text_for_contextual=[text])
 
-        for term in text.split():
-            if term not in self.dictionary:
-                continue
-            index = self.dictionary[term]
-            indices_test.append(index)
-            data_test.append(1)
-
-        indices_test.append(len(self.dictionary) - 1)
-        data_test.append(0)
-        indptr_test.append(len(indices_test))
-
-        bow_test = scipy.sparse.csr_matrix((data_test, indices_test, indptr_test), dtype=int)
-        bert_embeddings = bert_embeddings_from_list([text], self.bert_model)
-        testing_dataset = CTMDataset(bow_test, bert_embeddings, [])
-
-        thetas = np.zeros((len(testing_dataset), len(self.model.get_topic_lists())))
-
-        for a in range(0, n_trials):
-            thetas = thetas + self.model.get_thetas(testing_dataset)
-
-        thetas = thetas[0] / np.sum(thetas[0])
-        preds = zip(range(len(thetas)), thetas)
-
+        preds = self.model.get_doc_topic_distribution(testing_dataset, n_samples=20)[0]
+        preds = [(i, p) for i, p in enumerate(preds)]
         return sorted(preds, key=lambda x: -x[1])[:topn]
 
     def get_corpus_predictions(self, topn: int = 5):
