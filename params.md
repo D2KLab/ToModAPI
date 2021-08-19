@@ -1,11 +1,13 @@
 # Parameters
 
-These are the parameters used for the experiment in the paper.
+These are the parameters used for the experiment in the paper:
+
+> Ismail Harrando, Pasquale Lisena and Raphaël Troncy. **Apples to Apples: A Systematic Evaluation of Topic Models**. In _Recent Advances in Natural Language Processing (RANLP)_, September 2021.
 
 |       	|                   	| 20NG        	| AFP         	| Yahoo-Balanced| Yahoo-Unbalanced |
 |-------	|-------------------	|-------------	|-------------	|-------------	|-------------	|
 | **All**   | num topics        	| 20          	| 17          	| 26          	| 26          	|
-| **LDA**  	| alpha             	| 0.1         	| 0.1         	| 10         	| 10         	| 
+| **LDA**  	| alpha             	| 0.1         	| 0.1         	| 10         	| 10         	|
 |       	| beta              	| null        	| null        	| null        	| null        	|
 |       	| random_seed       	| 5           	| 5          	| 5            	| 5           	|
 |       	| iterations        	| 800         	| 1000         	| 1500        	| 1400         	|
@@ -26,7 +28,7 @@ These are the parameters used for the experiment in the paper.
 | **GSDMM** | alpha             	| 0.1         	| 0.1         	| 1.0         	| 1.0         	|
 |       	| beta              	| 0.1         	| 0.1         	| 1.0         	| 1.0         	|
 |       	| n_iter            	| 15          	| 10          	| 10          	| 10          	|
-| **CTM**   | bert_input_size       | 512        	| 512      	    | 512      	    | 0.1         	|
+| **CTM**   | bert_input_size       | 768        	| 768      	    | 768      	    | 768         	|
 |       	| num_epochs            | 200         	| 100     	    | 25     	    | 25         	|
 |       	| hidden_sizes          | (100,)       	| (100,)        | (200,)        | (200,)        |
 |       	| batch_size           	| 200          	| 200          	| 200          	| 10          	|

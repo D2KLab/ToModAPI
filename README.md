@@ -1,4 +1,4 @@
-# Topic Modeling API
+# ToModAPI: Topic Modeling API
 
 This API is built to dynamically perform training, inference, and evaluation for different topic modeling techniques.
 The API grant common interfaces and command for accessing the different models, make easier to compare them.
@@ -14,8 +14,8 @@ In this repository, we provide:
   * [LFTM](https://github.com/datquocnguyen/LFTM) - [paper](https://tacl2013.cs.columbia.edu/ojs/index.php/tacl/article/view/582/158).
   * [Doc2Topic](https://github.com/sronnqvist/doc2topic)
   * [GSDMM](https://github.com/rwalk/gsdmm) - [paper](https://pdfs.semanticscholar.org/058a/d0815ce350f0e7538e00868c762be78fe5ef.pdf)
-  * [Non-Negative Matrix factorization (NMF)](https://radimrehurek.com/gensim/models/nmf.html) 
-  * [Hierarchical Dirichlet Processing Model (HDP)](https://radimrehurek.com/gensim/models/hdpmodel.html) 
+  * [Non-Negative Matrix factorization (NMF)](https://radimrehurek.com/gensim/models/nmf.html)
+  * [Hierarchical Dirichlet Processing Model (HDP)](https://radimrehurek.com/gensim/models/hdpmodel.html)
   * [Latent Semantic Indexing (LSI)](https://radimrehurek.com/gensim/models/lsimodel.html)
   * [Paragraph Vector Topic Model (PVTM)](https://github.com/davidlenz/pvtm) - [paper](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0226685)
   * [Context Topic Model (CTM)](https://github.com/MilaNLProc/contextualized-topic-models) - [paper](https://arxiv.org/abs/2004.03974)
@@ -107,15 +107,15 @@ Use it in a Python script
 ```python
 from tomodapi import LdaModel
 
-# init the model 
-m = LdaModel(model_path=path_location) 
+# init the model
+m = LdaModel(model_path=path_location)
 # train on a corpus
-m.train(my_corpus, preprocessing=False, num_topics=10) 
+m.train(my_corpus, preprocessing=False, num_topics=10)
 # infer topic of a sentence
-best_topics = m.predict("In the time since the industrial revolution the climate has increasingly been affected by human activities that are causing global warming and climate change") 
-topic,confidence = best_topics[0] 
+best_topics = m.predict("In the time since the industrial revolution the climate has increasingly been affected by human activities that are causing global warming and climate change")
+topic,confidence = best_topics[0]
 # get top words for a given topic
-print(m.topic(topic)) # 
+print(m.topic(topic)) #
 ```
 
 If the `model_path` is not specified, the library will load/save the model from/under `models/<model_name>`.
@@ -160,13 +160,8 @@ The container uses **mounted volumes** so that you can easily update/access to t
 
 # Publications
 
-If you find this library or API useful in your research, please consider citing our [paper](http://www.eurecom.fr/fr/publication/6371/download/data-publi-6371_1.pdf):
+If you find this library or API useful in your research, please consider citing our papers:
 
-```
-@inproceedings{Lisena:NLPOSS2020,
-   author = {Pasquale Lisena and Ismail Harrando and Oussama Kandakji and Raphael Troncy},
-   title =  {{ToModAPI: A Topic Modeling API to Train, Use and Compare Topic Models}},
-   booktitle = {2$^{nd}$ International Workshop for Natural Language Processing Open Source Software (NLP-OSS)},
-   year =   {2020}
-}
-```
+- Pasquale Lisena P, Ismail Harrando I., Oussama Kandakji O. & Raphaël Troncy. **ToModAPI: A Topic Modeling API to Train, Use and Compare Topic Models**. In *2nd Workshop for Natural Language Processing Open Source Software (NLP-OSS)*, November 19, 2020. - [paper](http://www.eurecom.fr/fr/publication/6371/download/data-publi-6371_1.pdf) - [BIB](http://pasqlisena.github.io/publication/lisena2020tomodapi.bib)
+
+- Ismail Harrando, Pasquale Lisena and Raphaël Troncy. **Apples to Apples: A Systematic Evaluation of Topic Models**. In _Recent Advances in Natural Language Processing (RANLP)_, September 2021. - [BIB](http://pasqlisena.github.io/publication/harrando2021apples.bib) - [appendix](./appendix.pdf)
