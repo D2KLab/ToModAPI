@@ -127,8 +127,8 @@ A web API is provided for accessing to the library as a service
 ##### Install dependencies
 
 You should install 2 dependencies:
-- [mallet 2.0.8](http://mallet.cs.umass.edu/dist/mallet-2.0.8.tar.gz) to be placed in `app\builtin`
-- [glove.6B.50d.txt](http://nlp.stanford.edu/data/glove.6B.zip) to be placed in `app\builtin\glove`
+- [mallet 2.0.8](http://mallet.cs.umass.edu/dist/mallet-2.0.8.tar.gz) to be placed in `tomodapi\`
+- [glove.6B.50d.txt](http://nlp.stanford.edu/data/glove.6B.zip) to be placed in `tomodapi\glove`
 
 Under UNIX, you can use the **download_dep.sh** script.
 
