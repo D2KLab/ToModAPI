@@ -7,7 +7,7 @@ numpy
 scipy==1.4.1
 scikit-learn==0.24.2
 gensim==3.8.3
-tensorflow==2.5.0
+tensorflow==2.9.3
 flask-cors
 flask-restx
 docstring-parser
