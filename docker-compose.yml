@@ -11,3 +11,6 @@ services:
     volumes:
       - ./models:/models
       - ./data:/data
+    environment:
+      PYTHONUNBUFFERED: 1
+
