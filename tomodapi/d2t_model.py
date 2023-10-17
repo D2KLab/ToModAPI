@@ -62,7 +62,7 @@ class Doc2TopicModel(AbstractModel):
 
         self.log.debug(f'Training complete. F-measure: {fmeasure}. Loss: {loss}')
         if return_scores:
-            return 'success', fmeasure, loss
+            return 'success', str(fmeasure), str(loss)
         else:
             return 'success'
 
